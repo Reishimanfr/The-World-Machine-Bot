@@ -1,0 +1,34 @@
+{
+    "avatar": {
+        "explanation": "Yield a user's avatar picture",
+        "usage": "[User] <Secret>",
+        "parameters": {
+            "User": "User whose avatar will be sent",
+            "Secret": "Make the message ephemeral (only you can see it)"
+        }
+    },
+    "picture": {
+        "explanation": "Sends a random picture of a animal of your choosing",
+        "usage": "[Animal] <Secret>",
+        "parameters": {
+            "Animal": "The animal of your choosing",
+            "Secret":"Make the message ephemeral (only you can see it)"
+        }
+    },
+    "define": {
+        "explanation": "Find the definition for a word in a selected dictionary",
+        "usage": "[Word] [Source] <Secret>",
+        "parameters": {
+            "Word": "Word to be searched for",
+            "Source": "Source page to look the word up in",
+            "Secret": "Make the message ephemeral (only you can see it)"
+        }
+    },
+    "emoji": {
+        "explanation": "Command that allows you to send nitro emoji without nitro",
+        "usage": "[Emoji name]",
+        "parameters": {
+            "Emoji name": "Name of the emoji to be registered (must include colons at the beginning and end)"
+        }
+    }
+}
