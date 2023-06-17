@@ -6,9 +6,17 @@ Doorbot is a general purpose bot made for discord with typescript
 > Just click on the "Download ZIP" button
 2. Install dependencies with your package manager
 > Example using pnpm: `pnpm install`
-3. Transpile the code typescript code into javascript
+3. Register slash commands
+> Run the `deploy` script, example using pnpm: `pnpm run deploy`
+4. Transpile the code typescript code into javascript
 > Run the `transpile` script, example using pnpm: `pnpm run transpile`
-4. Fill out the .env file
+5. Fill out the .env file
 > This file will contain your bot token and some other stuff
-5. Run the bot
+6. Run the bot
 > The path to the transpiled `index.js` file is `./dist/index.js`. As a example you can run it with node using `node ./dist/index.js`.
+
+## Copiling the code yourself
+Compiling the code is as easy as running the `transpile` script.
+A `dist` folder will be created after the script is finished.
+To run the transpiled code using node run: `node ./dist/index.js`
+**To compile the code you have to have the `tsc` package installed!**
