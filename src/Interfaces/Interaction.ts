@@ -1,7 +1,7 @@
 import { Client, Colors, EmbedBuilder, Interaction, InteractionType } from "discord.js"
 import { CommandList } from "../Commands/!!CommandsExport"
-import { handleError } from "../Tools/handleError"
-import { logger } from "../Tools/logger"
+import { handleError } from "../Misc/interactionErrorHandler"
+import { logger } from "../Misc/logger"
 import { reactionRoles } from "./Models"
 
 export const InteractionCreate = async (interaction: Interaction, client: Client) => {

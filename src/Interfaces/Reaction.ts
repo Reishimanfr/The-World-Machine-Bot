@@ -1,5 +1,5 @@
 import { ChannelType, Client, Colors, EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, User } from "discord.js"
-import { logger } from "../Tools/logger"
+import { logger } from "../Misc/logger"
 import { starboardConfig, starboardEmojis } from "./Models"
 import axios from "axios"
 
@@ -11,6 +11,8 @@ async function fetchTenorGif(url: string) {
 
     const request = await axios.get(fetchUrl)
         .catch(error => logger.error(error.stack))
+
+    console.log(JSON.stringify(request.data))
 
     const data = request.data
 
@@ -37,7 +39,7 @@ export const starboardLogic = async (reaction: MessageReaction | PartialMessageR
         }
     }
 
-    // TODO fix this shitty fucking database you stupid ass retard
+    // TODO fix this shitty fucking database you stupid dumb dumb
     // * Fixed :3
     const config = await starboardConfig.findOne({ where: { guildId: reaction.message.guildId }})
 
@@ -45,8 +47,10 @@ export const starboardLogic = async (reaction: MessageReaction | PartialMessageR
     const { message } = reaction
     const { attachments } = message
 
-    // if (!boardId || message.channelId === boardId) return
-    // if (message.author.bot || message.author.id === user.id) return
+    if (process.env.DEV !== 'true') {
+        if (!boardId || message.channelId === boardId) return
+        if (message.author.bot || message.author.id === user.id) return
+    }
 
     const emojiData = await starboardEmojis.findAll({ where: { guildId: reaction.message.guildId }})
     const emojis = emojiData.map(obj => obj.dataValues.emoji)
@@ -118,6 +122,8 @@ export const starboardLogic = async (reaction: MessageReaction | PartialMessageR
         async function setImage() {
             const possibleLinks = message.content?.split(' ').filter(part => part.startsWith('http'))
 
+            logger.debug(`Possible links: ` + possibleLinks)
+
             if (attachments.size) {
                 return embed.setImage(attachments.first()?.url)
             }
@@ -126,6 +132,12 @@ export const starboardLogic = async (reaction: MessageReaction | PartialMessageR
 
             for (const link of possibleLinks) {
                 if (link.startsWith('https://tenor.com')) {
+
+                    if (!process.env.TENOR_KEY) {
+                        logger.warn(`Can\'t fetch tenor gif: no tenor API key provided.`)
+                        break
+                    }
+
                     let gifLink = (await fetchTenorGif(link)).results[0].media[0].gif.url
 
                     embed.setImage(gifLink)

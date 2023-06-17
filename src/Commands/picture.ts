@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import Command from "../Interfaces/Command";
 import axios from "axios"
-import { logger } from "../Tools/logger";
+import { logger } from "../Misc/logger";
 
 export const picture: Command = {
     permissions: ['EmbedLinks', 'SendMessages'],
@@ -62,15 +62,15 @@ export const picture: Command = {
         const reply = await command.reply({ embeds: [embed], components: [enabledRow], ephemeral: secret })
         const collector = reply.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60000 })
 
-        collector.on('collect', async c => {
-            if (c.customId !== 'get-another') return
+        collector.on('collect', async button => {
+            if (button.customId !== 'get-another') return
 
-            if (c.user.id !== command.user.id) {
-                c.reply({ embeds: [{ description: '❌ You can\'t use this!', color: Colors.Red }], ephemeral: true })
+            if (button.user.id !== command.user.id) {
+                button.reply({ embeds: [{ description: '❌ You can\'t use this!', color: Colors.Red }], ephemeral: true })
                 return
             }
 
-            await c.deferUpdate()
+            await button.deferUpdate()
             collector.resetTimer()
 
             const newEmbed = new EmbedBuilder()

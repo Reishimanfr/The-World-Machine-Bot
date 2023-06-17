@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, EmbedField, SlashCommandBuilder } from "discord.js"
 import Command from "../Interfaces/Command"
-import { logger } from "../Tools/logger"
+import { logger } from "../Misc/logger"
 
 export const define: Command =
 {

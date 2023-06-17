@@ -1,6 +1,6 @@
 import { ChannelType, Colors, Message, PermissionResolvable } from "discord.js"
 import { setTimeout } from "timers/promises"
-import { logger } from "../Tools/logger"
+import { logger } from "../Misc/logger"
 import { nitroEmojis } from "./Models"
 
 const isEmoji = (part: string): boolean => {

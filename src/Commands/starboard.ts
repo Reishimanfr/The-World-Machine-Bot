@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../Interfaces/Command";
-import { logger } from "../Tools/logger";
+import { logger } from "../Misc/logger";
 import { starboardConfig, starboardEmojis } from "../Interfaces/Models";
 
 export const starboard: Command = {

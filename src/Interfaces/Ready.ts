@@ -1,11 +1,12 @@
 import { Client, ActivityType, PresenceUpdateStatus } from "discord.js"
-import { logger } from "../Tools/logger"
+import { logger } from "../Misc/logger"
 
 export const Ready = async (client: Client) => {
 
+    // Feel free to change this to anything you want lol
     client.user.setPresence({
-        activities: [{ name: 'Currently in Dev mode!', type: ActivityType.Playing }],
-        status: PresenceUpdateStatus.DoNotDisturb
+        activities: [{ name: 'You', type: ActivityType.Watching }],
+        status: PresenceUpdateStatus.Online
     })
 
     logger.info(`Logged in as: ${client.user.tag} (id: ${client.user.id})`)

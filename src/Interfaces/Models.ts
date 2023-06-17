@@ -74,22 +74,22 @@ export const reactionRoles = sequelize.define('reactionRoles', {
         allowNull: false
     }
 })
-
-export const anonymousMessages = sequelize.define('anonymousMessages', {
-    messageId: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    userId: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    messageUrl: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-}, {
-    timestamps: true
-})
+//* Will *maybe* make this a thing someday
+// export const anonymousMessages = sequelize.define('anonymousMessages', {
+//     messageId: {
+//         type: DataTypes.STRING,
+//         allowNull: false
+//     },
+//     userId: {
+//         type: DataTypes.STRING,
+//         allowNull: false
+//     },
+//     messageUrl: {
+//         type: DataTypes.STRING,
+//         allowNull: false
+//     }
+// }, {
+//     timestamps: true
+// })
 
 export default sequelize
