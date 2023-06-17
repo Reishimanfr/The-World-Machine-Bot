@@ -32,7 +32,7 @@ async function main() {
         logger.error(`Error synchronizing database: ${error.stack}`)
     }
     
-    // Main events and stuff
+    // Main events
     client.once(Events.ClientReady, async () => await Ready(client))
     client.on(Events.InteractionCreate, async (interaction) => { await InteractionCreate(interaction, client) })
     client.on(Events.MessageCreate, async (message) => onMessage(message))
