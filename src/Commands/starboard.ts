@@ -1,7 +1,31 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import Command from "../Interfaces/Command";
-import { logger } from "../Misc/logger";
-import { starboardConfig, starboardEmojis } from "../Interfaces/Models";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import Command from '../Interfaces/Command';
+import { logger } from '../Misc/logger';
+import { starboardConfig, starboardEmojis } from '../Interfaces/Models';
+
+async function updateRecord(targetGuildId: string, newBoardId: string, newAmount: number, newEmojis: string[]): Promise<void> {
+    await starboardConfig.update(
+        {
+            boardId: newBoardId,
+            amount: newAmount,
+            emoji: newEmojis,
+        },
+        { where: { guildId: targetGuildId } },
+    );
+}
+
+async function destroyStarboardEmojis(targetGuildId: string) {
+    await starboardEmojis.destroy({ where: { guildId: targetGuildId } });
+}
+
+async function createStarboardEmojis(targetGuildId: string, newEmojis: string[]) {
+    const emojiPromises = newEmojis.map(emoji => {
+        starboardEmojis.create({
+            guildId: targetGuildId,
+            emoji: emoji,
+        });
+    });
+}
 
 export const starboard: Command = {
     permissions: ['EmbedLinks', 'SendMessages'],
@@ -10,7 +34,7 @@ export const starboard: Command = {
         .setName('starboard')
         .setDescription('Configure a starboard')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-        .addSubcommand(boardChannel => boardChannel
+        .addSubcommand(channelConfig => channelConfig
             .setName('board-channel')
             .setDescription('Configure where the starboard should be')
             .addChannelOption(channel => channel
@@ -19,16 +43,16 @@ export const starboard: Command = {
                 .setRequired(true)
             )
         )
-        .addSubcommand(amount => amount
-            .setName('amount')
-            .setDescription('[Default: 4] Amount of emoji reactions for the message to be sent in the starboard')
+        .addSubcommand(amountConfig => amountConfig
+        .setName('amount')
+        .setDescription('[Default: 4] Amount of emoji reactions for the message to be sent in the starboard')
             .addNumberOption(number => number
                 .setName('amount')
                 .setDescription('Amount of reactions required')
                 .setRequired(true)
             )
         )
-        .addSubcommand(emoji => emoji
+        .addSubcommand(emojiConfig => emojiConfig
             .setName('emoji')
             .setDescription('[Default: ⭐] Emoji(s) to be used for the starboard')
             .addStringOption(emoji => emoji
@@ -42,30 +66,38 @@ export const starboard: Command = {
 
         const [record] = await starboardConfig.findOrCreate({
             where: { guildId: command.guildId },
-            defaults: { guildId: command.guildId, boardId: '', amount: 4 }
+            defaults: { guildId: command.guildId, boardId: '', amount: 4 },
         });
 
-        const { options } = command;
-        const { dataValues } = record
+        const { dataValues } = record;
 
-        const getChannel = options.getChannel('channel') ?? null;
-        const getAmount = options.getNumber('amount') ?? null;
-        const getEmoji = options.getString('emoji') ?? null;
+        const getChannel = command.options.getChannel('channel') ?? null;
+        const getAmount = command.options.getNumber('amount') ?? null;
+        const getEmoji = command.options.getString('emoji') ?? null;
         const emojiList = getEmoji ? [...getEmoji].filter(e => e.match(/\p{Emoji}/gu)) : [];
-        
-        const emojis = (await starboardEmojis.findAll({ where: { guildId: command.guildId } })).map(o => o.dataValues.emoji) || ['⭐'];
 
-        let boardId = getChannel?.id ?? dataValues.boardId;
-        let amount = getAmount ?? dataValues.amount;
-        let emoji = emojiList.length ? emojiList : emojis;
+        const newEmojis = (await starboardEmojis.findAll({ where: { guildId: command.guildId } })).map(o => o.dataValues.emoji) || ['⭐'];
+
+        const boardChannelId = getChannel?.id ?? dataValues.boardId;
+        const amount = getAmount ?? dataValues.amount;
+        const oldEmoji = emojiList.length ? emojiList : newEmojis;
 
         const embed = new EmbedBuilder()
-            .setColor(boardId === '' ? Colors.Yellow : Colors.Blue)
+            .setColor(Colors.Blue)
             .setTitle('Confirm new configuration?')
             .addFields(
-                { name: 'Board channel:', value: `${boardId === '' ? '⚠️  Channel hasn\'t been setup yet. Starboard won\'t work without it!' : `<#${boardId}>`}` },
-                { name: 'Emoji:', value: `${emoji.join(', ')}` },
-                { name: 'Amount:', value: `${amount} reaction(s)` },
+                {
+                    name: 'Board channel:',
+                    value: `${boardChannelId === '' ? '⚠️  Channel hasn\'t been setup yet. Starboard won\'t work without it!' : `<#${boardChannelId}>`}`,
+                },
+                {
+                    name: 'Emoji(s):',
+                    value: `${oldEmoji.join(', ')}`,
+                },
+                {
+                    name: 'Amount:',
+                    value: `${amount} reaction(s)`,
+                },
             );
 
         const buttonRow = new ActionRowBuilder<ButtonBuilder>()
@@ -89,37 +121,37 @@ export const starboard: Command = {
                 embeds: [
                     new EmbedBuilder()
                         .setDescription('✅  Configuration saved!')
-                        .setColor(Colors.Green)
-                ], components: []
+                        .setColor(Colors.Green),
+                ], components: [],
             },
             discarding: {
                 embeds: [
                     new EmbedBuilder()
                         .setDescription('ℹ️  Discarding changes.')
-                        .setColor(Colors.Blue)
-                ], components: []
+                        .setColor(Colors.Blue),
+                ], components: [],
             },
             expired: {
                 embeds: [
                     new EmbedBuilder()
                         .setDescription('⚠️  The command has expired.')
-                        .setColor(Colors.Yellow)
-                ], components: []
+                        .setColor(Colors.Yellow),
+                ], components: [],
             },
             error: {
                 embeds: [
                     new EmbedBuilder()
                         .setDescription('❌  There was a error while running the command.')
-                        .setColor(Colors.Red)
-                ], components: []
-            }
+                        .setColor(Colors.Red),
+                ], components: [],
+            },
         };
 
         try {
             if (collected.customId === 'confirm') {
-                await updateRecord(boardId, amount, emoji);
+                await updateRecord(command.guildId, boardChannelId, amount, oldEmoji);
 
-                if (emojis !== emoji) {
+                if (newEmojis !== oldEmoji) {
                     await destroyStarboardEmojis(command.guildId);
                     await createStarboardEmojis(command.guildId, emojiList);
                 }
@@ -129,29 +161,8 @@ export const starboard: Command = {
                 command.editReply(replies['discarding']);
             }
         } catch (error) {
-            logger.error(error.stack)
-            command.editReply(replies[error.message.endsWith('time') ? 'expired': ' error'])
-        }
-
-        async function updateRecord(boardId: string, amount: number, emoji: string[]) {
-            await record.update({
-                boardId: boardId,
-                amount: amount,
-                emoji: emoji
-            });
-        }
-
-        async function destroyStarboardEmojis(guildId: string) {
-            await starboardEmojis.destroy({ where: { guildId: guildId } });
-        }
-
-        async function createStarboardEmojis(guildId: string, emojiList: string[]) {
-            for (const emoji of emojiList) {
-                await starboardEmojis.create({
-                    guildId: guildId,
-                    emoji: emoji
-                });
-            }
+            logger.error(error.stack);
+            command.editReply(replies[error.message.endsWith('time') ? 'expired' : ' error']);
         }
     },
 };

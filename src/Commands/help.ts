@@ -44,8 +44,8 @@ export const help: Command = {
                 }
             )
 
-        let selectRowCommandOptions = []
-        let selectRowScriptOptions = []
+        const selectRowCommandOptions = []
+        const selectRowScriptOptions = []
 
         commands.forEach(com => {
             selectRowCommandOptions.push(
@@ -95,7 +95,7 @@ export const help: Command = {
                 const data = comData[com]
                 const comParam = data?.parameters ?? null
 
-                let fields = [
+                const fields = [
                     {
                         name: "📄 Description",
                         value: `\`\`\`${data.explanation}\`\`\``
@@ -109,7 +109,7 @@ export const help: Command = {
                 if (comParam) {
                     let paramString = ''
 
-                    for (let p of Object.keys(comParam)) {
+                    for (const p of Object.keys(comParam)) {
                         paramString += `\`\`\`${p}: ${comParam[p]}\`\`\``
                     }
 
@@ -132,7 +132,7 @@ export const help: Command = {
 
                 let subcomString = ''
 
-                let fields = [
+                const fields = [
                     {
                         name: 'Explanation',
                         value: `${data.explanation}`
@@ -145,7 +145,7 @@ export const help: Command = {
 
                 if (data.subcommands) {
                     for (let i = 0; i < data.subcommands.length; i++) {
-                        let curData = data.subcommands[i]
+                        const curData = data.subcommands[i]
                         subcomString += `\`\`\`${curData.name}: ${curData.explanation}\`\`\``
                     }
 

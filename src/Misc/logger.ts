@@ -8,7 +8,7 @@ winston.addColors({
     debug: 'magenta'
 })
 
-let format = winston.format.combine(
+const format = winston.format.combine(
     winston.format(info => ({ ...info, level: info.level.toUpperCase() }))(),
     winston.format.align(),
     winston.format.colorize({ all: true }),
