@@ -13,6 +13,7 @@ export const client = new Client({
     partials: [Partials.Reaction, Partials.Message, Partials.Channel],
 });
 
+
 async function main() {
     await createIfNotExists()
 

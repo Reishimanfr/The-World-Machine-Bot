@@ -1,11 +1,12 @@
 {
   "scripts": {
     "pretest": "ts-node src/index.ts",
-    "deploy": "ts-node src/Tools/Deploy.ts",
+    "deploy": "ts-node src/Misc/Deploy.ts",
     "transpile": "tsc",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.41",
     "axios": "^1.4.0",
     "discord.js": "^14.8.0",
     "dotenv": "^16.0.3",
