@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { Sequelize, DataTypes } from 'sequelize';
 
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
@@ -6,9 +6,9 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     logging: false,
     storage: 'database.sqlite',
     define: {
-        timestamps: false
-    }
-})
+        timestamps: false,
+    },
+});
 
 export const nitroEmojis = sequelize.define('nitroEmojis', {
     userId: {
@@ -22,14 +22,14 @@ export const nitroEmojis = sequelize.define('nitroEmojis', {
     emojiLink: {
         type: DataTypes.STRING,
         allowNull: false,
-    }
-})
+    },
+});
 
 export const starboardConfig = sequelize.define('starboardConfig', {
     guildId: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
     },
     boardId: {
         type: DataTypes.STRING,
@@ -38,24 +38,24 @@ export const starboardConfig = sequelize.define('starboardConfig', {
     amount: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    }
-})
+    },
+});
 
 export const starboardEmojis = sequelize.define('starboardEmojis', {
     guildId: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     emoji: {
         type: DataTypes.STRING,
-        allowNull: false
-    }
-})
+        allowNull: false,
+    },
+});
 
 export const reactionRoles = sequelize.define('reactionRoles', {
     guildId: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     roleId: {
         type: DataTypes.STRING,
@@ -63,17 +63,17 @@ export const reactionRoles = sequelize.define('reactionRoles', {
     },
     messageId: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     label: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     buttonType: {
         type: DataTypes.NUMBER,
-        allowNull: false
-    }
-})
+        allowNull: false,
+    },
+});
 //* Will *maybe* make this a thing someday
 // export const anonymousMessages = sequelize.define('anonymousMessages', {
 //     messageId: {
@@ -92,4 +92,4 @@ export const reactionRoles = sequelize.define('reactionRoles', {
 //     timestamps: true
 // })
 
-export default sequelize
+export default sequelize;
