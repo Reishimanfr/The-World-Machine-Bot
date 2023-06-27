@@ -4,7 +4,6 @@ import { starboardConfig, starboardEmojis } from './Models';
 import axios from 'axios';
 
 async function fetchTenorGif(url: string) {
-
     const regEx = /https:\/\/tenor.com\/view\/.+-(\d+)/;
     const id = url.match(regEx)[1];
     const fetchUrl = `https://api.tenor.com/v1/gifs?ids=${id}&key=${process.env.TENOR_KEY}`;
@@ -40,6 +39,8 @@ export const starboardLogic = async (reaction: MessageReaction | PartialMessageR
     // TODO fix this shitty fucking database you stupid dumb dumb
     // * Fixed :3
     const config = await starboardConfig.findOne({ where: { guildId: reaction.message.guildId } });
+
+    if (!config) return;
 
     const { boardId, amount } = config.dataValues;
     const { message } = reaction;

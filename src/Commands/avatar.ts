@@ -1,5 +1,5 @@
-import Command from "../Interfaces/Command"
-import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from "discord.js"
+import Command from '../Interfaces/Command';
+import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 
 export const avatar: Command = {
     permissions: ['EmbedLinks'],
@@ -17,18 +17,18 @@ export const avatar: Command = {
         ),
 
     run: (command: ChatInputCommandInteraction) => {
-        if (!command.inCachedGuild()) return // Typeguard
+        if (!command.inCachedGuild()) return; // Typeguard
 
-        const { options } = command
-        
-        const member = options.getMember('user') ?? command.member
-        const secret = options.getBoolean('secret') ?? false
+        const { options } = command;
+
+        const member = options.getMember('user') ?? command.member;
+        const secret = options.getBoolean('secret') ?? false;
 
         const replyEmbed = new EmbedBuilder()
-            .setAuthor({ name: `Avatar of ${member.user.tag}`})
+            .setAuthor({ name: `Avatar of ${member.user.tag}` })
             .setImage(member.displayAvatarURL({ size: 2048, extension: 'png' }))
-            .setColor(member.roles.highest.color)
+            .setColor(member.roles.highest.color);
 
-        command.reply({ embeds: [replyEmbed], ephemeral: secret })
-    }
-}
+        command.reply({ embeds: [replyEmbed], ephemeral: secret });
+    },
+};

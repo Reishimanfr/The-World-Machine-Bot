@@ -6,6 +6,7 @@ import { starboard } from './starboard';
 import { help } from './help';
 import { reaction } from './reaction';
 import { picture } from './picture';
+import { tf2 } from './tf2';
 
 export const CommandList: Command[] = [
     avatar,
@@ -15,4 +16,5 @@ export const CommandList: Command[] = [
     help,
     reaction,
     picture,
+    tf2,
 ];

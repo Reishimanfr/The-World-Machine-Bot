@@ -49,9 +49,8 @@ export const define: Command =
 
         if (!res)
         {
-            return command.reply({ embeds: [{ description: `Can't find anythin for **${input}**` }] });
+            return command.reply({ embeds: [{ description: `Can't find anything for **${input}**` }] });
         }
-
 
         if (endpoint == endpoints.source_open_dict)
         {
@@ -77,13 +76,8 @@ export const define: Command =
             return;
         } else {
             const len = res.list.length;
-            let data = res;
+            const data = len > 10 ? res.list.slice(0, 10) : res;
             const embeds: EmbedBuilder[] = [];
-
-            if (len > 10)
-            {
-                data = res.list.slice(0, 10);
-            }
 
             for (let i = 0; i < data.list.length; i++)
             {
@@ -114,13 +108,14 @@ export const define: Command =
             const row = new ActionRowBuilder<ButtonBuilder>()
                 .addComponents(buttons);
 
-            const comRes = await command.reply({ embeds: [embeds[0]], components: [row], ephemeral: secret });
-
-            const collector = comRes.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60000 });
+            const collector = (await command.reply({ embeds: [embeds[0]], components: [row], ephemeral: secret }))
+                .createMessageComponentCollector({ componentType: ComponentType.Button, time: 60000 });
 
             let page = 0;
 
-            collector.on('collect', i => {
+            collector.on('collect', async i => {
+                await i.deferUpdate();
+                collector.resetTimer();
 
                 if (i.customId === 'next')
                 {
@@ -130,12 +125,14 @@ export const define: Command =
                 }
 
                 command.editReply({ embeds: [embeds[page]], components: [row] });
-                i.deferUpdate();
-                collector.resetTimer();
             });
 
             collector.on('end', _ => {
-                const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons[0].setDisabled(true), buttons[1].setDisabled(true));
+                const newRow = new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(
+                        buttons[0].setDisabled(true),
+                        buttons[1].setDisabled(true)
+                    );
                 command.editReply({ embeds: [embeds[page]], components: [newRow] });
             });
         }

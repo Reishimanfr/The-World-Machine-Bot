@@ -13,7 +13,6 @@ export const client = new Client({
     partials: [Partials.Reaction, Partials.Message, Partials.Channel],
 });
 
-
 async function main() {
     await createIfNotExists();
 
@@ -47,7 +46,7 @@ async function main() {
 
 async function createIfNotExists() {
     if (!fs.existsSync('.env')) {
-        fs.writeFileSync('.env', 'BOT_TOKEN=\nTENOR_KEY=\nDEV=');
+        fs.writeFileSync('.env', 'BOT_TOKEN=\nTENOR_KEY=\nDEV=\nSTEAM_API_KEY=');
         logger.warn('A .env file has been created in the root folder. Please fill it with required tokens.');
         process.exit();
     }
