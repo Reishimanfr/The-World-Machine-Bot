@@ -1,4 +1,4 @@
-# Doorbot - A discord bot by Rei
+# The world machine bot- A discord bot by Rei
 Doorbot is a general purpose bot made for discord with typescript
 
 ## How to self-host
