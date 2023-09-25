@@ -10,7 +10,7 @@ https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissio
 > You can either download a pre-compiled package from the `releases` tab or compile the code yourself (or just run the typescript files as-is)
 2. Install dependencies with your package manager `(npm install)`
 2.1. (optional) Transpile the typescript code into javascript
-> For this you can run the `npm run build` command
+> For this you can run the `npm run transpile` command
 3. Register slash commands
 > Run the `deploy` script, `(npm run deploy)`. You only have to run this script when a command's structure changes or a new one is added.
 5. Fill out the .env file
@@ -18,6 +18,15 @@ https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissio
 6. Run the bot
 > Run the "start" script, `(npm start)`
 
+## Dependencies
+Required:
+* Lavalink (I suggest ver. 3.7.8) -> https://github.com/lavalink-devs/Lavalink
+* A discord bot token -> https://discord.com/developers/applications
+
+Optional:
+* Tenor API token (for the starboard to be able to embed tenor gifs)
+* Spotify client & client secret (for playing songs from spotify using the music player)
+* Steam API key (for the tf2 command to work)
 
 ## Compiling the code yourself
 Compiling the code is as easy as running the `transpile` script.
