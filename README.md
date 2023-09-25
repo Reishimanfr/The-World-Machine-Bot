@@ -2,7 +2,8 @@
 The world machine is a general purpose bot with features like the starboard, a music player, and more!
 
 ## Invite link
-You can invite the bot to your server using [this link]("https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot")
+You can invite the bot to your server using this link:
+https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot
 
 ## How to self-host
 1. Download the bot's code
