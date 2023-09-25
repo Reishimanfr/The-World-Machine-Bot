@@ -1,4 +1,4 @@
-![obraz](https://github.com/Reishimanfr/TWM-bot/assets/92938606/924adf11-65dd-4f55-a022-5dcbdd0179c9)# The world machine - A discord bot made with ❤️ by Rei!
+# The world machine - A discord bot made with ❤️ by Rei!
 The world machine is a general purpose bot with features like the starboard, a music player, and more!
 
 ## Invite link
