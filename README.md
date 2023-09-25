@@ -1,19 +1,21 @@
-# The world machine bot- A discord bot by Rei
-Doorbot is a general purpose bot made for discord with typescript
+# The world machine - A discord bot made with ❤️ by Rei!
+The world machine is a general purpose bot with features like the starboard, a music player, and more!
+
+## Invite link
+You can invite the bot to your server using [this link]("https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot")
 
 ## How to self-host
 1. Download the bot's code
-> You can either download a pre-compiled package from the `releases` tab or compile the code yourself
-2. Install dependencies with your package manager
-> Example using pnpm: `pnpm install`
+> You can either download a pre-compiled package from the `releases` tab or compile the code yourself (or just run the typescript files as-is)
+2. Install dependencies with your package manager `(npm install)`
+2.1. (optional) Transpile the typescript code into javascript
+> For this you can run the `npm run build` command
 3. Register slash commands
-> Run the `deploy` script, example using pnpm: `pnpm run deploy`. You only have to run this script when updating the bot.
-4. Transpile the code typescript code into javascript
-> Run the `transpile` script, example using pnpm: `pnpm run transpile`
+> Run the `deploy` script, `(npm run deploy)`. You only have to run this script when a command's structure changes or a new one is added.
 5. Fill out the .env file
-> This file will contain your bot token and some other stuff
+> This file will contain your bot token and some other stuff that's required for certain things to work
 6. Run the bot
-> Run the "start" script, example using pnpm: `pnpm start` or `pnpm run start`
+> Run the "start" script, `(npm start)`
 
 
 ## Compiling the code yourself
