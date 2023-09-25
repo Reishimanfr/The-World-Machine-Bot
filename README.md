@@ -28,6 +28,10 @@ Optional:
 * Spotify client & client secret (for playing songs from spotify using the music player)
 * Steam API key (for the tf2 command to work)
 
+## Configuration files
+The `application-EXAMPLE.yml` and `EXAMPLE.env` files host configurations for lavalink and the bot
+To configure the bot simply remove the `EXAMPLE` from their name and fill out the blank fields 
+
 ## Compiling the code yourself
 Compiling the code is as easy as running the `transpile` script.
 A `dist` folder will be created after the script is finished.
