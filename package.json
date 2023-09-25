@@ -1,25 +1,32 @@
 {
+  "name": "reibot-rewrite",
+  "version": "1.0.0",
+  "description": "Reibot rewritten",
+  "main": "index.js",
   "scripts": {
-    "pretest": "ts-node src/index.ts",
-    "deploy": "ts-node src/Misc/Deploy.ts",
-    "transpile": "tsc",
-    "start": "node ./dist/index.js"
+    "test": "ts-node src/index.ts",
+    "build": "tsc --build",
+    "start": "node dist/index.js",
+    "lavalink": "java -jar lavalink.jar",
+    "deploy-commands": "ts-node src/misc/deploy_commands.ts"
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.41",
     "axios": "^1.4.0",
-    "discord.js": "^14.8.0",
-    "dotenv": "^16.0.3",
-    "node-fetch": "^3.3.1",
-    "sequelize": "^6.31.1",
+    "canvas": "^2.11.2",
+    "canvas-constructor": "^7.0.1",
+    "dayjs": "^1.11.9",
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.3.1",
+    "poru": "^4.2.1",
+    "sequelize": "^6.33.0",
     "sqlite3": "^5.1.6",
     "ts-node": "^10.9.1",
-    "winston": "^3.8.2"
+    "winston": "^3.9.0",
+    "word-wrap": "^1.2.5"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
-    "eslint": "^8.43.0",
-    "typescript": "^5.1.3"
+    "prettier": "^3.0.3"
   }
 }

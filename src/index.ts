@@ -1,55 +1,133 @@
 require('dotenv').config();
-import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
-import { InteractionCreate } from './Interfaces/Interaction';
-import { onMessage } from './Interfaces/Message';
-import { Ready } from './Interfaces/Ready';
-import { starboardLogic } from './Interfaces/Reaction';
-import sequelize from './Interfaces/Models';
-import { logger } from './Misc/logger';
-import fs from 'fs';
+import { GatewayIntentBits, InteractionType, Partials } from 'discord.js';
+import { ExtClient, ExtPlayer } from './misc/twmClient';
+import { Poru, PoruOptions, NodeGroup } from 'poru';
+import { logger } from './misc/logger';
+import {
+  starboardConfig,
+  starboardEmojis,
+  starboardEntries,
+} from './types/database_definition';
+import { MessageReactionAdd, MessageReactionRemove } from './Events/MessageEvents';
+import Ready from './Events/Ready';
+import UpdateVoiceState from './Events/voiceStateUpdate';
+import Command from './Events/EventHelpers/Command';
+import Button from './Events/EventHelpers/Button';
+import MessageDelete from './Events/MessageDelete';
+import playerUpdate from './Events/playerUpdate';
+import { trackStart } from './Events/trackStart';
+import queueEnd from './Events/queueEnd';
 
-export const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions],
-    partials: [Partials.Reaction, Partials.Message, Partials.Channel],
+export const client = new ExtClient({
+  failIfNotExists: true,
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [
+    // These allow you to recieve interactions on old messages for example
+    Partials.Reaction,
+    Partials.Message,
+  ],
 });
 
+const Nodes: NodeGroup[] = [
+  {
+    name: 'lambda',
+    host: 'localhost',
+    port: 2333,
+    password: 'MyPassword',
+  },
+  {
+    name: 'alpha',
+    host: 'localhost',
+    port: 2333,
+    password: 'MyPassword',
+  },
+];
+
+const PoruOption: PoruOptions = {
+  library: 'discord.js',
+  defaultPlatform: 'ytsearch',
+  autoResume: true,
+  reconnectTimeout: 60000,
+  reconnectTries: 20,
+};
+
+client.poru = new Poru(client, Nodes, PoruOption);
+
 async function main() {
-    await createIfNotExists();
+  logger.debug('Debug mode enabled.');
 
-    if (!process.env.BOT_TOKEN) {
-        logger.error('You haven\'t provided a bot token in the .env file!');
-        process.exit();
+  for (const table of [starboardConfig, starboardEmojis, starboardEntries]) {
+    logger.info(`[SEQUELIZE]: Syncing table ${table.name}...`);
+    await table
+      .sync()
+      .then((_) => logger.info('          | Success!'))
+      .catch((e) => logger.error(`          | Error: ${e.stack}`));
+  }
+
+  client.once('ready', () => Ready());
+
+  client.on('interactionCreate', async (interaction) => {
+    if (interaction.type == InteractionType.ApplicationCommand) {
+      await Command(interaction);
+    } else if (interaction.type == InteractionType.MessageComponent) {
+      if (interaction.isButton()) {
+        await Button(interaction);
+      }
     }
+  });
 
-    if (!process.env.TENOR_KEY) {
-        logger.warn('You haven\'t provided a tenor API key. Some features may not work properly.');
-    }
+  client.on('messageDelete', async (message) => await MessageDelete(message));
 
-    try {
-        await sequelize.sync();
-        logger.info('Database synchronized successfully.');
-    } catch (error) {
-        logger.error(`Error synchronizing database: ${error.stack}`);
-    }
+  // Starboard stuff
+  client.on(
+    'messageReactionAdd',
+    async (reaction, user) => await MessageReactionAdd(reaction, user, client)
+  );
 
-    // Main events
-    client.once(Events.ClientReady, async () => await Ready(client));
-    client.on(Events.InteractionCreate, async (interaction) => { await InteractionCreate(interaction, client); });
-    client.on(Events.MessageCreate, async (message) => onMessage(message));
+  client.on(
+    'messageReactionRemove',
+    async (reaction, user) => await MessageReactionRemove(reaction, user, client)
+  );
 
-    // Starboard stuff
-    client.on(Events.MessageReactionAdd, (i, user) => starboardLogic(i, user, client));
-    client.on(Events.MessageReactionRemove, (i, user) => starboardLogic(i, user, client));
+  client.on(
+    'voiceStateUpdate',
+    async (oldState, newState) => await UpdateVoiceState(oldState, newState, client)
+  );
 
-    client.login(process.env.BOT_TOKEN);
-}
+  client.login(process.env.botToken ?? process.env.devBotToken);
 
-async function createIfNotExists() {
-    if (!fs.existsSync('.env')) {
-        fs.writeFileSync('.env', 'BOT_TOKEN=\nTENOR_KEY=\nDEV=\nSTEAM_API_KEY=');
-        logger.warn('A .env file has been created in the root folder. Please fill it with required tokens.');
-        process.exit();
-    }
+  client.poru.on('nodeConnect', (node) => {
+    logger.info(`${node.name} connected to lavalink server successfully.`);
+  });
+
+  client.poru.on('playerUpdate', (player: ExtPlayer) => {
+    playerUpdate(player);
+  });
+
+  // Poru errors
+  client.poru.on('nodeError', (node, event) => {
+    logger.error(`Node ${node.name} encountered a error: ${event}`);
+  });
+
+  client.poru.on('trackError', (player, _, data) => {
+    logger.error(`Error while playing track at player (${player.guildId}): ${data}`);
+  });
+
+  client.poru.on(
+    'trackStart',
+    async (player: ExtPlayer, track) => await trackStart(player, track, client)
+  );
+
+  client.poru.on('queueEnd', async (player: ExtPlayer) => queueEnd(player));
+
+  client.poru.on('trackEnd', (player: ExtPlayer) => (player.pauseEditing = true));
 }
 
 main();

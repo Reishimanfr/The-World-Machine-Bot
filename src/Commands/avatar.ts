@@ -1,34 +1,38 @@
-import Command from '../Interfaces/Command';
-import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
+import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  GuildMember,
+  SlashCommandBuilder,
+} from 'discord.js';
+import Command from '../types/CommandI';
+import util from '../misc/Util';
 
-export const avatar: Command = {
-    permissions: ['EmbedLinks'],
-    data: new SlashCommandBuilder()
-        .setName('avatar')
-        .setDescription('Returns the avatar of a user')
-        .addUserOption(user => user
-            .setName('user')
-            .setDescription('User to fetch')
-            .setRequired(true)
-        )
-        .addBooleanOption(ephemeral => ephemeral
-            .setName('secret')
-            .setDescription('Should you be the only one seeing the message?')
-        ),
+// Almost every bot you could imagine has one so I couldn't be worse than them right?
+// :3 :3 :3 :3 :3
+const avatar: Command = {
+  permissions: null,
+  data: new SlashCommandBuilder()
+    .setName('avatar')
+    .setDescription("Get a user's avatar")
+    .addUserOption((user) =>
+      user.setName('user').setDescription('User to fetch').setRequired(true)
+    )
+    .addBooleanOption((ephemeral) =>
+      ephemeral
+        .setName('secret')
+        .setDescription("Should you be the only one seeing the command's reply?")
+    ),
 
-    run: (command: ChatInputCommandInteraction) => {
-        if (!command.inCachedGuild()) return; // Typeguard
+  callback: async (interaction: ChatInputCommandInteraction) => {
+    const member = interaction.options.getMember('user') as GuildMember;
+    const secret = interaction.options.getBoolean('secret') ?? false;
 
-        const { options } = command;
+    const embed = new EmbedBuilder()
+      .setImage(member.displayAvatarURL({ size: 2048 }))
+      .setColor(util.twmPurpleHex);
 
-        const member = options.getMember('user') ?? command.member;
-        const secret = options.getBoolean('secret') ?? false;
-
-        const replyEmbed = new EmbedBuilder()
-            .setAuthor({ name: `Avatar of ${member.user.tag}` })
-            .setImage(member.displayAvatarURL({ size: 2048, extension: 'png' }))
-            .setColor(member.roles.highest.color);
-
-        command.reply({ embeds: [replyEmbed], ephemeral: secret });
-    },
+    await interaction.reply({ embeds: [embed], ephemeral: secret });
+  },
 };
+
+export default avatar;

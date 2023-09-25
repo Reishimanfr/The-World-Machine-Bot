@@ -1,215 +1,228 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
-import Command from '../Interfaces/Command';
+import {
+  ActionRowBuilder,
+  ChatInputCommandInteraction,
+  ComponentType,
+  EmbedBuilder,
+  EmbedField,
+  SlashCommandBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+} from 'discord.js';
+import Command from '../types/CommandI';
 import axios from 'axios';
-import { StatInterface, classIconEmoji, classIconObject, classes, classesType } from '../Misc/Tf2Data';
-import { logger } from '../Misc/logger';
+import {
+  ITf2Stats,
+  classIconEmoji,
+  classIconObject,
+  classes,
+  statFields,
+} from '../bot_data/tf2Data';
 
 const urls = {
-    vanityRequestUrl: `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.STEAM_API_KEY}&vanityurl=`,
-    tf2: `http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=440&key=${process.env.STEAM_API_KEY}&steamid=`,
-    profile: `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=`,
+  vanityRequestUrl: `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.steamApiKey}&vanityurl=`,
+  tf2: `http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=440&key=${process.env.steamApiKey}&steamid=`,
+  profile: `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.steamApiKey}&steamids=`,
 };
 
 async function findSteamID(steamId: string) {
-    const isNumber = !!parseInt(steamId);
+  // If provided steam id is already a valid number just return it
+  if (parseInt(steamId)) return steamId;
 
-    if (!isNumber) {
-        let vanity = steamId;
+  let vanity = steamId;
 
-        if (vanity.startsWith('https://steamcommunity.com/')) {
-            vanity = steamId.split('/')[4];
-        }
+  if (vanity.startsWith('https://steamcommunity.com/')) {
+    vanity = steamId.split('/')[4];
+  }
 
-        if (!!parseInt(vanity)) return vanity;
+  if (!!parseInt(vanity)) return vanity;
 
-        const vanityRequest = await axios.get(urls.vanityRequestUrl + vanity);
-        return vanityRequest.data.response.steamid;
-    }
-
-    return steamId;
-};
+  const vanityRequest = await axios.get(urls.vanityRequestUrl + vanity);
+  return vanityRequest.data.response.steamid;
+}
 
 async function requestData(dataType: 'tf2' | 'profile', steamId: string) {
-    const request = await axios.get(urls[dataType] + steamId);
-    return request.data;
+  const request = await axios.get(urls[dataType] + steamId);
+  if (dataType == 'tf2') return request.data.playerstats.stats;
+  else return request.data.response.players[0];
 }
 
-function filterTf2Data(data, playerClass: classesType) {
-    const onlyClassesData = data.filter(object => {
-        return classes.some(name => object.name.startsWith(name));
-    });
+function filterTf2Data(data, playerClass) {
+  const onlyClassesData = data.filter((object) => {
+    return classes.some((name) => object.name.startsWith(name));
+  });
 
-    const playerClassOnlyData = onlyClassesData.filter(object => object.name.startsWith(playerClass));
+  const playerClassOnlyData = onlyClassesData.filter((object) =>
+    object.name.startsWith(playerClass)
+  );
 
-    const dataObject = playerClassOnlyData.reduce((acc, obj, index) => {
-        if (index === 0) {
-            acc = { [obj.name]: obj.value };
-        } else {
-            acc[obj.name] = obj.value;
-        }
-        return acc;
-    }, {});
+  const dataObject = playerClassOnlyData.reduce((acc, obj, index) => {
+    if (index === 0) {
+      acc = { [obj.name]: obj.value };
+    } else {
+      acc[obj.name] = obj.value;
+    }
+    return acc;
+  }, {});
 
-    const accum: StatInterface = {};
-    const max: StatInterface = {};
+  const accum: ITf2Stats = {};
+  const max: ITf2Stats = {};
 
-    for (const property in dataObject) {
-        const type = property.split('.')[1];
-        const modRegExp = new RegExp(`${playerClass}|max|accum|\\.`, 'gi');
-        const modProperty = property.replace(modRegExp, '');
+  for (const property in dataObject) {
+    const type = property.split('.')[1];
+    const modRegExp = new RegExp(`${playerClass}|max|accum|\\.`, 'gi');
+    const modProperty = property.replace(modRegExp, '');
 
-        if (type === 'accum') {
-            accum[modProperty] = dataObject[property];
-        } else if (type === 'max') {
-            max[modProperty] = dataObject[property];
-        }
+    if (type === 'accum') {
+      accum[modProperty] = dataObject[property];
+    } else if (type === 'max') {
+      max[modProperty] = dataObject[property];
+    }
+  }
+
+  return [accum, max];
+}
+
+function createMenuRow(
+  customId: string = 'select-menu-tf2-stats'
+): ActionRowBuilder<StringSelectMenuBuilder> {
+  const menuOptions: StringSelectMenuOptionBuilder[] = [];
+
+  for (const tf_class of classes) {
+    const optionToPush = new StringSelectMenuOptionBuilder()
+      .setLabel(tf_class)
+      .setValue(tf_class);
+
+    if (classIconEmoji[tf_class]) {
+      optionToPush.setEmoji(classIconEmoji[tf_class]);
     }
 
-    return [accum, max];
+    menuOptions.push(optionToPush);
+  }
+
+  const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(customId)
+      .setPlaceholder('Select a class')
+      .addOptions(...menuOptions)
+  );
+
+  return menu;
 }
 
-function createMenuRow(): any {
-    const menuOptions = [];
-
-    for (const tf_class of classes) {
-        menuOptions.push(
-            new StringSelectMenuOptionBuilder()
-                .setLabel(tf_class)
-                .setValue(tf_class)
-                .setEmoji(classIconEmoji[tf_class] || '❌')
-        );
-    };
-
-    const classSelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(
-            new StringSelectMenuBuilder()
-                .setCustomId('select-menu-tf2-stats')
-                .setPlaceholder('Select a class')
-                .addOptions(...menuOptions)
-        );
-
-    return classSelectMenu;
+function createStatField(name: string, overall: number, max: number) {
+  return {
+    name: name,
+    value: `> **Overall** ${overall ?? 0}\n> **Max** ${max ?? 0}`,
+    inline: name == 'Playtime' ? false : true,
+  };
 }
 
-export const tf2: Command = {
-    permissions: ['SendMessages'],
+function generateEmbed(tf2Data, playerClass, profileData, command) {
+  const [accum, max] = filterTf2Data(tf2Data, playerClass);
 
-    data: new SlashCommandBuilder()
-        .setName('tf2')
-        .setDescription('Get tf2 stats for a player')
-        .addStringOption(id_option => id_option
-            .setName('steam-id')
-            .setDescription('Steam ID of user')
-            .setRequired(true)
-        ),
+  const fields = statFields.reduce((accumilated: EmbedField[], fieldData) => {
+    if (fieldData.playerClass) {
+      if (fieldData.playerClass == playerClass) {
+        accumilated.push(
+          createStatField(
+            fieldData.title,
+            accum[fieldData.stat],
+            max[fieldData.stat]
+          )
+        );
+      }
+    } else {
+      accumilated.push(
+        createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat])
+      );
+    }
 
-    run: async (command: ChatInputCommandInteraction) => {
+    return accumilated;
+  }, []);
 
-        if (!process.env.STEAM_API_KEY) {
-            command.reply({ embeds: [{ description: 'This command will not work, because the steam API key is missing!', color: Colors.Red }] });
-            logger.warn('[Commands/tf2.ts]: Command tf2 will not work: missing steam API key.');
-            return;
-        }
+  const embed = new EmbedBuilder()
+    .setAuthor({
+      name: `Stats as ${playerClass} • ${profileData.personaname}`,
+      iconURL: classIconObject[playerClass],
+    })
+    .setThumbnail(profileData.avatarfull)
+    .setTitle('[Link to steam profile]')
+    .setURL(profileData.profileurl)
+    .addFields(...fields)
+    .setFooter({
+      text: `${command.user.tag}`,
+      iconURL: command.user.displayAvatarURL(),
+    })
+    .setColor('#8b00cc')
+    .setTimestamp();
 
-        await command.deferReply(); // To get more time in case the API takes some time to respond
+  return embed;
+}
 
-        const steam_id = await findSteamID(command.options.getString('steam-id'));
+const tf2: Command = {
+  permissions: ['SendMessages'],
+  data: new SlashCommandBuilder()
+    .setName('tf2')
+    .setDescription('Get tf2 stats for a player')
+    .addStringOption((id_option) =>
+      id_option
+        .setName('steam-id')
+        .setDescription('Steam ID of user')
+        .setRequired(true)
+    ),
 
-        const raw_tf2_data = await requestData('tf2', steam_id);
-        const tf2Data = raw_tf2_data.playerstats.stats;
+  callback: async (interaction: ChatInputCommandInteraction) => {
+    if (!process.env.steamApiKey) throw new Error('Missing steam API key.');
 
-        const raw_profile_data = await requestData('profile', steam_id);
-        const profileData = raw_profile_data.response.players[0];
+    await interaction.deferReply(); // To get more time in case the API takes some time to respond
 
-        if (!tf2Data) {
-            command.editReply({ embeds: [{ description: 'Can\'t find anything for this steam ID!', color: Colors.Red }] });
-        }
+    const steamId = await findSteamID(
+      interaction.options.getString('steam-id', true)
+    );
 
-        const classSelectMenu = await createMenuRow();
+    const [tf2Data, profileData] = await Promise.all([
+      requestData('tf2', steamId),
+      requestData('profile', steamId),
+    ]);
 
-        const response = await command.editReply({ embeds: [{ description: 'test' }], components: [classSelectMenu] });
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 120000 });
+    if (!tf2Data) {
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription("[ Can't find anything for this steam Id. ]")
+            .setColor('#8b00cc'),
+        ],
+      });
+    }
 
-        collector.on('collect', async collected => {
-            await collected.deferUpdate();
-            collector.resetTimer();
+    const menu = createMenuRow();
+    const firstEmbed = generateEmbed(tf2Data, 'Scout', profileData, interaction);
 
-            const playerClass = collected.values[0];
+    const response = await interaction.editReply({
+      embeds: [firstEmbed],
+      components: [menu],
+    });
 
-            const [accum, max] = filterTf2Data(tf2Data, playerClass);
+    const collector = response.createMessageComponentCollector({
+      componentType: ComponentType.StringSelect,
+      time: 120000,
+    });
 
-            const embed = new EmbedBuilder()
-                .setAuthor({ name: `Stats as ${playerClass} • ${profileData.personaname}`, iconURL: classIconObject[playerClass] })
-                .setThumbnail(profileData.avatarfull)
-                .setTitle('[Link to steam profile]')
-                .setURL(profileData.profileurl)
-                .addFields(
-                    {
-                        name: 'Playtime',
-                        value: `> ${(accum.iPlayTime / 3600).toFixed(0) || 0}h ${((accum.iPlayTime % 3600) / 60).toFixed(0) || 0}min`,
-                    },
-                    {
-                        name: 'Points scored',
-                        value: `> **Overall** ${accum.iPointsScored ?? 0}\n> **Max** ${max.iPointsScored ?? 0}`,
-                        inline: true,
-                    },
-                    ...(playerClass === 'Medic' ? [{ name: 'ÜberCharges', value: `> **Overall** ${accum.iNumInvulnerable ?? 0}\n> **Max** ${max.iNumInvulnerable ?? 0}`, inline: true }] : []),
-                    ...(playerClass === 'Medic' ? [{ name: 'Healing', value: `> **Overall** ${accum.iHealthPointsHealed ?? 0}\n> **Max** ${max.iHealthPointsHealed ?? 0}`, inline: true }] : []),
-                    {
-                        name: 'Kills',
-                        value: `> **Overall** ${accum.iNumberOfKills ?? 0}\n> **Max** ${max.iNumberOfKills ?? 0}`,
-                        inline: true,
-                    },
-                    ...(playerClass === 'Engineer' ? [{ name: 'Kills with sentry', value: `>**Overall** [Unavailable]\n> **Max** ${max.iSentryKills ?? 0}`, inline: true }] : []),
-                    ...(playerClass === 'Spy' ? [{ name: 'Backstabs', value: `> **Overall** ${accum.iBackstabs ?? 0}\n> **Max** ${max.iBackstabs ?? 0}`, inline: true }] : []),
-                    ...(['Spy', 'Sniper'].includes(playerClass) ? [{ name: 'Headshots', value: `> **Overall** ${accum.iHeadshots ?? 0}\n> **Max** ${max.iHeadshots ?? 0}`, inline: true }] : []),
-                    ...(playerClass === 'Engineer' ? [{ name: 'Buildings built', value: `> **Overall** ${accum.iBuildingsBuilt ?? 0}\n> **Max** ${max.iBuildingsBuilt ?? 0}`, inline: true }] : []),
-                    {
-                        name: 'Assists',
-                        value: `> **Overall** ${accum.iKillAssists ?? 0}\n> **Max** ${max.iKillAssists ?? 0}`,
-                        inline: true,
-                    },
-                    {
-                        name: 'Damage',
-                        value: `> **Overall** ${accum.iDamageDealt ?? 0}\n> **Max** ${max.iDamageDealt ?? 0}`,
-                        inline: true,
-                    },
-                    {
-                        name: 'Dominations',
-                        value: `> **Overall** ${accum.iDominations ?? 0}\n> **Max** ${max.iDominations ?? 0}`,
-                        inline: true,
-                    },
-                    {
-                        name: 'Revenges',
-                        value: `> **Overall** ${accum.iRevenge ?? 0}\n> **Max** ${max.iRevenge ?? 0}`,
-                        inline: true,
-                    },
-                    {
-                        name: 'Captures',
-                        value: `> **Overall** ${accum.iPointCaptures ?? 0}\n> **Max** ${max.iPointCaptures ?? 0}`,
-                        inline: true,
-                    },
-                    {
-                        name: 'Defenses',
-                        value: `> **Overall** ${accum.iPointDefenses ?? 0}\n> **Max** ${max.iPointDefenses ?? 0}`,
-                        inline: true,
-                    },
-                    {
-                        name: 'Destructions',
-                        value: `> **Overall** ${accum.iBuildingsDestroyed ?? 0}\n> **Max** ${max.iBuildingsDestroyed ?? 0}`,
-                        inline: true,
-                    },
-                )
-                .setFooter({ text: `${command.user.tag}`, iconURL: command.user.displayAvatarURL() })
-                .setTimestamp();
+    collector.on('collect', async (collected) => {
+      await collected.deferUpdate();
+      collector.resetTimer();
 
-            command.editReply({ embeds: [embed], components: [classSelectMenu] });
-            // }
-        });
+      const playerClass = collected.values[0];
+      const embed = generateEmbed(tf2Data, playerClass, profileData, interaction);
 
-        collector.on('end', _ => {
-            command.editReply({ components: [] })
-                .catch(error => logger.error(error.stack));
-        });
-    },
+      interaction.editReply({ embeds: [embed], components: [menu] });
+      return;
+    });
+
+    collector.on('end', (_) => {
+      interaction.editReply({ components: [] }).catch(() => {}); // Ignore the error since we can't do anything about it
+    });
+  },
 };
+
+export default tf2;
