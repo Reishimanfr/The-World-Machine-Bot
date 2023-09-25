@@ -1,9 +1,14 @@
-# The world machine - A discord bot made with ❤️ by Rei!
+![obraz](https://github.com/Reishimanfr/TWM-bot/assets/92938606/924adf11-65dd-4f55-a022-5dcbdd0179c9)# The world machine - A discord bot made with ❤️ by Rei!
 The world machine is a general purpose bot with features like the starboard, a music player, and more!
 
 ## Invite link
 You can invite the bot to your server using this link:
 https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot
+
+## Support
+Message me on discord (@rei.shi) and ask any question you want regarding the bot!
+I'm more than happy to help
+For more common questions be sure to check the repo's wiki page
 
 ## How to self-host
 1. Download the bot's code
