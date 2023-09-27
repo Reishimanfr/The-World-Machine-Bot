@@ -9,6 +9,7 @@ import {
 } from 'discord.js';
 import Command from '../types/CommandI';
 import axios from 'axios';
+import util from '../misc/Util';
 
 async function getImage(link: string) {
   const request = await axios.get(link);
@@ -62,7 +63,7 @@ const picture: Command = {
 
     const embed = new EmbedBuilder()
       .setImage(image) // Get and set the image
-      .setColor('#8b00cc');
+      .setColor(util.twmPurpleHex);
 
     // The reason we use a array is so we can edit the .setDisabled value of the button once the interaction expires
     const components = [
@@ -97,7 +98,7 @@ const picture: Command = {
 
       const newEmbed = new EmbedBuilder()
         .setImage(image) // Get and set the image
-        .setColor('#8b00cc');
+        .setColor(util.twmPurpleHex);
 
       reply.edit({ embeds: [newEmbed], components: [enabledRow] });
     });

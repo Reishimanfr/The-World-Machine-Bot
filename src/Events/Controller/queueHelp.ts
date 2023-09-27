@@ -30,7 +30,7 @@ This one's a bit simpler, all you have to do is:
 *Pssst... If the original player embed was lost, you can always use the \`/now-playing\` command to bring it back!*`),
   ];
 
-  interaction.reply({
+  interaction.editReply({
     embeds: [...embeds],
   });
 };

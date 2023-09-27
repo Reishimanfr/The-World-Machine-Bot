@@ -3,7 +3,7 @@ import { ExtPlayer } from '../../misc/twmClient';
 import dayjs from 'dayjs';
 import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
 
-export const togglePlayback = (
+export const togglePlayback = async (
   interaction: ButtonInteraction,
   player: ExtPlayer
 ) => {
@@ -32,7 +32,7 @@ export const togglePlayback = (
     });
   }
 
-  return interaction.reply({
+  return interaction.editReply({
     embeds: [
       {
         description: `[ ${player.isPaused ? 'Paused' : 'Resumed'}. ]`,

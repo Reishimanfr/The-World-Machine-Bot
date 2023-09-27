@@ -96,11 +96,15 @@ const music: Command = {
             .setDescription('Position in the queue to skip to.')
             .setRequired(true)
         )
+    )
+    .addSubcommand((loop) =>
+      loop
+        .setName('loop')
+        .setDescription('Enable or disable looping for the currently playing track.')
     ),
 
   callback: async (interaction: ChatInputCommandInteraction, client) => {
     const subcommand = interaction.options.getSubcommand();
-    // guildId! means we are ABSOULTELY sure this can't be null
     const player = client.poru.get(interaction.guildId!) as ExtPlayer;
 
     const member = await util.fetchMember(

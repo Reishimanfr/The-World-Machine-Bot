@@ -28,7 +28,7 @@
 //         embeds: [
 //           new EmbedBuilder()
 //             .setDescription('[ There is nothing in the queue. ]')
-//             .setColor('#8b00cc'),
+//             .setColor(util.twmPurpleHex),
 //         ],
 //         ephemeral: true,
 //       });

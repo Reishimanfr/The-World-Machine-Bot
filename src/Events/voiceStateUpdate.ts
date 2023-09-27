@@ -2,6 +2,7 @@ import { EmbedBuilder, VoiceState } from 'discord.js';
 import { ExtClient, ExtPlayer } from '../misc/twmClient';
 import PlayerEmbedManager from '../bot_data/playerEmbedManager';
 import { logger } from '../misc/logger';
+import util from '../misc/Util';
 
 const UpdateVoiceState = async (
   oldState: VoiceState,
@@ -26,8 +27,7 @@ const UpdateVoiceState = async (
 
     embed.setAuthor({
       name: `Stopped: bot was disconnected.`,
-      iconURL:
-        'https://media.discordapp.net/attachments/968786035788120099/1134526510334738504/niko.gif',
+      iconURL: util.nikoGifUrl,
     });
 
     try {
@@ -54,8 +54,7 @@ const UpdateVoiceState = async (
     const embed = EmbedBuilder.from(player.message.embeds[0]);
     embed.setAuthor({
       name: 'Stopped: everyone left the channel.',
-      iconURL:
-        'https://media.discordapp.net/attachments/968786035788120099/1134526510334738504/niko.gif',
+      iconURL: util.nikoGifUrl,
     });
 
     try {

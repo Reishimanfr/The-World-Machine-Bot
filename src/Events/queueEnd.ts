@@ -2,6 +2,7 @@ import { EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../misc/twmClient';
 import constructProgressBar from '../bot_data/progressBar';
 import { logger } from '../misc/logger';
+import util from '../misc/Util';
 
 const queueEnd = (player: ExtPlayer) => {
   if (!player?.message) return;
@@ -14,8 +15,7 @@ const queueEnd = (player: ExtPlayer) => {
   );
   embed.setAuthor({
     name: 'Waiting for another song...',
-    iconURL:
-      'https://media.discordapp.net/attachments/968786035788120099/1134526510334738504/niko.gif',
+    iconURL: util.nikoGifUrl,
   });
 
   player.pauseEditing = true;

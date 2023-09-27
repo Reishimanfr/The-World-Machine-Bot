@@ -1,6 +1,7 @@
 import { ButtonInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
 import dayjs from 'dayjs';
+import util from '../../misc/Util';
 
 export const skip = (interaction: ButtonInteraction, player: ExtPlayer) => {
   player.seekTo(player.currentTrack.info.length);
@@ -14,7 +15,9 @@ export const skip = (interaction: ButtonInteraction, player: ExtPlayer) => {
     },
   ];
 
-  return interaction.reply({
-    embeds: [new EmbedBuilder().setDescription(`[ Skipped. ]`).setColor('#8b00cc')],
+  return interaction.editReply({
+    embeds: [
+      new EmbedBuilder().setDescription(`[ Skipped. ]`).setColor(util.twmPurpleHex),
+    ],
   });
 };

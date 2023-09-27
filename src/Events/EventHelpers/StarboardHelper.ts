@@ -163,10 +163,9 @@ class Starboard {
   }
 
   public async main() {
-    const [user, reaction] = await Promise.all([
-      this.user.partial ? this.user.fetch() : this.user,
-      this.reaction.partial ? this.reaction.fetch() : this.reaction,
-    ]);
+    const reaction = this.reaction.partial
+      ? await this.reaction.fetch()
+      : this.reaction;
 
     const [emojis, config] = await this.getGuildData(reaction.message.guild!.id);
     let reactionEmoji = reaction.emoji.name;
@@ -180,7 +179,7 @@ class Starboard {
     // Exit if there's no config or no channel config, since it's something we NEED for the command to work
     if (!config || !config?.boardId) return;
     if (reaction.message.channelId === config.boardId) return;
-    if (reaction.message.author!.id === user.id) return;
+    if (reaction.message.author!.id === this.user.id) return;
     if (reactionEmoji && !emojis.includes(reactionEmoji)) return;
 
     let reactions: { emoji: string; count: number }[] = [];

@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
 import addToAuditLog from '../../bot_data/addToAduitLog';
+import util from '../../misc/Util';
 
 // Check if string is in HH?:MM:SS format
 function validateTimestamp(timestamp: string): boolean {
@@ -47,7 +48,7 @@ export async function seek(
       embeds: [
         new EmbedBuilder()
           .setDescription('[ This track is not seekable. ]')
-          .setColor('#8b00cc'),
+          .setColor(util.twmPurpleHex),
       ],
       ephemeral: true,
     });
@@ -58,7 +59,7 @@ export async function seek(
       embeds: [
         new EmbedBuilder()
           .setDescription('[ Nothing is playing right now. ]')
-          .setColor('#8b00cc'),
+          .setColor(util.twmPurpleHex),
       ],
     });
   }
@@ -84,7 +85,7 @@ export async function seek(
       embeds: [
         new EmbedBuilder()
           .setDescription('[ Invalid timestamp. ]')
-          .setColor('#8b00cc'),
+          .setColor(util.twmPurpleHex),
       ],
       ephemeral: true,
     });

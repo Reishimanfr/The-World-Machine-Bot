@@ -12,6 +12,7 @@ import {
 import Command from '../types/CommandI';
 import { starboardConfig, starboardEmojis } from '../types/database_definition';
 import { logger } from '../misc/logger';
+import util from '../misc/Util';
 
 async function updateRecord(
   targetGuildId: string,
@@ -193,7 +194,7 @@ const starboard: Command = {
           embeds: [
             new EmbedBuilder()
               .setDescription('[ Discarding changes. ]')
-              .setColor('#8b00cc'),
+              .setColor(util.twmPurpleHex),
           ],
           components: [],
         });
@@ -212,7 +213,7 @@ const starboard: Command = {
         embeds: [
           new EmbedBuilder()
             .setDescription('[ Configuration saved. ]')
-            .setColor('#8b00cc'),
+            .setColor(util.twmPurpleHex),
         ],
         components: [],
       });
@@ -225,7 +226,9 @@ const starboard: Command = {
 
       await interaction.editReply({
         embeds: [
-          new EmbedBuilder().setDescription(replyContent).setColor('#8b00cc'),
+          new EmbedBuilder()
+            .setDescription(replyContent)
+            .setColor(util.twmPurpleHex),
         ],
         components: [],
       });

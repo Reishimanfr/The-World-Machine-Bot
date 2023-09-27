@@ -98,7 +98,7 @@ class PlayerEmbedManager {
       )
       .setThumbnail(metadata.info.image ?? null)
       .setFooter({
-        text: `Requested by ${metadata.info?.requester?.user?.tag}`,
+        text: `Requested by ${metadata.info?.requester?.user?.username}`,
         iconURL: metadata.info?.requester?.user?.displayAvatarURL(),
       })
       .setColor(util.twmPurpleHex);

@@ -18,7 +18,7 @@ export const loop = (interaction: ButtonInteraction, player: ExtPlayer) => {
     });
   }
 
-  return interaction.reply({
+  return interaction.editReply({
     embeds: [
       {
         description: `[ ${

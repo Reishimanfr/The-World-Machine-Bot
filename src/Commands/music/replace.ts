@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtClient, ExtPlayer } from '../../misc/twmClient';
 import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
 import addToAuditLog from '../../bot_data/addToAduitLog';
+import util from '../../misc/Util';
 
 export async function replace(
   interaction: ChatInputCommandInteraction,
@@ -17,7 +18,7 @@ export async function replace(
       embeds: [
         new EmbedBuilder()
           .setDescription(`[ No track at position \`${pos}\`. ]`)
-          .setColor('#8b00cc'),
+          .setColor(util.twmPurpleHex),
       ],
       ephemeral: true,
     });
@@ -33,14 +34,14 @@ export async function replace(
   if (res.loadType == 'LOAD_FAILED') {
     const loadFailed = new EmbedBuilder()
       .setDescription(`[ Failed to load track. ]`)
-      .setColor('#8b00cc');
+      .setColor(util.twmPurpleHex);
 
     await interaction.reply({ embeds: [loadFailed], ephemeral: true });
     return;
   } else if (res.loadType == 'NO_MATCHES') {
     const nothingFound = new EmbedBuilder()
       .setDescription(`[ No matches for **${urlOrSearch}** ]`)
-      .setColor('#8b00cc');
+      .setColor(util.twmPurpleHex);
 
     await interaction.reply({ embeds: [nothingFound], ephemeral: true });
     return;
@@ -55,7 +56,7 @@ export async function replace(
           .setDescription(
             `[ A playlist consisting of **${res.tracks.length} tracks** was detected. The first one will be loaded because you cannot replace a single song with a playlist. ]`
           )
-          .setColor('#8b00cc'),
+          .setColor(util.twmPurpleHex),
       ],
       ephemeral: true,
     });
@@ -72,7 +73,7 @@ export async function replace(
 
     const tracksAddedPlaylist = new EmbedBuilder()
       .setDescription(`[ Track at queue position \`${pos}\` replaced. ]`)
-      .setColor('#8b00cc');
+      .setColor(util.twmPurpleHex);
 
     await interaction.reply({ embeds: [tracksAddedPlaylist], ephemeral: true });
   }

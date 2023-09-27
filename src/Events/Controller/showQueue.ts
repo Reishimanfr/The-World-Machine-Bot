@@ -87,7 +87,7 @@ export const showQueue = async (
 
     let page = 0;
 
-    const res = await interaction.reply({
+    const res = await interaction.editReply({
       embeds: [
         embeds[page].setFooter({
           text: `Page 1/${embeds.length} • Queue length: ${formatSeconds(
@@ -95,7 +95,6 @@ export const showQueue = async (
           )}`,
         }),
       ],
-      ephemeral: true,
       components: [components],
     });
 
@@ -140,14 +139,13 @@ export const showQueue = async (
       }
     });
   } else {
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         new EmbedBuilder()
           .setAuthor({ name: `There are ${queue.length} songs in the queue` })
           .setDescription(queueEntries.join('\n'))
           .setColor(util.twmPurpleHex),
       ],
-      ephemeral: true,
     });
   }
 };

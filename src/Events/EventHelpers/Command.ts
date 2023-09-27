@@ -3,6 +3,7 @@ import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
 import { client } from '../..';
 import { logger } from '../../misc/logger';
+import util from '../../misc/Util';
 
 const Command = async (interaction: CommandInteraction) => {
   const command = commandList.find((c) => c.data.name == interaction.commandName);
@@ -34,7 +35,7 @@ const Command = async (interaction: CommandInteraction) => {
               '[ Command requires missing bot permissions. ]\n' +
                 missingPermissions.join(', ')
             )
-            .setColor('#8b00cc'),
+            .setColor(util.twmPurpleHex),
         ],
         ephemeral: true,
       });
@@ -50,7 +51,7 @@ const Command = async (interaction: CommandInteraction) => {
         embeds: [
           new EmbedBuilder()
             .setDescription('[ You must be in a voice channel to use this. ]')
-            .setColor('#8b00cc'),
+            .setColor(util.twmPurpleHex),
         ],
         ephemeral: true,
       });
@@ -67,7 +68,7 @@ const Command = async (interaction: CommandInteraction) => {
         embeds: [
           new EmbedBuilder()
             .setDescription('[ You must be in the same voice channel to use this. ]')
-            .setColor('#8b00cc'),
+            .setColor(util.twmPurpleHex),
         ],
         ephemeral: true,
       });

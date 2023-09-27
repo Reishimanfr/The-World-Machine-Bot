@@ -17,6 +17,7 @@ import {
   classes,
   statFields,
 } from '../bot_data/tf2Data';
+import util from '../misc/Util';
 
 const urls = {
   vanityRequestUrl: `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.steamApiKey}&vanityurl=`,
@@ -153,7 +154,7 @@ function generateEmbed(tf2Data, playerClass, profileData, command) {
       text: `${command.user.tag}`,
       iconURL: command.user.displayAvatarURL(),
     })
-    .setColor('#8b00cc')
+    .setColor(util.twmPurpleHex)
     .setTimestamp();
 
   return embed;
@@ -190,7 +191,7 @@ const tf2: Command = {
         embeds: [
           new EmbedBuilder()
             .setDescription("[ Can't find anything for this steam Id. ]")
-            .setColor('#8b00cc'),
+            .setColor(util.twmPurpleHex),
         ],
       });
     }

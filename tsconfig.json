@@ -12,7 +12,8 @@
         "emitDecoratorMetadata": true,
         "resolveJsonModule": true,
         "importHelpers": true,
-        "removeComments": true
+        "removeComments": true,
+        "strictNullChecks": true,
     },
     "include": ["src/**/*", "environment.d.ts"],
     "exclude": ["node_modules"]

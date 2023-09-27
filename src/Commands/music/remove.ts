@@ -3,6 +3,7 @@ import { ExtPlayer } from '../../misc/twmClient';
 import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
 import { logger } from '../../misc/logger';
 import addToAuditLog from '../../bot_data/addToAduitLog';
+import util from '../../misc/Util';
 
 export async function remove(
   interaction: ChatInputCommandInteraction,
@@ -53,7 +54,7 @@ export async function remove(
     embeds: [
       new EmbedBuilder()
         .setDescription(`[ Removed position(s) \`${input}\` from the queue. ]`)
-        .setColor('#8b00cc'),
+        .setColor(util.twmPurpleHex),
     ],
     ephemeral: true,
   });

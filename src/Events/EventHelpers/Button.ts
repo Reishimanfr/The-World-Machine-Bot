@@ -1,4 +1,8 @@
-import { ButtonInteraction, EmbedBuilder } from 'discord.js';
+import {
+  ButtonInteraction,
+  EmbedBuilder,
+  InteractionReplyOptions,
+} from 'discord.js';
 import { client } from '../..';
 import { ExtPlayer } from '../../misc/twmClient';
 import { buttonMap } from '../Controller/!buttonHandler';
@@ -45,19 +49,29 @@ const Button = async (button: ButtonInteraction) => {
       });
     }
 
+    await button.deferReply({ ephemeral: true });
+
     try {
       await handler(...args);
     } catch (error) {
       logger.error(`Failed to process button ${button.customId}: ${error.stack}`);
 
-      await button.followUp({
+      const options: InteractionReplyOptions = {
         embeds: [
           new EmbedBuilder()
             .setDescription('[ Something went wrong while running this. ]')
             .setColor(util.twmPurpleHex),
         ],
         ephemeral: true,
-      });
+      };
+
+      if (button.replied) {
+        await button.followUp(options);
+      } else if (!button.replied) {
+        await button.reply(options);
+      } else {
+        logger.error(`xd`);
+      }
     }
   }
 };
