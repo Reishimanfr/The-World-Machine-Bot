@@ -1,13 +1,10 @@
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  SlashCommandBuilder,
-} from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import Command from '../types/CommandI';
 import { ExtPlayer } from '../misc/twmClient';
-import PlayerEmbedManager from '../bot_data/playerEmbedManager';
+import PlayerEmbedManager from '../functions/playerEmbedManager';
 import subcomamndHandler from './music/!SubcommandHandler';
 import util from '../misc/Util';
+import { config } from '../config';
 
 //! add queue command
 //! add a insert command (replace but adds the song instead of repaling)
@@ -26,17 +23,12 @@ const music: Command = {
             .setName('song')
             .setDescription('Song search query or link')
             .setRequired(true)
-        )
+            .setAutocomplete(config.player.autocomplete),
+        ),
     )
-    .addSubcommand((pause) =>
-      pause.setName('pause').setDescription('Pause the currently playing track.')
-    )
+    .addSubcommand((pause) => pause.setName('pause').setDescription('Pause the currently playing track.'))
     .addSubcommand((nowplaying) =>
-      nowplaying
-        .setName('nowplaying')
-        .setDescription(
-          'Show the currently playing song (along with control buttons)'
-        )
+      nowplaying.setName('nowplaying').setDescription('Show the currently playing song (along with control buttons)'),
     )
     .addSubcommand((seek) =>
       seek
@@ -45,11 +37,9 @@ const music: Command = {
         .addStringOption((timestamp) =>
           timestamp
             .setName('time')
-            .setDescription(
-              'Adjust time: +/- seconds or HH:MM:SS format. Use + for forward, - for backward.'
-            )
-            .setRequired(true)
-        )
+            .setDescription('Adjust time: +/- seconds or HH:MM:SS format. Use + for forward, - for backward.')
+            .setRequired(true),
+        ),
     )
     .addSubcommand((remove) =>
       remove
@@ -59,77 +49,54 @@ const music: Command = {
           input
             .setName('songs')
             .setDescription(
-              'Songs to be removed. Formats: (position) | (position1, position2...) | (position1 - position2)'
+              'Songs to be removed. Formats: (position) | (position1, position2...) | (position1 - position2)',
             )
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     )
     .addSubcommand((replace) =>
       replace
         .setName('replace')
         .setDescription('Replace a song at a specified position in the queue')
         .addStringOption((song) =>
-          song
-            .setName('url-or-search')
-            .setDescription('Search query or URL to the song.')
-            .setRequired(true)
+          song.setName('url-or-search').setDescription('Search query or URL to the song.').setRequired(true),
         )
         .addNumberOption((pos) =>
-          pos
-            .setName('position')
-            .setDescription('Position in the queue to be replaced')
-            .setRequired(true)
-        )
+          pos.setName('position').setDescription('Position in the queue to be replaced').setRequired(true),
+        ),
     )
     .addSubcommand((audit) =>
-      audit
-        .setName('audit')
-        .setDescription('See recent player events (like someone skipping a song).')
+      audit.setName('audit').setDescription('See recent player events (like someone skipping a song).'),
     )
     .addSubcommand((skipTo) =>
       skipTo
         .setName('skipto')
         .setDescription('Skip to a specified song in the queue')
         .addNumberOption((pos) =>
-          pos
-            .setName('position')
-            .setDescription('Position in the queue to skip to.')
-            .setRequired(true)
-        )
+          pos.setName('position').setDescription('Position in the queue to skip to.').setRequired(true),
+        ),
     )
     .addSubcommand((loop) =>
-      loop
-        .setName('loop')
-        .setDescription('Enable or disable looping for the currently playing track.')
-    ),
+      loop.setName('loop').setDescription('Enable or disable looping for the currently playing track.'),
+    )
+    .addSubcommand((save) => save.setName('save').setDescription('Save the currently playing track to your DMs!')),
 
   callback: async (interaction: ChatInputCommandInteraction, client) => {
     const subcommand = interaction.options.getSubcommand();
     const player = client.poru.get(interaction.guildId!) as ExtPlayer;
 
-    const member = await util.fetchMember(
-      interaction.guild!.id,
-      interaction.user.id
-    );
+    const member = await util.fetchMember(interaction.guild!.id, interaction.user.id);
 
     if (!member?.voice.channel?.joinable) {
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription("[ I can't join this channel. ]")
-            .setColor(util.twmPurpleHex),
-        ],
+        embeds: [new EmbedBuilder().setDescription("[ I can't join this channel. ]").setColor(util.twmPurpleHex)],
         ephemeral: true,
       });
     }
 
-    if ((!player || !player?.isPlaying) && subcommand !== 'play') {
+    if (!player && subcommand !== 'play') {
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Nothing is playing right now. ]')
-            .setColor(util.twmPurpleHex),
-        ],
+        embeds: [new EmbedBuilder().setDescription('[ There are no active players. ]').setColor(util.twmPurpleHex)],
         ephemeral: true,
       });
     }

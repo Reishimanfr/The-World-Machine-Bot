@@ -2,7 +2,7 @@ import { ActivityType } from 'discord.js';
 import { logger } from '../misc/logger';
 import { client } from '..';
 
-const Ready = () => {
+const Ready = async () => {
   client.user?.setPresence({
     activities: [
       {

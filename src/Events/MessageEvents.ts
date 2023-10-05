@@ -1,17 +1,17 @@
 import Starboard from './EventHelpers/StarboardHelper';
 import { logger } from '../misc/logger';
 
-const MessageReactionAdd = async (reaction, user, client) => {
+const MessageReactionAdd = async (reaction, user) => {
   try {
-    await new Starboard(reaction, user, client).main();
+    await new Starboard(reaction, user).main();
   } catch (error) {
     logger.error(error.stack);
   }
 };
 
-const MessageReactionRemove = async (reaction, user, client) => {
+const MessageReactionRemove = async (reaction, user) => {
   try {
-    await new Starboard(reaction, user, client).main();
+    await new Starboard(reaction, user).main();
   } catch (error) {
     logger.error(error.stack);
   }

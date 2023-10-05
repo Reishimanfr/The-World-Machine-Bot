@@ -7,6 +7,9 @@ interface IOneshotSprites {
   };
 }
 
+
+// FOR FURUTE REI
+// The "ID" is the emoji is for sprite asset just so u know
 export const OneshotSprites: IOneshotSprites = {
   Niko: {
     Normal: {

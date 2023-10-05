@@ -1,5 +1,7 @@
-import { ColorResolvable, GuildMember } from 'discord.js';
+import { ColorResolvable, GuildMember, User } from 'discord.js';
 import { client } from '..';
+import { ExtPlayer } from './twmClient';
+import dayjs from 'dayjs';
 
 class util {
   static sliceIfTooLong(
@@ -13,11 +15,32 @@ class util {
     return string.slice(0, string.length - sliceLength) + sliceEnd;
   }
 
+  static wrapString(string: string, maxLength: number) {
+    if (string.length <= maxLength) return string;
+
+    let wrappedString = '';
+    for (let i = 0; i < string.length; i += maxLength) {
+      wrappedString += string.substring(i, i + maxLength) + '\n';
+    }
+
+    return wrappedString.trim();
+  }
+
   static async fetchMember(guildId: string, userId: string): Promise<GuildMember> {
     const guild = await client.guilds.fetch(guildId);
     const member = await guild.members.fetch(userId);
 
     return member;
+  }
+
+  static addToAuditLog(player: ExtPlayer, user: User, message: string) {
+    const newData = {
+      date: dayjs(),
+      user: user,
+      func: message,
+    };
+
+    player.auditLog = player.auditLog ? [...player.auditLog, newData] : [newData];
   }
 
   static nikoGifUrl =

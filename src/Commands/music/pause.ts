@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
-import addToAuditLog from '../../bot_data/addToAduitLog';
 import util from '../../misc/Util';
 
 export async function pause(
@@ -15,7 +14,7 @@ export async function pause(
     player.pause(true);
   }
 
-  addToAuditLog(
+  util.addToAuditLog(
     player,
     interaction.user,
     `${player.isPaused ? 'Paused' : 'Resumed'} the player`

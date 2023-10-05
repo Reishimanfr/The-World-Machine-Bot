@@ -1,4 +1,4 @@
-import commandList from '../../bot_data/commandList';
+import commandList from '../../functions/commandList';
 import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
 import { client } from '../..';
@@ -11,30 +11,24 @@ const Command = async (interaction: CommandInteraction) => {
   if (!command) {
     return interaction.reply({
       embeds: [
-        {
-          description:
-            '[ Something went fatally wrong: the command file seems to be missing. ]',
-          color: 9109708,
-        },
+        new EmbedBuilder()
+          .setDescription('[ Something went wrong while running this command. ]')
+          .setColor(util.twmPurpleHex),
       ],
+      ephemeral: true,
     });
   }
 
   // Missing permissions check
   if (command.permissions) {
     const currentPerms = interaction.guild?.members.me?.permissions;
-    const missingPermissions = command.permissions.filter(
-      (perm) => !currentPerms?.has(perm)
-    );
+    const missingPermissions = command.permissions.filter((perm) => !currentPerms?.has(perm));
 
     if (missingPermissions.length) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(
-              '[ Command requires missing bot permissions. ]\n' +
-                missingPermissions.join(', ')
-            )
+            .setDescription('[ Command requires missing bot permissions. ]\n' + missingPermissions.join(', '))
             .setColor(util.twmPurpleHex),
         ],
         ephemeral: true,
@@ -61,8 +55,7 @@ const Command = async (interaction: CommandInteraction) => {
 
     if (
       poruPlayer?.connection &&
-      interaction.member.voice.channelId !==
-        interaction.guild.members.me?.voice.channelId
+      interaction.member.voice.channelId !== interaction.guild.members.me?.voice.channelId
     ) {
       return interaction.reply({
         embeds: [

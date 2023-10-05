@@ -1,15 +1,14 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
-import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
+import PlayerEmbedManager from '../../functions/playerEmbedManager';
 import { logger } from '../../misc/logger';
-import addToAuditLog from '../../bot_data/addToAduitLog';
 import util from '../../misc/Util';
 
 export async function remove(
   interaction: ChatInputCommandInteraction,
   player: ExtPlayer,
   _: any,
-  builder: PlayerEmbedManager
+  builder: PlayerEmbedManager,
 ) {
   let queue = player.queue;
   let input = interaction.options.getString('songs', true);
@@ -44,11 +43,7 @@ export async function remove(
     }
   }
 
-  addToAuditLog(
-    player,
-    interaction.user,
-    `Removed song(s) from the queue (position(s): ${input}`
-  );
+  util.addToAuditLog(player, interaction.user, `Removed song(s) from the queue (position(s): ${input}`);
 
   await interaction.reply({
     embeds: [
@@ -61,7 +56,7 @@ export async function remove(
 
   if (!player?.message) return;
 
-  const embed = builder.constructSongStateEmbed();
+  const embed = await builder.constructSongStateEmbed();
 
   player.message
     .edit({

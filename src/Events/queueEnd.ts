@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../misc/twmClient';
-import constructProgressBar from '../bot_data/progressBar';
+import constructProgressBar from '../functions/progressBar';
 import { logger } from '../misc/logger';
 import util from '../misc/Util';
 
@@ -10,9 +10,7 @@ const queueEnd = (player: ExtPlayer) => {
   const embed = EmbedBuilder.from(player.message?.embeds[0]);
   const descriptionSplit = embed.data.description?.split('\n');
 
-  embed.setDescription(
-    `${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`
-  );
+  embed.setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`);
   embed.setAuthor({
     name: 'Waiting for another song...',
     iconURL: util.nikoGifUrl,

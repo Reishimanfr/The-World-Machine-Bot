@@ -1,11 +1,7 @@
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  GuildMember,
-  SlashCommandBuilder,
-} from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, SlashCommandBuilder } from 'discord.js';
 import Command from '../types/CommandI';
 import util from '../misc/Util';
+import { client } from '..';
 
 // Almost every bot you could imagine has one so I couldn't be worse than them right?
 // :3 :3 :3 :3 :3
@@ -14,13 +10,9 @@ const avatar: Command = {
   data: new SlashCommandBuilder()
     .setName('avatar')
     .setDescription("Get a user's avatar")
-    .addUserOption((user) =>
-      user.setName('user').setDescription('User to fetch').setRequired(true)
-    )
+    .addUserOption((user) => user.setName('user').setDescription('User to fetch').setRequired(true))
     .addBooleanOption((ephemeral) =>
-      ephemeral
-        .setName('secret')
-        .setDescription("Should you be the only one seeing the command's reply?")
+      ephemeral.setName('secret').setDescription("Should you be the only one seeing the command's reply?"),
     ),
 
   callback: async (interaction: ChatInputCommandInteraction) => {
@@ -28,7 +20,7 @@ const avatar: Command = {
     const secret = interaction.options.getBoolean('secret') ?? false;
 
     const embed = new EmbedBuilder()
-      .setImage(member.displayAvatarURL({ size: 2048 }))
+      .setImage(member.displayAvatarURL({ size: 2048, extension: 'png' }))
       .setColor(util.twmPurpleHex);
 
     await interaction.reply({ embeds: [embed], ephemeral: secret });

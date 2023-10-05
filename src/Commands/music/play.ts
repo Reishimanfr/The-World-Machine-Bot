@@ -9,7 +9,6 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 import { ExtClient, ExtPlayer } from '../../misc/twmClient';
-import addToAuditLog from '../../bot_data/addToAduitLog';
 import { logger } from '../../misc/logger';
 import util from '../../misc/Util';
 
@@ -51,7 +50,7 @@ export async function loadTrack(
     return sendEmbed(interaction, `[ No matches for **${query}** ]`);
   }
 
-  addToAuditLog(
+  util.addToAuditLog(
     player,
     interaction.user,
     'Added a track (or a playlist) to the queue'
@@ -124,7 +123,7 @@ export async function loadTrack(
     player.queue.add(track);
 
     const tracksAddedPlaylist = new EmbedBuilder()
-      .setDescription(`[ Track added to queue. ]`)
+      .setDescription(`[ Track **${track.info.title}** added to queue. ]`)
       .setColor(util.twmPurpleHex);
 
     await interaction.editReply({ embeds: [tracksAddedPlaylist] });

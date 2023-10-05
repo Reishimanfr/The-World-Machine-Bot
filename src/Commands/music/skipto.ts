@@ -2,7 +2,6 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
 import util from '../../misc/Util';
 import Queue from 'poru/dist/src/guild/Queue';
-import addToAuditLog from '../../bot_data/addToAduitLog';
 
 export async function skipto(
   interaction: ChatInputCommandInteraction,
@@ -30,7 +29,7 @@ export async function skipto(
   player.queue = newQueue;
   player.seekTo(player.currentTrack.info.length);
 
-  addToAuditLog(
+  util.addToAuditLog(
     player,
     interaction.user,
     `(skipto): Skipped to song at position ${pos}`

@@ -1,29 +1,19 @@
 import { ButtonInteraction } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
-import dayjs from 'dayjs';
-import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
+import PlayerEmbedManager from '../../functions/playerEmbedManager';
+import util from '../../misc/Util';
 
-export const togglePlayback = async (
-  interaction: ButtonInteraction,
-  player: ExtPlayer
-) => {
+export const togglePlayback = async (interaction: ButtonInteraction, player: ExtPlayer) => {
   const isPaused = player.isPaused;
 
   // Append to audit log
-  player.auditLog = [
-    ...(player.auditLog ? player.auditLog : []),
-    {
-      date: dayjs(),
-      func: `${!player.isPaused ? 'Resumed' : 'Paused'} the player`,
-      user: interaction.user,
-    },
-  ];
+  util.addToAuditLog(player, interaction.user, !player.isPaused ? 'Resumed' : 'Paused' + ' the player');
 
   player.pause(!isPaused);
 
   if (player.message) {
     const builder = new PlayerEmbedManager(player);
-    const embed = builder.constructSongStateEmbed();
+    const embed = await builder.constructSongStateEmbed();
     const newRow = builder.constructRow();
 
     player.message.edit({

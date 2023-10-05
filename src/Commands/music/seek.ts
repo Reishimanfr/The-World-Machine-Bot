@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
-import addToAuditLog from '../../bot_data/addToAduitLog';
 import util from '../../misc/Util';
 
 // Check if string is in HH?:MM:SS format
@@ -43,6 +42,7 @@ export async function seek(
 ) {
   if (!interaction.inCachedGuild()) return;
 
+  // You never know
   if (!player.currentTrack.info.isSeekable) {
     return interaction.reply({
       embeds: [
@@ -91,12 +91,12 @@ export async function seek(
     });
   }
 
-  addToAuditLog(player, interaction.user, responseString);
+  util.addToAuditLog(player, interaction.user, responseString);
 
   player.seekTo(pos);
 
   interaction.reply({
-    embeds: [{ description: '[ Done. ]', color: 9109708 }],
+    embeds: [{ description: `[ ${responseString}. ]`, color: 9109708 }],
     ephemeral: true,
   });
 }

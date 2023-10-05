@@ -19,12 +19,11 @@
     "dayjs": "^1.11.9",
     "discord.js": "^14.11.0",
     "dotenv": "^16.3.1",
+    "js-yaml": "^4.1.0",
     "poru": "^4.2.1",
     "sequelize": "^6.33.0",
     "sqlite3": "^5.1.6",
-    "ts-node": "^10.9.1",
-    "winston": "^3.9.0",
-    "word-wrap": "^1.2.5"
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "prettier": "^3.0.3"

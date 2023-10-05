@@ -10,22 +10,14 @@ import { ExtPlayer } from '../../misc/twmClient';
 import { Track } from 'poru';
 import util from '../../misc/Util';
 import { logger } from '../../misc/logger';
-import { formatSeconds } from '../../bot_data/formatSeconds';
+import { formatSeconds } from '../../functions/formatSeconds';
 
-export const showQueue = async (
-  interaction: ButtonInteraction,
-  player: ExtPlayer
-) => {
+export const showQueue = async (interaction: ButtonInteraction, player: ExtPlayer) => {
   const queue: Track[] = player.queue;
 
   if (!queue.length) {
-    return interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ The queue is empty. ]')
-          .setColor(util.twmPurpleHex),
-      ],
-      ephemeral: true,
+    return interaction.editReply({
+      embeds: [new EmbedBuilder().setDescription('[ The queue is empty. ]').setColor(util.twmPurpleHex)],
     });
   }
 
@@ -37,12 +29,8 @@ export const showQueue = async (
     queueLength += entry.info.length;
 
     queueEntries.push(
-      `\`${i + 1}\`: **[${entry.info.title} - ${entry.info.author}](${
-        entry.info.uri
-      })**\nAdded by <@${entry.info.requester?.user
-        .id}> | Duration: \`${formatSeconds(
-        Math.trunc(entry.info.length / 1000)
-      )}\`\n\n`
+      `\`${i + 1}\`: **[${entry.info.title} - ${entry.info.author}](${entry.info.uri})**\nAdded by <@${entry.info
+        .requester?.user.id}> | Duration: \`${formatSeconds(Math.trunc(entry.info.length / 1000))}\`\n\n`,
     );
   }
 
@@ -72,15 +60,9 @@ export const showQueue = async (
     }
 
     const buttons: ButtonBuilder[] = [
-      new ButtonBuilder()
-        .setCustomId('back')
-        .setEmoji('⏪')
-        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('back').setEmoji('⏪').setStyle(ButtonStyle.Primary),
 
-      new ButtonBuilder()
-        .setCustomId('forward')
-        .setEmoji('⏩')
-        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('forward').setEmoji('⏩').setStyle(ButtonStyle.Primary),
     ];
 
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
@@ -90,9 +72,7 @@ export const showQueue = async (
     const res = await interaction.editReply({
       embeds: [
         embeds[page].setFooter({
-          text: `Page 1/${embeds.length} • Queue length: ${formatSeconds(
-            Math.trunc(queueLength / 1000)
-          )}`,
+          text: `Page 1/${embeds.length} • Queue length: ${formatSeconds(Math.trunc(queueLength / 1000))}`,
         }),
       ],
       components: [components],
@@ -113,12 +93,10 @@ export const showQueue = async (
         page = page + 1 < embeds.length ? ++page : 0;
       }
 
-      res.edit({
+      interaction.editReply({
         embeds: [
           embeds[page].setFooter({
-            text: `Page ${page + 1}/${embeds.length} • Queue length: ${formatSeconds(
-              Math.trunc(queueLength / 1000)
-            )}`,
+            text: `Page ${page + 1}/${embeds.length} • Queue length: ${formatSeconds(Math.trunc(queueLength / 1000))}`,
           }),
         ],
       });
@@ -127,15 +105,13 @@ export const showQueue = async (
     collector.on('end', async (_) => {
       const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         buttons[0].setDisabled(true),
-        buttons[1].setDisabled(true)
+        buttons[1].setDisabled(true),
       );
 
       try {
-        await res.edit({ components: [newRow] });
+        await interaction.editReply({ components: [newRow] });
       } catch (error) {
-        logger.error(
-          `Failed to remove buttons from player audit log message: ${error.stack}`
-        );
+        logger.error(`Failed to remove buttons from player audit log message: ${error.stack}`);
       }
     });
   } else {

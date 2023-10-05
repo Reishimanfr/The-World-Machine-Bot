@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
-// No reason to do anything fancy for a local database right?
-// fucking kill me please
+// I'm too lazy to set anything up here
 const sequelize = new Sequelize('database', 'user', 'password', {
   host: 'localhost',
   dialect: 'sqlite',
@@ -28,17 +27,6 @@ export const starboardConfig = sequelize.define('starboardConfig', {
   },
 });
 
-export const starboardBlacklist = sequelize.define('starboardBlacklist', {
-  guildId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  channelId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
-
 export const starboardEmojis = sequelize.define('starboardEmojis', {
   guildId: {
     type: DataTypes.STRING,
@@ -50,21 +38,13 @@ export const starboardEmojis = sequelize.define('starboardEmojis', {
   },
 });
 
-export const starboardEntries = sequelize.define('starboardEntires', {
+export const starboardBlacklistedChannels = sequelize.define('starboardBlacklistChannels', {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  messageId: {
+  channelId: {
     type: DataTypes.STRING,
-    allowNull: false,
-  },
-  messageUrl: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  blackListed: {
-    type: DataTypes.BOOLEAN,
     allowNull: false,
   },
 });

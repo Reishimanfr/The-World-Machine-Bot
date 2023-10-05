@@ -28,11 +28,6 @@ export const statFields = [
     stat: 'iBuildingsBuilt',
     playerClass: 'Engineer',
   },
-  {
-    title: 'Buildings Built',
-    stat: 'iBuildingsBuilt',
-    playerClass: 'Engineer',
-  },
   { title: 'Points Scored', stat: 'iPointsScored' },
   { title: 'Assists', stat: 'iKillAssists' },
   { title: 'Damage', stat: 'iDamageDealt' },

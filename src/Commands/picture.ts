@@ -69,7 +69,7 @@ const picture: Command = {
     const components = [
       new ButtonBuilder()
         .setCustomId('get-another')
-        .setLabel('Get another')
+        .setLabel('🔃')
         .setStyle(ButtonStyle.Secondary),
     ];
 
@@ -90,25 +90,27 @@ const picture: Command = {
 
     collector.on('collect', async (button) => {
       await button.deferUpdate();
-
-      // Only reset the timer once we are sure the command user used the button not some random guy
       collector.resetTimer();
 
       const image = await getImage(link);
 
       const newEmbed = new EmbedBuilder()
-        .setImage(image) // Get and set the image
+        .setImage(image) // Get set image
         .setColor(util.twmPurpleHex);
 
-      reply.edit({ embeds: [newEmbed], components: [enabledRow] });
+      try {
+        await reply.edit({ embeds: [newEmbed] });
+      } catch {}
     });
 
-    collector.on('end', (_) => {
+    collector.on('end', async (_) => {
       const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         components[0].setDisabled(true)
       );
 
-      reply.edit({ components: [disabledRow] }).catch(() => {}); // Since we have to catch the error and we don't really have to log it
+      try {
+        await reply.edit({ components: [disabledRow] });
+      } catch {}
     });
   },
 };

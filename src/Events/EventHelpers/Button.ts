@@ -12,12 +12,39 @@ import util from '../../misc/Util';
 const Button = async (button: ButtonInteraction) => {
   if (button.customId.startsWith('songcontrol')) {
     const player = client.poru.players.get(button.guildId!) as ExtPlayer;
+    const member = await button.guild?.members.fetch(button.user.id);
+    const isExceptionButton = ['queueHelp', 'showQueue'].includes(button.customId);
 
     if (!player) {
       return await button.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription("[ This player isn't active anymore. ]")
+            .setColor(util.twmPurpleHex),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    if (!member?.voice.channel && !isExceptionButton) {
+      return await button.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You must be in a voice channel to use this. ]')
+            .setColor(util.twmPurpleHex),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    if (
+      member?.voice.channelId !== button.guild?.members.me?.voice.channelId &&
+      !isExceptionButton
+    ) {
+      return await button.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You must be in the same voice channel to use this. ]')
             .setColor(util.twmPurpleHex),
         ],
       });
@@ -27,7 +54,7 @@ const Button = async (button: ButtonInteraction) => {
     const handler = buttonMap[action];
     const args = [button, player, client];
 
-    if (!player.isPlaying && !player.isPaused) {
+    if (!player.isPlaying && !player.isPaused && !isExceptionButton) {
       return button.reply({
         embeds: [
           new EmbedBuilder()

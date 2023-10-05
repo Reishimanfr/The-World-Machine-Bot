@@ -2,6 +2,7 @@ import { EmbedBuilder, Interaction, InteractionReplyOptions } from 'discord.js';
 import Command from './EventHelpers/Command';
 import Button from './EventHelpers/Button';
 import { logger } from '../misc/logger';
+import Autocomplete from './EventHelpers/Autocomplete';
 
 async function replyOrFollowup(
   interaction: Interaction,
@@ -15,6 +16,9 @@ async function replyOrFollowup(
 }
 
 const InteractionCreate = async (interaction: Interaction) => {
+  if (interaction.isAutocomplete()) {
+    Autocomplete(interaction);
+  }
   if (interaction.isCommand()) {
     try {
       return await Command(interaction);

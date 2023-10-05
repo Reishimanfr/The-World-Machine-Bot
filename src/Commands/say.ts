@@ -10,8 +10,8 @@ import {
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import Command from '../types/CommandI';
-import { OneshotSpritesType, OneshotSprites } from '../bot_data/textboxSprites';
-import { generateTextbox } from '../bot_data/textboxGenerator';
+import { OneshotSpritesType, OneshotSprites } from '../functions/textboxSprites';
+import { generateTextbox } from '../functions/textboxGenerator';
 import { logger } from '../misc/logger';
 
 const say: Command = {
@@ -24,7 +24,7 @@ const say: Command = {
         .setName('message')
         .setDescription('Message for your character to say')
         .setRequired(true)
-        .setMaxLength(150)
+        .setMaxLength(150),
     ),
 
   callback: async (interaction: ChatInputCommandInteraction) => {
@@ -37,17 +37,16 @@ const say: Command = {
         new StringSelectMenuOptionBuilder()
           .setLabel(character.replaceAll('_', ' '))
           .setValue(character)
-          .setEmoji(OneshotSprites[character].Normal.id || '⚠️')
+          .setEmoji(OneshotSprites[character].Normal.id || '⚠️'),
       );
     }
 
-    const characterSelectMenu =
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId('emotion-select-menu')
-          .setPlaceholder('Select something!')
-          .addOptions(characterChoices)
-      );
+    const characterSelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('emotion-select-menu')
+        .setPlaceholder('Select something!')
+        .addOptions(characterChoices),
+    );
 
     const characterResponse = await interaction.reply({
       embeds: [{ description: '[ Select a character. ]', color: Colors.DarkPurple }],
@@ -72,17 +71,16 @@ const say: Command = {
         new StringSelectMenuOptionBuilder()
           .setLabel(sprite.replaceAll('_', ' '))
           .setValue(sprite)
-          .setEmoji(OneshotSprites[character][sprite].id || '⚠️')
+          .setEmoji(OneshotSprites[character][sprite].id || '⚠️'),
       );
     }
 
-    const emotionSelectMenu =
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId('emotion-select-menu')
-          .setPlaceholder('Select something!')
-          .addOptions(emotionChoices)
-      );
+    const emotionSelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('emotion-select-menu')
+        .setPlaceholder('Select something!')
+        .addOptions(emotionChoices),
+    );
 
     const emotionResponse = await interaction.editReply({
       embeds: [
@@ -106,7 +104,7 @@ const say: Command = {
     try {
       const textboxBuffer = await generateTextbox(message, emotion, character);
       const attachment = new AttachmentBuilder(textboxBuffer, {
-        name: 'funny.png',
+        name: 'textbox.png',
       });
 
       const requestedByEmbed = new EmbedBuilder().setAuthor({
@@ -122,15 +120,11 @@ const say: Command = {
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(
-              `There was a error while generating a textbox: ${error.stack}`
-            )
+            .setDescription(`There was a error while generating a textbox: ${error.stack}`)
             .setColor(Colors.Red),
         ],
       });
-      logger.error(
-        `Error while generating a oneshot textbox: ${error.stack}\n(${character}) (${emotion})`
-      );
+      logger.error(`Error while generating a oneshot textbox: ${error.stack}\n(${character}) (${emotion})`);
     }
   },
 };

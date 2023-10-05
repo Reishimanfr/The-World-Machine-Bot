@@ -6,6 +6,7 @@ import { remove } from './remove';
 import { replace } from './replace';
 import { audit } from './audit';
 import { skipto } from './skipto';
+import { save } from './save';
 
 const subcomamndHandler = {
   play: play,
@@ -15,6 +16,7 @@ const subcomamndHandler = {
   remove: remove,
   replace: replace,
   audit: audit,
+  save: save,
   skipto: skipto,
 };
 

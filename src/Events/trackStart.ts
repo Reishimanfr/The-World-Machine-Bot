@@ -1,13 +1,9 @@
 import { Track } from 'poru';
 import { ExtClient, ExtPlayer } from '../misc/twmClient';
-import PlayerEmbedManager from '../bot_data/playerEmbedManager';
+import PlayerEmbedManager from '../functions/playerEmbedManager';
 import { logger } from '../misc/logger';
 
-export const trackStart = async (
-  player: ExtPlayer,
-  track: Track,
-  client: ExtClient
-) => {
+export const trackStart = async (player: ExtPlayer, track: Track, client: ExtClient) => {
   const guild = await client.guilds.fetch(player.guildId);
   const channel = await guild.channels?.fetch(player.textChannel);
 
@@ -17,7 +13,7 @@ export const trackStart = async (
   let control = new PlayerEmbedManager(player);
 
   const row = control.constructRow();
-  const embed = control.constructSongStateEmbed(track);
+  const embed = await control.constructSongStateEmbed(track);
 
   if (!embed) return;
 

@@ -1,14 +1,10 @@
 import { EmbedBuilder, VoiceState } from 'discord.js';
 import { ExtClient, ExtPlayer } from '../misc/twmClient';
-import PlayerEmbedManager from '../bot_data/playerEmbedManager';
+import PlayerEmbedManager from '../functions/playerEmbedManager';
 import { logger } from '../misc/logger';
 import util from '../misc/Util';
 
-const UpdateVoiceState = async (
-  oldState: VoiceState,
-  newState: VoiceState,
-  client: ExtClient
-) => {
+const UpdateVoiceState = async (oldState: VoiceState, newState: VoiceState, client: ExtClient) => {
   const guildId = oldState?.guild?.id ?? newState?.guild?.id;
   const player = client.poru.players.get(guildId) as ExtPlayer;
 
@@ -36,9 +32,7 @@ const UpdateVoiceState = async (
         components: [builder.constructRow(true)],
       });
     } catch (error) {
-      logger.error(
-        `A error occured while editing message after event [bot disconnected]: ${error.stack}`
-      );
+      logger.error(`A error occured while editing message after event [bot disconnected]: ${error.stack}`);
     }
     return;
   }
@@ -63,9 +57,7 @@ const UpdateVoiceState = async (
         components: [builder.constructRow(true)],
       });
     } catch (error) {
-      logger.error(
-        `A error occured while editing message after event [everyone left channel]: ${error.stack}`
-      );
+      logger.error(`A error occured while editing message after event [everyone left channel]: ${error.stack}`);
     }
   }
 };

@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { config } from '../config';
 require('dotenv').config();
 
 winston.addColors({
@@ -17,13 +18,11 @@ const format = winston.format.combine(
   winston.format.errors({ stack: true }),
   winston.format.splat(),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
-  winston.format.printf(
-    (info) => `[${info.timestamp}] [${info.level}]: ${info.message}`
-  )
+  winston.format.printf((info) => `[${info.timestamp}] [${info.level}]: ${info.message}`),
 );
 
 const logger = winston.createLogger({
-  level: process.env.DEV === 'true' ? 'debug' : 'info',
+  level: config.enableDev ? 'debug' : 'info',
   transports: [
     new winston.transports.Console({ format }),
     new winston.transports.File({

@@ -1,25 +1,20 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtClient, ExtPlayer } from '../../misc/twmClient';
-import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
-import addToAuditLog from '../../bot_data/addToAduitLog';
+import PlayerEmbedManager from '../../functions/playerEmbedManager';
 import util from '../../misc/Util';
 
 export async function replace(
   interaction: ChatInputCommandInteraction,
   player: ExtPlayer,
   builder: PlayerEmbedManager,
-  client: ExtClient
+  client: ExtClient,
 ) {
   const urlOrSearch = interaction.options.getString('url-or-search', true);
   const pos = interaction.options.getNumber('position', true);
 
   if (!player.queue[pos - 1]) {
     interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription(`[ No track at position \`${pos}\`. ]`)
-          .setColor(util.twmPurpleHex),
-      ],
+      embeds: [new EmbedBuilder().setDescription(`[ No track at position \`${pos}\`. ]`).setColor(util.twmPurpleHex)],
       ephemeral: true,
     });
     return;
@@ -32,9 +27,7 @@ export async function replace(
   });
 
   if (res.loadType == 'LOAD_FAILED') {
-    const loadFailed = new EmbedBuilder()
-      .setDescription(`[ Failed to load track. ]`)
-      .setColor(util.twmPurpleHex);
+    const loadFailed = new EmbedBuilder().setDescription(`[ Failed to load track. ]`).setColor(util.twmPurpleHex);
 
     await interaction.reply({ embeds: [loadFailed], ephemeral: true });
     return;
@@ -47,14 +40,14 @@ export async function replace(
     return;
   }
 
-  addToAuditLog(player, interaction.user, `Replaced a track at position ${pos}`);
+  util.addToAuditLog(player, interaction.user, `Replaced a track at position ${pos}`);
 
   if (res.loadType == 'PLAYLIST_LOADED') {
     await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription(
-            `[ A playlist consisting of **${res.tracks.length} tracks** was detected. The first one will be loaded because you cannot replace a single song with a playlist. ]`
+            `[ A playlist consisting of **${res.tracks.length} tracks** was detected. The first one will be loaded because you cannot replace a single song with a playlist. ]`,
           )
           .setColor(util.twmPurpleHex),
       ],
@@ -81,6 +74,6 @@ export async function replace(
   if (!player?.message) return;
 
   player?.message.edit({
-    embeds: [builder.constructSongStateEmbed()],
+    embeds: [await builder.constructSongStateEmbed()],
   });
 }

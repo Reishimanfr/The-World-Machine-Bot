@@ -10,19 +10,16 @@ import {
 } from 'discord.js';
 import Command from '../types/CommandI';
 import axios from 'axios';
-import {
-  ITf2Stats,
-  classIconEmoji,
-  classIconObject,
-  classes,
-  statFields,
-} from '../bot_data/tf2Data';
+import { ITf2Stats, classIconEmoji, classIconObject, classes, statFields } from '../functions/tf2Data';
 import util from '../misc/Util';
+import { config } from '../config';
+
+const token = config.apiKeys.steam;
 
 const urls = {
-  vanityRequestUrl: `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.steamApiKey}&vanityurl=`,
-  tf2: `http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=440&key=${process.env.steamApiKey}&steamid=`,
-  profile: `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.steamApiKey}&steamids=`,
+  vanityRequestUrl: `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${token}&vanityurl=`,
+  tf2: `http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=440&key=${token}&steamid=`,
+  profile: `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${token}&steamids=`,
 };
 
 async function findSteamID(steamId: string) {
@@ -52,9 +49,7 @@ function filterTf2Data(data, playerClass) {
     return classes.some((name) => object.name.startsWith(name));
   });
 
-  const playerClassOnlyData = onlyClassesData.filter((object) =>
-    object.name.startsWith(playerClass)
-  );
+  const playerClassOnlyData = onlyClassesData.filter((object) => object.name.startsWith(playerClass));
 
   const dataObject = playerClassOnlyData.reduce((acc, obj, index) => {
     if (index === 0) {
@@ -83,15 +78,11 @@ function filterTf2Data(data, playerClass) {
   return [accum, max];
 }
 
-function createMenuRow(
-  customId: string = 'select-menu-tf2-stats'
-): ActionRowBuilder<StringSelectMenuBuilder> {
+function createMenuRow(customId: string = 'select-menu-tf2-stats'): ActionRowBuilder<StringSelectMenuBuilder> {
   const menuOptions: StringSelectMenuOptionBuilder[] = [];
 
   for (const tf_class of classes) {
-    const optionToPush = new StringSelectMenuOptionBuilder()
-      .setLabel(tf_class)
-      .setValue(tf_class);
+    const optionToPush = new StringSelectMenuOptionBuilder().setLabel(tf_class).setValue(tf_class);
 
     if (classIconEmoji[tf_class]) {
       optionToPush.setEmoji(classIconEmoji[tf_class]);
@@ -104,7 +95,7 @@ function createMenuRow(
     new StringSelectMenuBuilder()
       .setCustomId(customId)
       .setPlaceholder('Select a class')
-      .addOptions(...menuOptions)
+      .addOptions(...menuOptions),
   );
 
   return menu;
@@ -124,18 +115,10 @@ function generateEmbed(tf2Data, playerClass, profileData, command) {
   const fields = statFields.reduce((accumilated: EmbedField[], fieldData) => {
     if (fieldData.playerClass) {
       if (fieldData.playerClass == playerClass) {
-        accumilated.push(
-          createStatField(
-            fieldData.title,
-            accum[fieldData.stat],
-            max[fieldData.stat]
-          )
-        );
+        accumilated.push(createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat]));
       }
     } else {
-      accumilated.push(
-        createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat])
-      );
+      accumilated.push(createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat]));
     }
 
     return accumilated;
@@ -166,32 +149,26 @@ const tf2: Command = {
     .setName('tf2')
     .setDescription('Get tf2 stats for a player')
     .addStringOption((id_option) =>
-      id_option
-        .setName('steam-id')
-        .setDescription('Steam ID of user')
-        .setRequired(true)
+      id_option.setName('steam-id-or-url').setDescription('Steam ID or profile url of user').setRequired(true),
     ),
 
   callback: async (interaction: ChatInputCommandInteraction) => {
-    if (!process.env.steamApiKey) throw new Error('Missing steam API key.');
+    if (!token) {
+      return interaction.reply({
+        embeds: [new EmbedBuilder().setDescription('[ Error: Missing steam API key. ]').setColor(util.twmPurpleHex)],
+      });
+    }
 
     await interaction.deferReply(); // To get more time in case the API takes some time to respond
 
-    const steamId = await findSteamID(
-      interaction.options.getString('steam-id', true)
-    );
+    const steamId = await findSteamID(interaction.options.getString('steam-id-or-url', true));
 
-    const [tf2Data, profileData] = await Promise.all([
-      requestData('tf2', steamId),
-      requestData('profile', steamId),
-    ]);
+    const [tf2Data, profileData] = await Promise.all([requestData('tf2', steamId), requestData('profile', steamId)]);
 
     if (!tf2Data) {
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setDescription("[ Can't find anything for this steam Id. ]")
-            .setColor(util.twmPurpleHex),
+          new EmbedBuilder().setDescription("[ Can't find anything for this steam Id. ]").setColor(util.twmPurpleHex),
         ],
       });
     }

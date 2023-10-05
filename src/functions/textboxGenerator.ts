@@ -1,6 +1,6 @@
 import Canvas from 'canvas';
-import word from 'word-wrap';
 import { OneshotSprites, OneshotSpritesType } from './textboxSprites';
+import util from '../misc/Util';
 
 export async function generateTextbox(
   message: string,
@@ -16,19 +16,19 @@ export async function generateTextbox(
     OneshotSprites[character][expression].asset
   );
 
+  // 608x128 is the size of oneshot textboxes in-game
   const canvas = Canvas.createCanvas(608, 128);
   const ctx = canvas.getContext('2d');
 
   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+  // dx 496 dy 17 are exact coordiantes there the character asset is placed
   ctx.drawImage(characterSprite, 496, 17);
-
-  // Wrap text if needed
-  const wrapText = word(message, { width: 46 });
 
   // Draw text
   ctx.font = '20px OneshotFont';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(wrapText, 0, 34);
+  // Wrap text if needed
+  ctx.fillText(util.wrapString(message, 46), 0, 34);
 
   return canvas.toBuffer('image/png');
 }

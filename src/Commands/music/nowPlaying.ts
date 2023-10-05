@@ -1,4 +1,4 @@
-import PlayerEmbedManager from '../../bot_data/playerEmbedManager';
+import PlayerEmbedManager from '../../functions/playerEmbedManager';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ExtPlayer } from '../../misc/twmClient';
 import { logger } from '../../misc/logger';
@@ -8,7 +8,7 @@ export async function nowplaying(
   interaction: ChatInputCommandInteraction,
   player: ExtPlayer,
   _: any,
-  builder: PlayerEmbedManager
+  builder: PlayerEmbedManager,
 ) {
   if (!interaction.inCachedGuild()) return;
   interaction.deferReply({ ephemeral: true });
@@ -19,7 +19,7 @@ export async function nowplaying(
     logger.error(`Failed to delete old song state message: ${error.stack}`);
   }
 
-  const nowPlayingEmbed = builder.constructSongStateEmbed();
+  const nowPlayingEmbed = await builder.constructSongStateEmbed();
   const buttons = builder.constructRow();
 
   if (!nowPlayingEmbed) {
@@ -32,26 +32,20 @@ export async function nowplaying(
     });
   }
 
-  const res = await interaction.channel?.send({
-    embeds: [nowPlayingEmbed],
-    components: [buttons],
-  });
+  let res; // idk the type for it lol
 
-  if (!res) {
-    return interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ Something went wrong while sending the message. ]')
-          .setColor(util.twmPurpleHex),
-      ],
+  try {
+    res = await interaction.channel?.send({
+      embeds: [nowPlayingEmbed],
+      components: [buttons],
     });
+  } catch (error) {
+    logger.error(`[nowplaying.ts]: Failed to send message: ${error.stack}`);
   }
 
   player.message = res;
 
   try {
     await interaction.deleteReply();
-  } catch (error) {
-    logger.error(`Failed to delete old interaction: ${error.stack}`);
-  }
+  } catch {}
 }

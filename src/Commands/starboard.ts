@@ -1,238 +1,83 @@
 import {
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChatInputCommandInteraction,
-  Colors,
   ComponentType,
-  EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import Command from '../types/CommandI';
-import { starboardConfig, starboardEmojis } from '../types/database_definition';
-import { logger } from '../misc/logger';
-import util from '../misc/Util';
+import { starboardConfig } from '../types/database_definition';
+import amountCon from './starboard/amountCon';
+import channelCon from './starboard/channelCon';
+import blChannelCon from './starboard/blChannelCon';
+import emojiCon from './starboard/emojiCon';
 
-async function updateRecord(
-  targetGuildId: string,
-  newBoardId: string,
-  newAmount: number,
-  newEmojis: string[]
-): Promise<void> {
-  await starboardConfig.update(
-    {
-      boardId: newBoardId,
-      amount: newAmount,
-      emoji: newEmojis,
-    },
-    { where: { guildId: targetGuildId } }
-  );
-}
-
-async function destroyStarboardEmojis(targetGuildId: string) {
-  await starboardEmojis.destroy({ where: { guildId: targetGuildId } });
-}
-
-async function createStarboardEmojis(targetGuildId: string, newEmojis: string[]) {
-  const emojiPromises = newEmojis.map((emoji) => {
-    starboardEmojis.create({
-      guildId: targetGuildId,
-      emoji: emoji,
-    });
-  });
-
-  Promise.all(emojiPromises);
-}
+const funcMap = {
+  emojiCon: emojiCon,
+  channelCon: channelCon,
+  amountCon: amountCon,
+  blChannelCon: blChannelCon,
+};
 
 const starboard: Command = {
   permissions: ['EmbedLinks', 'SendMessages', 'ViewChannel'],
   data: new SlashCommandBuilder()
     .setName('starboard')
-    .setDescription('Configure a starboard')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator) // Make the commands vibisle only to admins
-    .addSubcommand((channelConfig) =>
-      channelConfig
-        .setName('board-channel')
-        .setDescription('Configure where the starboard should be')
-        .addChannelOption((channel) =>
-          channel
-            .setName('channel')
-            .setDescription('Channel to set as a starboard')
-            .setRequired(true)
-        )
-    )
-    .addSubcommand((amountConfig) =>
-      amountConfig
-        .setName('amount')
-        .setDescription(
-          '[Default: 4] Amount of emoji reactions for the message to be sent in the starboard'
-        )
-        .addNumberOption((number) =>
-          number
-            .setName('amount')
-            .setDescription('Amount of reactions required')
-            .setMinValue(2)
-            .setRequired(true)
-        )
-    )
-    .addSubcommand((emojiConfig) =>
-      emojiConfig
-        .setName('emoji')
-        .setDescription('[Default: ⭐] Emoji(s) to be used for the starboard')
-        .addStringOption((emoji) =>
-          emoji
-            .setName('emoji')
-            .setDescription('Emoji(s) to be used for the starboard')
-            .setRequired(true)
-        )
-    )
-    .addSubcommand((blacklist) =>
-      blacklist
-        .setName('blacklist-channel')
-        .setDescription('Blacklist (or whitelist if already blacklisted) a channel.')
-        .addChannelOption((channel) =>
-          channel
-            .setName('channel')
-            .setDescription('Channel to be set as blacklisted.')
-            .setRequired(true)
-        )
-    ),
+    .setDescription('Configure the starboard to your liking')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Make the commands vibisle only to admins
 
   callback: async (interaction: ChatInputCommandInteraction) => {
-    const [[record], oldEmojiData] = await Promise.all([
-      starboardConfig.findOrCreate({
-        where: { guildId: interaction.guildId },
-        defaults: { guildId: interaction.guildId, boardId: null, amount: 4 },
-      }),
-      starboardEmojis.findAll({
-        where: { guildId: interaction.guildId },
-      }),
-    ]);
+    const selectMenu = new StringSelectMenuBuilder()
+      .setCustomId('conSelect')
+      .setPlaceholder('Select a option to configure!')
+      .setOptions(
+        new StringSelectMenuOptionBuilder()
+          .setLabel('⭐ Emojis')
+          .setDescription('Configure which emojis are accepted by the starboard')
+          .setValue('emojiCon'),
 
-    let oldEmojis = oldEmojiData.map((obj) => obj.getDataValue('emoji'));
+        new StringSelectMenuOptionBuilder()
+          .setLabel('🧵 Channel')
+          .setDescription('Set in which channel the starboard should be located')
+          .setValue('channelCon'),
 
-    if (oldEmojis.length >= 0) {
-      oldEmojis = ['⭐'];
-    }
+        new StringSelectMenuOptionBuilder()
+          .setLabel('🔢 Amount')
+          .setDescription('Configure how many accepted reaction are required')
+          .setValue('amountCon'),
 
-    const channel =
-      interaction.options.getChannel('channel')?.id ??
-      record.getDataValue('boardId');
-    const amount =
-      interaction.options.getNumber('amount') ?? record.getDataValue('amount');
-
-    const intEmoji = interaction.options.getString('emoji');
-    let emoji: string[];
-
-    if (intEmoji) {
-      emoji = intEmoji
-        .split(',')
-        .map((emj) => emj.trim())
-        .filter(
-          (emj) => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu)
-        );
-    } else {
-      emoji = oldEmojis;
-    }
-
-    const embed = new EmbedBuilder()
-      .setColor(Colors.Blue)
-      .setAuthor({
-        name: '[ Confirm new configuration? ]',
-        iconURL: interaction.guild?.iconURL() ?? undefined,
-      })
-      .addFields(
-        {
-          name: 'Board channel:',
-          value: `${
-            channel
-              ? `<#${channel ?? 'hell'}>`
-              : "⚠️  Channel hasn't been setup yet. The starboard won't work without it!"
-          }`,
-          inline: false,
-        },
-        {
-          name: 'Emoji(s):',
-          value: `${emoji.join(', ') ?? 'No emojis'}`,
-          inline: false,
-        },
-        {
-          name: 'Amount:',
-          value: `${amount ?? 'null'} reaction(s)`,
-          inline: false,
-        }
+        new StringSelectMenuOptionBuilder()
+          .setLabel('❌ Blacklisted channels')
+          .setDescription('Configure which channels should be ignored by the bot')
+          .setValue('blChannelCon'),
       );
 
-    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId('confirm')
-        .setLabel('Confirm')
-        .setStyle(ButtonStyle.Success),
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 
-      new ButtonBuilder()
-        .setCustomId('discard')
-        .setLabel('Discard')
-        .setStyle(ButtonStyle.Danger)
-    );
-
-    const reply = await interaction.reply({
-      embeds: [embed],
-      components: [buttonRow],
+    const res = await interaction.reply({
+      components: [row],
       ephemeral: true,
     });
-    const collected = await reply.awaitMessageComponent({
-      componentType: ComponentType.Button,
+
+    const collected = await res.awaitMessageComponent({
+      componentType: ComponentType.StringSelect,
       time: 60000,
     });
 
     await collected.deferUpdate();
+    const option = collected.values[0];
 
-    try {
-      if (collected.customId == 'discard') {
-        return interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setDescription('[ Discarding changes. ]')
-              .setColor(util.twmPurpleHex),
-          ],
-          components: [],
-        });
-      }
+    const [record] = await starboardConfig.findOrCreate({
+      where: { guildId: interaction.guildId },
+      defaults: { guildId: interaction.guildId, boardId: null, amount: 4 },
+    });
 
-      await updateRecord(interaction!.guild!.id, channel, amount, emoji);
+    const args = [interaction, record];
+    const handler = funcMap[option];
 
-      if (emoji !== oldEmojis) {
-        Promise.all([
-          destroyStarboardEmojis(interaction!.guild!.id),
-          createStarboardEmojis(interaction!.guild!.id, emoji),
-        ]);
-      }
-
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Configuration saved. ]')
-            .setColor(util.twmPurpleHex),
-        ],
-        components: [],
-      });
-    } catch (error) {
-      logger.error(`Error while saving starboard configuration: ${error.stack}`);
-
-      const replyContent = error.message.endsWith('time')
-        ? '[ The command expired. Discarding changes. ]'
-        : '[ There was a error while running the command. Discarding changes. ]';
-
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription(replyContent)
-            .setColor(util.twmPurpleHex),
-        ],
-        components: [],
-      });
-    }
+    await handler(...args);
   },
 };
 

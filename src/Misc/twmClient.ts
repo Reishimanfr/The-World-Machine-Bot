@@ -1,11 +1,11 @@
 import { Client, Message, User } from 'discord.js';
 import { Player, Poru } from 'poru';
-import dayjs from 'dayjs';
+import { Dayjs } from 'dayjs';
 
 interface AuditLogEntryI {
   user: User;
   func: string;
-  date: dayjs.Dayjs;
+  date: Dayjs;
 }
 
 export class ExtClient extends Client {
@@ -16,7 +16,6 @@ export class ExtPlayer extends Player {
   private _message?: Message | null;
   private _auditLog: AuditLogEntryI[] = [];
   private _pauseEditing: boolean;
-    player: any[];
 
   get message(): Message | null | undefined {
     return this._message;
@@ -34,7 +33,7 @@ export class ExtPlayer extends Player {
     this._auditLog = entries;
   }
 
-  get pauseEditing(): boolean {
+  get pauseEditing() {
     return this._pauseEditing;
   }
 
