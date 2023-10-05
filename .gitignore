@@ -5,3 +5,4 @@ application.yml
 logs
 Lavalink.jar
 .vscode
+config.yml
