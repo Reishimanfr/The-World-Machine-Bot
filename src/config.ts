@@ -1,8 +1,8 @@
-import yaml from 'js-yaml';
 import fs from 'fs';
+import yaml from 'js-yaml';
 import path from 'path';
 import { NodeGroup, PoruOptions } from 'poru';
-import { logger } from './misc/logger';
+import { logger } from './Helpers/Logger';
 
 if (!fs.existsSync('config.yml')) {
   logger.error(
@@ -26,8 +26,16 @@ const config = {
   player: {
     leaveAfterQueueEnd: configFile.player.leaveAfterQueueEnd ?? false,
     autocomplete: configFile.player.autocomplete ?? true,
+    announcePlayerActions: configFile.player.announcePlayerActions ?? false,
+    resendEmbedAfterSongEnd: configFile.player.resendEmbedAfterSongEnd ?? false,
+    enableSkipvote: configFile.player.enableSkipvote ?? true,
+    skipvoteThreshold: configFile.player.skipvoteThreshold ?? 50,
+    skipvoteMemberRequirement: configFile.player.skipvoteMemberRequirement ?? 3,
   },
 };
+
+logger.debug(`Config file loaded:`);
+logger.debug(config);
 
 if (!config.botToken && !config.devBotToken) {
   logger.error(`Provide a bot token in the config.yml file located in the root of the folder!`);
@@ -39,7 +47,9 @@ if (!config.apiKeys.steam) {
 }
 
 if (!config.apiKeys.tenor) {
-  logger.warn("You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!");
+  logger.warn(
+    "You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!",
+  );
 }
 
 const poruOptions: PoruOptions = {
@@ -59,4 +69,5 @@ const poruNodes: NodeGroup[] = [
   },
 ];
 
-export { config, poruOptions, poruNodes };
+export { config, poruNodes, poruOptions };
+

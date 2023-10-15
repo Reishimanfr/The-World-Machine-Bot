@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -7,9 +8,8 @@ import {
   EmbedBuilder,
   SlashCommandBuilder,
 } from 'discord.js';
-import Command from '../types/CommandI';
-import axios from 'axios';
-import util from '../misc/Util';
+import util from '../Helpers/Util';
+import Command from '../types/Command';
 
 async function getImage(link: string) {
   const request = await axios.get(link);
@@ -63,7 +63,7 @@ const picture: Command = {
 
     const embed = new EmbedBuilder()
       .setImage(image) // Get and set the image
-      .setColor(util.twmPurpleHex);
+      .setColor(util.embedColor);
 
     // The reason we use a array is so we can edit the .setDisabled value of the button once the interaction expires
     const components = [
@@ -96,7 +96,7 @@ const picture: Command = {
 
       const newEmbed = new EmbedBuilder()
         .setImage(image) // Get set image
-        .setColor(util.twmPurpleHex);
+        .setColor(util.embedColor);
 
       try {
         await reply.edit({ embeds: [newEmbed] });

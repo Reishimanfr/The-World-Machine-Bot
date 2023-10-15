@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   ActionRowBuilder,
   ChatInputCommandInteraction,
@@ -8,11 +9,10 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import Command from '../types/CommandI';
-import axios from 'axios';
-import { ITf2Stats, classIconEmoji, classIconObject, classes, statFields } from '../functions/tf2Data';
-import util from '../misc/Util';
+import util from '../Helpers/Util';
 import { config } from '../config';
+import { ITf2Stats, classIconEmoji, classIconObject, classes, statFields } from '../functions/tf2Data';
+import Command from '../types/Command';
 
 const token = config.apiKeys.steam;
 
@@ -137,7 +137,7 @@ function generateEmbed(tf2Data, playerClass, profileData, command) {
       text: `${command.user.tag}`,
       iconURL: command.user.displayAvatarURL(),
     })
-    .setColor(util.twmPurpleHex)
+    .setColor(util.embedColor)
     .setTimestamp();
 
   return embed;
@@ -155,7 +155,7 @@ const tf2: Command = {
   callback: async (interaction: ChatInputCommandInteraction) => {
     if (!token) {
       return interaction.reply({
-        embeds: [new EmbedBuilder().setDescription('[ Error: Missing steam API key. ]').setColor(util.twmPurpleHex)],
+        embeds: [new EmbedBuilder().setDescription('[ Error: Missing steam API key. ]').setColor(util.embedColor)],
       });
     }
 
@@ -168,7 +168,7 @@ const tf2: Command = {
     if (!tf2Data) {
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder().setDescription("[ Can't find anything for this steam Id. ]").setColor(util.twmPurpleHex),
+          new EmbedBuilder().setDescription("[ Can't find anything for this steam Id. ]").setColor(util.embedColor),
         ],
       });
     }

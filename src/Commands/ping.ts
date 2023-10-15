@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import Command from '../types/CommandI';
+import Command from '../types/Command';
 
 const ping: Command = {
   permissions: null,

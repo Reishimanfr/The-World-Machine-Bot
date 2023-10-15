@@ -9,10 +9,10 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import Command from '../types/CommandI';
-import { OneshotSpritesType, OneshotSprites } from '../functions/textboxSprites';
+import { logger } from '../Helpers/Logger';
 import { generateTextbox } from '../functions/textboxGenerator';
-import { logger } from '../misc/logger';
+import { OneshotSprites, OneshotSpritesType } from '../functions/textboxSprites';
+import Command from '../types/Command';
 
 const say: Command = {
   permissions: ['SendMessages'],

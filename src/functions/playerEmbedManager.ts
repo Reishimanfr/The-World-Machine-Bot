@@ -1,15 +1,15 @@
+import axios from 'axios';
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
 } from 'discord.js';
-import { formatSeconds } from './formatSeconds';
-import { ExtPlayer } from '../misc/twmClient';
-import constructProgressBar from './progressBar';
 import { Track } from 'poru';
-import util from '../misc/Util';
-import axios from 'axios';
+import { ExtPlayer } from '../Helpers/ExtendedClient';
+import util from '../Helpers/Util';
+import { formatSeconds } from './formatSeconds';
+import constructProgressBar from './progressBar';
 
 // Embed manager for the music player state embed
 // This class both has code for the embed and buttons
@@ -98,12 +98,12 @@ class PlayerEmbedManager {
     return new EmbedBuilder()
       .setAuthor({
         name: `${queueLenOrPlayingStatus}`,
-        iconURL: util.nikoGifUrl,
+        iconURL: util.playerGifUrl,
       })
       .setTitle(info.title)
       .setURL(info.uri)
       .setDescription(
-        `By: **${info.author}**
+        `By: **${info.author}**\n
         \n${constructProgressBar(
           info.length,
           this.player.position
@@ -114,7 +114,7 @@ class PlayerEmbedManager {
         text: `Requested by ${info?.requester?.user?.username}`,
         iconURL: info?.requester?.user?.displayAvatarURL(),
       })
-      .setColor(util.twmPurpleHex);
+      .setColor(util.embedColor);
   }
 }
 

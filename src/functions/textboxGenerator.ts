@@ -1,6 +1,6 @@
 import Canvas from 'canvas';
+import util from '../Helpers/Util';
 import { OneshotSprites, OneshotSpritesType } from './textboxSprites';
-import util from '../misc/Util';
 
 export async function generateTextbox(
   message: string,

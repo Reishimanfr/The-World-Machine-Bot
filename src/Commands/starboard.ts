@@ -7,12 +7,12 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import Command from '../types/CommandI';
-import { starboardConfig } from '../types/database_definition';
-import amountCon from './starboard/amountCon';
-import channelCon from './starboard/channelCon';
-import blChannelCon from './starboard/blChannelCon';
-import emojiCon from './starboard/emojiCon';
+import { starboardConfig } from '../Helpers/DatabaseSchema';
+import Command from '../types/Command';
+import amountCon from './subcommands/starboard/amountCon';
+import blChannelCon from './subcommands/starboard/blChannelCon';
+import channelCon from './subcommands/starboard/channelCon';
+import emojiCon from './subcommands/starboard/emojiCon';
 
 const funcMap = {
   emojiCon: emojiCon,

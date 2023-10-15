@@ -1,6 +1,6 @@
 import fs from 'fs';
-import Command from '../types/CommandI';
 import path from 'path';
+import Command from '../types/Command';
 
 const PATH = path.join(__dirname, '../commands');
 

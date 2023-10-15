@@ -1,112 +1,91 @@
 import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import Command from '../types/CommandI';
-import { ExtPlayer } from '../misc/twmClient';
+import { ExtPlayer } from '../Helpers/ExtendedClient';
+import util from '../Helpers/Util';
 import PlayerEmbedManager from '../functions/playerEmbedManager';
-import subcomamndHandler from './music/!SubcommandHandler';
-import util from '../misc/Util';
-import { config } from '../config';
+import Command from '../types/Command';
+import Subcommand from '../types/Subcommand';
+import { subcommandData, subcommandHandler } from './subcommands/music/!SubcommandHandler';
 
-//! add queue command
-//! add a insert command (replace but adds the song instead of repaling)
+const command = new SlashCommandBuilder()
+  .setName('music')
+  .setDescription('All commands related to the music portion of the bot');
+
+for (const part of Object.values(subcommandData)) {
+  command.addSubcommand(part);
+}
+
 const music: Command = {
   permissions: ['SendMessages', 'Speak', 'UseExternalEmojis', 'Connect'],
-  musicCommand: true,
-  data: new SlashCommandBuilder()
-    .setName('music')
-    .setDescription('All commands related to the music portion of the bot')
-    .addSubcommand((play) =>
-      play
-        .setName('play')
-        .setDescription('Play music in a voice channel.')
-        .addStringOption((song) =>
-          song
-            .setName('song')
-            .setDescription('Song search query or link')
-            .setRequired(true)
-            .setAutocomplete(config.player.autocomplete),
-        ),
-    )
-    .addSubcommand((pause) => pause.setName('pause').setDescription('Pause the currently playing track.'))
-    .addSubcommand((nowplaying) =>
-      nowplaying.setName('nowplaying').setDescription('Show the currently playing song (along with control buttons)'),
-    )
-    .addSubcommand((seek) =>
-      seek
-        .setName('seek')
-        .setDescription('Seek to a point in the currently playing song')
-        .addStringOption((timestamp) =>
-          timestamp
-            .setName('time')
-            .setDescription('Adjust time: +/- seconds or HH:MM:SS format. Use + for forward, - for backward.')
-            .setRequired(true),
-        ),
-    )
-    .addSubcommand((remove) =>
-      remove
-        .setName('remove')
-        .setDescription('Remove a song (or multiple songs) from the queue')
-        .addStringOption((input) =>
-          input
-            .setName('songs')
-            .setDescription(
-              'Songs to be removed. Formats: (position) | (position1, position2...) | (position1 - position2)',
-            )
-            .setRequired(true),
-        ),
-    )
-    .addSubcommand((replace) =>
-      replace
-        .setName('replace')
-        .setDescription('Replace a song at a specified position in the queue')
-        .addStringOption((song) =>
-          song.setName('url-or-search').setDescription('Search query or URL to the song.').setRequired(true),
-        )
-        .addNumberOption((pos) =>
-          pos.setName('position').setDescription('Position in the queue to be replaced').setRequired(true),
-        ),
-    )
-    .addSubcommand((audit) =>
-      audit.setName('audit').setDescription('See recent player events (like someone skipping a song).'),
-    )
-    .addSubcommand((skipTo) =>
-      skipTo
-        .setName('skipto')
-        .setDescription('Skip to a specified song in the queue')
-        .addNumberOption((pos) =>
-          pos.setName('position').setDescription('Position in the queue to skip to.').setRequired(true),
-        ),
-    )
-    .addSubcommand((loop) =>
-      loop.setName('loop').setDescription('Enable or disable looping for the currently playing track.'),
-    )
-    .addSubcommand((save) => save.setName('save').setDescription('Save the currently playing track to your DMs!')),
+  data: command,
 
   callback: async (interaction: ChatInputCommandInteraction, client) => {
     const subcommand = interaction.options.getSubcommand();
     const player = client.poru.get(interaction.guildId!) as ExtPlayer;
-
     const member = await util.fetchMember(interaction.guild!.id, interaction.user.id);
 
-    if (!member?.voice.channel?.joinable) {
+    const reqCommand: Subcommand = subcommandHandler[subcommand];
+    const options = reqCommand.musicOptions;
+
+    if (options.requiresPlayer && !player) {
       return interaction.reply({
-        embeds: [new EmbedBuilder().setDescription("[ I can't join this channel. ]").setColor(util.twmPurpleHex)],
+        embeds: [
+          new EmbedBuilder()
+            .setDescription("[ The music player isn't active. Play something to activate it. ]")
+            .setColor(util.embedColor),
+        ],
         ephemeral: true,
       });
     }
 
-    if (!player && subcommand !== 'play') {
+    if (options.requiresPlaying && !player.isPlaying) {
       return interaction.reply({
-        embeds: [new EmbedBuilder().setDescription('[ There are no active players. ]').setColor(util.twmPurpleHex)],
+        embeds: [
+          new EmbedBuilder()
+            .setDescription("[ The player isn't playing right now. ]")
+            .setColor(util.embedColor),
+        ],
         ephemeral: true,
       });
     }
 
-    const songControl = new PlayerEmbedManager(player);
+    if (options.requiresVc && !member.voice.channel?.id) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You must be in a voice channel to use this. ]')
+            .setColor(util.embedColor),
+        ],
+        ephemeral: true,
+      });
+    } else if (
+      options.requiresVc &&
+      player &&
+      member.voice.channel?.id !== interaction.guild?.members.me?.voice.channel?.id
+    ) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You must be in the same voice channel to use this. ]')
+            .setColor(util.embedColor),
+        ],
+        ephemeral: true,
+      });
+    }
 
-    const handler = subcomamndHandler[subcommand];
-    const args = [interaction, player, client, songControl];
+    if (options.requiresVc && !member?.voice.channel?.joinable) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription("[ I can't join this channel. ]")
+            .setColor(util.embedColor),
+        ],
+        ephemeral: true,
+      });
+    }
 
-    await handler(...args);
+    const builder = new PlayerEmbedManager(player);
+
+    await reqCommand.callback(...[interaction, player, client, builder]);
   },
 };
 
