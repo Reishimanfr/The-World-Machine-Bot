@@ -1,13 +1,14 @@
 import { EmbedBuilder, Events, VoiceState } from 'discord.js';
-import { ExtClient, ExtPlayer } from '../../Helpers/ExtendedClient';
+import { ExtPlayer } from '../../Helpers/ExtendedClient';
 import { logger } from '../../Helpers/Logger';
 import util from '../../Helpers/Util';
 import PlayerEmbedManager from '../../functions/playerEmbedManager';
+import { client } from "../../index";
 
 const UpdateVoiceState = {
   name: Events.VoiceStateUpdate,
   once: false,
-  execute: async (oldState: VoiceState, newState: VoiceState, client: ExtClient) => {
+  execute: async (oldState: VoiceState, newState: VoiceState) => {
     const guildId = oldState?.guild?.id ?? newState?.guild?.id;
     const player = client.poru.players.get(guildId) as ExtPlayer;
   

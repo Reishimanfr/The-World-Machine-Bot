@@ -1,5 +1,6 @@
 import { Track } from 'poru';
-import { ExtClient, ExtPlayer } from '../../Helpers/ExtendedClient';
+import { client } from '../..';
+import { ExtPlayer } from '../../Helpers/ExtendedClient';
 import { logger } from '../../Helpers/Logger';
 import { config } from '../../config';
 import PlayerEmbedManager from '../../functions/playerEmbedManager';
@@ -7,7 +8,7 @@ import PlayerEmbedManager from '../../functions/playerEmbedManager';
 const TrackStart = {
   name: 'trackStart',
   once: false,
-  execute: async (player: ExtPlayer, track: Track, client: ExtClient) => {
+  execute: async (player: ExtPlayer, track: Track) => {
     const guild = await client.guilds.fetch(player.guildId);
     const channel = await guild.channels?.fetch(player.textChannel);
   

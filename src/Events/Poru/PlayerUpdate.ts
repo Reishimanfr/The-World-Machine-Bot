@@ -16,7 +16,7 @@ const PlayerUpdate = {
   
     const builder = new PlayerEmbedManager(player);
     const embed = await builder.constructSongStateEmbed();
-    const row = builder.constructRow();
+    const row = builder.constructRow()
   
     try {
       player.message!.edit({
