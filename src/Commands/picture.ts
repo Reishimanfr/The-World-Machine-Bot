@@ -13,7 +13,7 @@ import Command from '../types/Command';
 
 async function getImage(link: string) {
   const request = await axios.get(link);
-  const { data } = request;
+  const data = request.data;
 
   return data.image || data.data.url; // Depending on which api we're using
 }
@@ -100,7 +100,7 @@ const picture: Command = {
 
       try {
         await reply.edit({ embeds: [newEmbed] });
-      } catch {}
+      } catch { }
     });
 
     collector.on('end', async (_) => {
@@ -110,7 +110,7 @@ const picture: Command = {
 
       try {
         await reply.edit({ components: [disabledRow] });
-      } catch {}
+      } catch { }
     });
   },
 };

@@ -4,6 +4,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
+  Colors,
   EmbedBuilder,
   EmbedField,
   GuildBasedChannel,
@@ -258,7 +259,14 @@ class Starboard {
       = await reaction.message.guild?.channels.fetch(config.boardId).catch(() => { }) ?? null
 
     // Return if channel is not a TextChannel or it doesn't exist
-    if (!boardChannel || boardChannel.type != ChannelType.GuildText) return
+    if (!boardChannel || boardChannel.type != ChannelType.GuildText) {
+      return util.sendAdminErrorMsg({
+        guildId: reaction.message.guild!.id,
+        level: 'warn',
+        message: `Failed to send starboard entry message with reason: **Starboard channel set, but not found**.`,
+        stackTrace: 'Starboard script'
+      })
+    }
 
     const message = await starboardEntries.findOne({
       where: { starredMessageUrl: reaction.message.url },
@@ -282,9 +290,11 @@ class Starboard {
       ]);
 
       const lastMsg = await boardChannel.messages.fetch({ limit: 1 })
-      const lastEmbed = EmbedBuilder.from(lastMsg.at(0)!.embeds[0])
 
-      if (lastEmbed.data.author!.name === `Entry #${count}`) return
+      if (lastMsg.at(0)?.embeds) {
+        const lastEmbed = EmbedBuilder.from(lastMsg.at(0)!.embeds[0]) ?? null
+        if (lastEmbed && lastEmbed.data.author!.name === `Entry #${count}`) return
+      }
 
       const embed = new EmbedBuilder()
         .setAuthor({
@@ -317,6 +327,13 @@ class Starboard {
           starredMessageUrl: reaction.message.url,
         });
       } catch (error) {
+        util.sendAdminErrorMsg({
+          guildId: reaction.message.guild!.id,
+          level: 'error',
+          message: `Failed to send a new starboard message: **${error.message}**`,
+          stackTrace: 'Starboard script'
+        })
+
         logger.error(`Failed to send starboard message: ${error.stack}`);
       }
     } else if (message) {
@@ -341,10 +358,17 @@ class Starboard {
       );
 
       try {
-        fetchMsg.edit({
+        await fetchMsg.edit({
           embeds: [embed],
         });
       } catch (error) {
+        util.sendAdminErrorMsg({
+          guildId: this.reaction.message.guild!.id,
+          level: 'error',
+          message: `Failed to update a starboard message: **${error.message}**`,
+          stackTrace: 'Starboard script'
+        })
+
         logger.error(`Failed to update starboard message: ${error.stack}`);
       }
     }

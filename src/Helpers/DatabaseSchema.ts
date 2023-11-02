@@ -11,6 +11,21 @@ const sequelize = new Sequelize("database", "user", "password", {
   },
 });
 
+export const botConfigOptions = sequelize.define('botConfigOptions', {
+  guildId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  errorLogs: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  updateLogs: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
+})
+
 export const starboardEntries = sequelize.define("starboardEntries", {
   guildId: {
     type: DataTypes.STRING,
@@ -118,6 +133,7 @@ const tables = [
   starboardBlacklistedChannels,
   playerOverrides,
   queueHistory,
+  botConfigOptions
 ].map(table => table.sync());
 
 export default tables;

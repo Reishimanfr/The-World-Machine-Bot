@@ -1,6 +1,14 @@
-import { ColorResolvable, GuildMember, User } from 'discord.js';
+import { ColorResolvable, Colors, EmbedBuilder, GuildMember, User } from 'discord.js';
 import { client } from '..';
 import { ExtPlayer } from './ExtendedClient';
+import { botConfigOptions } from './DatabaseSchema';
+
+type optionsType = {
+  message: string,
+  stackTrace: string,
+  level: 'warn' | 'error',
+  guildId: string
+}
 
 class util {
   /**
@@ -52,6 +60,42 @@ class util {
     };
 
     player.auditLog = player.auditLog ? [...player.auditLog, newData] : [newData];
+  }
+
+  /**
+   * Sends a message to the guild's error log channel if error is fixable without code changes
+   */
+  static async sendAdminErrorMsg(options: optionsType) {
+    const targetChannel = await botConfigOptions.findOne({ where: { guildId: options.guildId } })
+    const errorLogChannel = await targetChannel?.getDataValue('errorLogs')
+
+    // Return if there's no channel data
+    if (!errorLogChannel) return;
+
+    const guild = await client.guilds.fetch(options.guildId)
+    const channel = await guild.channels.fetch(errorLogChannel)
+
+    // Return if channel doesn't exist, is not text based or we can't talk in it
+    if (
+      !channel
+      || !channel.isTextBased()
+      || !channel.permissionsFor(client.user!.id)?.has('SendMessages')
+    ) return;
+
+    const colors = {
+      'warn': Colors.Yellow,
+      'error': Colors.DarkRed
+    }
+
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: `Level: ${options.level}\nStack trace: ${options.stackTrace}` })
+      .setDescription(options.message)
+      .setColor(colors[options.level])
+      .setTimestamp()
+
+    await channel.send({
+      embeds: [embed]
+    })
   }
 
   static playerGifUrl = 'https://media.discordapp.net/attachments/968786035788120099/1134526510334738504/niko.gif';
