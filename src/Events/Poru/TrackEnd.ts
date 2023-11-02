@@ -1,6 +1,7 @@
 import { ExtPlayer } from "../../Helpers/ExtendedClient";
+import Event from "../../types/Event";
 
-const TrackEnd = {
+const TrackEnd: Event = {
   name: 'trackEnd',
   once: false,
   execute: (player: ExtPlayer) => {

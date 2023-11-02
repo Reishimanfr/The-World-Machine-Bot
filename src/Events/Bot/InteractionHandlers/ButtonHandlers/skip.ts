@@ -1,7 +1,10 @@
-import { ButtonInteraction } from 'discord.js';
-import { ExtPlayer } from '../../../../Helpers/ExtendedClient';
-import { skipvote } from '../../../../commands/subcommands/music/skip';
+import { ButtonInteraction } from "discord.js";
+import { ExtPlayer } from "../../../../Helpers/ExtendedClient";
+import { skipvote } from "../../../../commands/music/control/skip";
 
-export const skip = async (interaction: ButtonInteraction, player: ExtPlayer) => {
+export const skip = async (
+  interaction: ButtonInteraction,
+  player: ExtPlayer
+) => {
   await skipvote(interaction, player);
 };

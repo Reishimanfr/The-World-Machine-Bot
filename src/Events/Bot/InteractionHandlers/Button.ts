@@ -78,7 +78,7 @@ const Button = async (button: ButtonInteraction) => {
     try {
       await handler(...args);
     } catch (error) {
-      logger.error(`Failed to process button ${button.customId}: ${error.stack}`);
+      logger.error(`Failed to process button ${button.customId}: ${error}`);
 
       const options: InteractionReplyOptions = {
         embeds: [

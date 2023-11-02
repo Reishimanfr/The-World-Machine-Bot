@@ -5,19 +5,26 @@ import {
   ButtonStyle,
   ComponentType,
   EmbedBuilder,
-} from 'discord.js';
-import { Track } from 'poru';
-import { ExtPlayer } from '../../../../Helpers/ExtendedClient';
-import { logger } from '../../../../Helpers/Logger';
-import util from '../../../../Helpers/Util';
-import { formatSeconds } from '../../../../functions/formatSeconds';
+} from "discord.js";
+import { Track } from "poru";
+import { ExtPlayer } from "../../../../Helpers/ExtendedClient";
+import { logger } from "../../../../Helpers/Logger";
+import util from "../../../../Helpers/Util";
+import { formatSeconds } from "../../../../functions/formatSeconds";
 
-export const showQueue = async (interaction: ButtonInteraction, player: ExtPlayer) => {
+export const showQueue = async (
+  interaction: ButtonInteraction,
+  player: ExtPlayer
+) => {
   const queue: Track[] = player.queue;
 
   if (!queue.length) {
     return interaction.editReply({
-      embeds: [new EmbedBuilder().setDescription('[ The queue is empty. ]').setColor(util.embedColor)],
+      embeds: [
+        new EmbedBuilder()
+          .setDescription("[ The queue is empty. ]")
+          .setColor(util.embedColor),
+      ],
     });
   }
 
@@ -29,7 +36,9 @@ export const showQueue = async (interaction: ButtonInteraction, player: ExtPlaye
     queueLength += entry.info.length;
 
     queueEntries.push(
-      `\`${i + 1}\`: **[${entry.info.title} - ${entry.info.author}](${entry.info.uri})**\nAdded by <@${entry.info.requester?.user.id}> | Duration: \`${formatSeconds(Math.trunc(entry.info.length / 1000))}\`\n\n`,
+      `\`${i + 1}\`: **[${entry.info.title} - ${entry.info.author}](${entry.info.uri
+      })**\nAdded by <@${entry.info.requester?.user.id
+      }> | Duration: \`${formatSeconds(entry.info.length / 1000)}\`\n\n`
     );
   }
 
@@ -43,7 +52,7 @@ export const showQueue = async (interaction: ButtonInteraction, player: ExtPlaye
       const arraySlice = queueEntries.slice(i, i + splitter);
       idx++;
 
-      let description = '';
+      let description = "";
 
       for (let part of arraySlice) {
         description += part;
@@ -59,19 +68,29 @@ export const showQueue = async (interaction: ButtonInteraction, player: ExtPlaye
     }
 
     const buttons: ButtonBuilder[] = [
-      new ButtonBuilder().setCustomId('back').setEmoji('⏪').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId("back")
+        .setEmoji("⏪")
+        .setStyle(ButtonStyle.Primary),
 
-      new ButtonBuilder().setCustomId('forward').setEmoji('⏩').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId("forward")
+        .setEmoji("⏩")
+        .setStyle(ButtonStyle.Primary),
     ];
 
-    const components = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
+    const components = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      buttons
+    );
 
     let page = 0;
 
     const res = await interaction.editReply({
       embeds: [
         embeds[page].setFooter({
-          text: `Page 1/${embeds.length} • Queue length: ${formatSeconds(Math.trunc(queueLength / 1000))}`,
+          text: `Page 1/${embeds.length} • Queue length: ${formatSeconds(
+            queueLength / 1000
+          )}`,
         }),
       ],
       components: [components],
@@ -82,35 +101,38 @@ export const showQueue = async (interaction: ButtonInteraction, player: ExtPlaye
       time: 60000,
     });
 
-    collector.on('collect', async (button) => {
+    collector.on("collect", async (button) => {
       await button.deferUpdate();
       collector.resetTimer();
 
-      if (button.customId == 'back') {
+      if (button.customId == "back") {
         page = page > 0 ? --page : embeds.length - 1;
-      } else if (button.customId == 'forward') {
+      } else if (button.customId == "forward") {
         page = page + 1 < embeds.length ? ++page : 0;
       }
 
       interaction.editReply({
         embeds: [
           embeds[page].setFooter({
-            text: `Page ${page + 1}/${embeds.length} • Queue length: ${formatSeconds(Math.trunc(queueLength / 1000))}`,
+            text: `Page ${page + 1}/${embeds.length
+              } • Queue length: ${formatSeconds(queueLength / 1000)}`,
           }),
         ],
       });
     });
 
-    collector.on('end', async (_) => {
+    collector.on("end", async (_) => {
       const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         buttons[0].setDisabled(true),
-        buttons[1].setDisabled(true),
+        buttons[1].setDisabled(true)
       );
 
       try {
         await interaction.editReply({ components: [newRow] });
       } catch (error) {
-        logger.error(`Failed to remove buttons from player audit log message: ${error.stack}`);
+        logger.error(
+          `Failed to remove buttons from player audit log message: ${error}`
+        );
       }
     });
   } else {
@@ -118,7 +140,7 @@ export const showQueue = async (interaction: ButtonInteraction, player: ExtPlaye
       embeds: [
         new EmbedBuilder()
           .setAuthor({ name: `There are ${queue.length} songs in the queue` })
-          .setDescription(queueEntries.join('\n'))
+          .setDescription(queueEntries.join("\n"))
           .setColor(util.embedColor),
       ],
     });

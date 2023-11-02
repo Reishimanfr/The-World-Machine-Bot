@@ -1,15 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
-} from 'discord.js';
-import { Track } from 'poru';
-import { ExtPlayer } from '../Helpers/ExtendedClient';
-import util from '../Helpers/Util';
-import { formatSeconds } from './formatSeconds';
-import constructProgressBar from './progressBar';
+  GuildMember,
+} from "discord.js";
+import { ExtPlayer } from "../Helpers/ExtendedClient";
+import util from "../Helpers/Util";
+import { formatSeconds } from "./formatSeconds";
+import constructProgressBar from "./progressBar";
+import { logger } from "../Helpers/Logger";
+import { Track } from "poru";
 
 // Embed manager for the music player state embed
 // This class both has code for the embed and buttons
@@ -21,79 +23,79 @@ class PlayerEmbedManager {
   }
 
   public constructRow(disableAll = false): ActionRowBuilder<ButtonBuilder> {
-    let buttons: ButtonBuilder[] = [];
-    const data = [
-      { id: 'showQueue', emoji: '<:show_queue:1136985358920331274>' },
-      {
-        id: 'togglePlayback',
-        emoji: `${
-          this.player.isPlaying
-            ? 'pausexxl:1136983966428180624'
-            : 'playxxl:1136983968735039488'
-        }`,
-      },
-      {
-        id: 'loop',
-        emoji: '<:loop:1136983970052051064>',
-        style: this.player.loop == 'NONE' ? null : ButtonStyle.Success,
-      },
-      {
-        id: 'skip',
-        emoji: '<:skip:1137003301259444305>',
-      },
-      {
-        id: 'queueHelp',
-        emoji: '❔',
-        style: ButtonStyle.Secondary,
-      },
-    ];
+    const buttons: ButtonBuilder[] = [
+      new ButtonBuilder()
+        .setCustomId('songcontrol-showQueue')
+        .setEmoji('<:show_queue:1136985358920331274>')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(disableAll),
 
-    for (const entry of data) {
-      buttons.push(
-        new ButtonBuilder()
-          .setCustomId(`songcontrol-${entry.id}`)
-          .setEmoji(entry.emoji)
-          .setStyle(entry.style ?? ButtonStyle.Primary)
-          .setDisabled(disableAll)
-      );
-    }
+      new ButtonBuilder()
+        .setCustomId('songcontrol-togglePlayback')
+        .setEmoji(this.player.isPaused ? "<:playxxl:1136983968735039488>" : "<:pausexxl:1136983966428180624>")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(disableAll),
+
+
+      new ButtonBuilder()
+        .setCustomId('songcontrol-skip')
+        .setEmoji('<:skip:1137003301259444305>')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(disableAll),
+
+      new ButtonBuilder()
+        .setCustomId('songcontrol-loop')
+        .setEmoji('<:loop:1136983970052051064>')
+        .setStyle(ButtonStyle[this.player.loop == 'NONE' ? 'Primary' : 'Success'])
+        .setDisabled(disableAll),
+
+      new ButtonBuilder()
+        .setCustomId('songcontrol-queueHelp')
+        .setEmoji('❔')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(disableAll),
+    ]
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
   }
 
-  public async constructSongStateEmbed(
-    metadata: Track = this.player.currentTrack
-  ): Promise<EmbedBuilder> {
-    const info = metadata?.info;
-    const embed = EmbedBuilder.from(this.player?.message?.embeds[0]!);
+  private async requestSpotifyThumbnail(identifier: string): Promise<string | null> {
+    try {
+      const result = await axios.get(`https://embed.spotify.com/oembed/?url=spotify:track:${identifier}`);
+      return result.data.thumbnail_url
+    } catch (error) {
+      logger.error(`Failed to get spotify thumbnail: ${error}`);
+      return null
+    }
+  }
+
+  public async constructSongStateEmbed(): Promise<EmbedBuilder> {
+    const player = this.player
+    const queue = player.queue
+    const info = player.currentTrack.info
+    const requester = info.requester as GuildMember
 
     if (!info) {
-      return embed.setFooter({ text: '⚠️ Missing metadata info. ' });
+      return new EmbedBuilder()
+        .setDescription('[ Something went wrong. ]')
+        .setColor(util.embedColor)
     }
 
-    const timeInSeconds = formatSeconds(Math.trunc(info.length / 1000));
-    const playerInSeconds = formatSeconds(Math.trunc(this.player?.position / 1000));
+    const songLength = formatSeconds(info.length / 1000);
+    const playerPosition = formatSeconds(player?.position / 1000);
 
-    let image = info.image;
+    const image = (info.sourceName == "spotify")
+      ? await this.requestSpotifyThumbnail(info.identifier)
+      : info.image;
 
-    if (info.sourceName == 'spotify') {
-      const res = await axios.get(
-        `https://embed.spotify.com/oembed/?url=spotify:track:${info.identifier}`
-      );
+    const queueLenOrPlayingStatus = (queue.length > 0)
+      // If there are multiple tracks in the queue
+      ? `There ${queue.length == 1 ? "is one song" : `are ${queue.length} songs`} in the queue`
+      // If there is only one track in the queue
+      : `${player.isPaused ? "Paused" : "Now Playing"}...`
 
-      image = res.data.thumbnail_url;
-    }
-
-    const queueLenOrPlayingStatus =
-      this.player.queue.length > 0
-        ? `There ${
-            this.player.queue.length == 1
-              ? 'is one song'
-              : `are ${this.player.queue.length} songs`
-          } in the queue`
-        : this.player.isPaused
-        ? 'Paused...'
-        : 'Now Playing...';
+    const progressBar = constructProgressBar(info.length, player.position);
+    const description = `By: **${info.author}**\n\n${progressBar}\n${playerPosition}/${songLength}`
 
     return new EmbedBuilder()
       .setAuthor({
@@ -102,19 +104,64 @@ class PlayerEmbedManager {
       })
       .setTitle(info.title)
       .setURL(info.uri)
-      .setDescription(
-        `By: **${info.author}**\n
-        \n${constructProgressBar(
-          info.length,
-          this.player.position
-        )}\n${playerInSeconds}/${timeInSeconds}`
-      )
+      .setDescription(description)
       .setThumbnail(image ?? null)
       .setFooter({
-        text: `Requested by ${info?.requester?.user?.username}`,
-        iconURL: info?.requester?.user?.displayAvatarURL(),
+        text: `Requested by ${requester.user.username}`,
+        iconURL: requester.user.displayAvatarURL(),
       })
       .setColor(util.embedColor);
+  }
+
+  public constructQueueEmbed(queue = this.player.queue): EmbedBuilder[] {
+    let queueEntires: string[] = [];
+    const splitter = 6; // The amount of queue entries to split by
+
+    for (let i = 0; i < queue.length; i++) {
+      const entry: Track = queue[i];
+      const requester = entry.info.requester as GuildMember
+      let content = "";
+
+      // Parts of the content
+      // Index
+      content += `\`${i + 1}:\` `;
+      // Title - Author in hyperlink
+      content += `**[${entry.info.title} - ${entry.info.author}](${entry.info.uri})**`;
+      // Added by
+      content += `\nAdded by <@${requester.user.id}> `;
+      // Duration
+      content += `| Duration: \`${formatSeconds(
+        entry.info.length / 1000
+      )}\`\n\n`;
+
+      queueEntires.push(content);
+    }
+
+    if (queue.length > splitter) {
+      let embeds: EmbedBuilder[] = [];
+
+      for (let i = 0; i < queueEntires.length; i += splitter) {
+        const arraySlice = queueEntires.slice(i, i + splitter);
+
+        embeds.push(
+          new EmbedBuilder()
+            .setAuthor({
+              name: `[ There are ${queueEntires.length} songs in the queue. ]`,
+            })
+            .setDescription(arraySlice.join())
+        );
+      }
+
+      return embeds;
+    } else {
+      return [
+        new EmbedBuilder()
+          .setAuthor({
+            name: `[ There are ${queueEntires.length} songs in the queue. ]`,
+          })
+          .setDescription(queueEntires.join()),
+      ];
+    }
   }
 }
 

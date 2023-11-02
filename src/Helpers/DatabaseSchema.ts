@@ -1,17 +1,34 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, Sequelize } from "sequelize";
 
 // I'm too lazy to set anything up here
-const sequelize = new Sequelize('database', 'user', 'password', {
-  host: 'localhost',
-  dialect: 'sqlite',
+const sequelize = new Sequelize("database", "user", "password", {
+  host: "localhost",
+  dialect: "sqlite",
   logging: false,
-  storage: 'database.sqlite',
+  storage: "database.sqlite",
   define: {
     timestamps: false,
   },
 });
 
-export const starboardConfig = sequelize.define('starboardConfig', {
+export const starboardEntries = sequelize.define("starboardEntries", {
+  guildId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  botMessageUrl: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  starredMessageUrl: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+});
+
+export const starboardConfig = sequelize.define("starboardConfig", {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -27,7 +44,7 @@ export const starboardConfig = sequelize.define('starboardConfig', {
   },
 });
 
-export const starboardEmojis = sequelize.define('starboardEmojis', {
+export const starboardEmojis = sequelize.define("starboardEmojis", {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -38,22 +55,25 @@ export const starboardEmojis = sequelize.define('starboardEmojis', {
   },
 });
 
-export const starboardBlacklistedChannels = sequelize.define('starboardBlacklistChannels', {
-  guildId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  channelId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+export const starboardBlacklistedChannels = sequelize.define(
+  "starboardBlacklistChannels",
+  {
+    guildId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    channelId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  }
+);
 
-export const playerOverrides = sequelize.define('playerOverrides', {
+export const playerOverrides = sequelize.define("playerOverrides", {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
   },
   leaveAfterQueueEnd: {
     type: DataTypes.BOOLEAN,
@@ -73,10 +93,31 @@ export const playerOverrides = sequelize.define('playerOverrides', {
   },
   skipvoteMemberRequirement: {
     type: DataTypes.NUMBER,
-    allowNull: false
-  }
-})
+    allowNull: false,
+  },
+});
 
-const tables = [starboardEmojis, starboardConfig, starboardBlacklistedChannels, playerOverrides]
+export const queueHistory = sequelize.define("queueHistory", {
+  UUID: {
+    type: DataTypes.UUIDV4,
+    allowNull: false,
+    unique: true,
+  },
+  // Group is surrounded by brackets and split by |
+  // Example: { some data } | { some other data }
+  entries: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+});
 
-export default tables
+const tables = [
+  starboardEntries,
+  starboardEmojis,
+  starboardConfig,
+  starboardBlacklistedChannels,
+  playerOverrides,
+  queueHistory,
+].map(table => table.sync());
+
+export default tables;

@@ -1,15 +1,17 @@
-import { CommandInteraction, ComponentType, EmbedBuilder } from 'discord.js';
-import { starboardEmojis } from '../../../Helpers/DatabaseSchema';
-import util from '../../../Helpers/Util';
-import { confirmButtons, finalConButtons } from './stUtil';
+import { CommandInteraction, ComponentType, EmbedBuilder, GuildMember } from "discord.js";
+import { starboardEmojis } from "../../Helpers/DatabaseSchema";
+import util from "../../Helpers/Util";
+import { confirmButtons, finalConButtons } from "./stUtil";
 
 export default async function emojiCon(interaction: CommandInteraction) {
-  const oldEmojis = await starboardEmojis.findAll({ where: { guildId: interaction.guildId } });
+  const oldEmojis = await starboardEmojis.findAll({
+    where: { guildId: interaction.guildId },
+  });
   const emojis = oldEmojis.map((d) => d.dataValues.emoji);
 
   const embeds = [
     new EmbedBuilder()
-      .setDescription(`[ The current emojis are set to ${emojis.join(', ')}. ]`)
+      .setDescription(`[ The current emojis are set to ${emojis.join(", ")}. ]`)
       .setColor(util.embedColor),
 
     new EmbedBuilder()
@@ -38,7 +40,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
   await collector.deferUpdate();
   const value = collector.customId;
 
-  if (value == 'deny') {
+  if (value == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -61,14 +63,18 @@ export default async function emojiCon(interaction: CommandInteraction) {
   if (!content) return;
 
   const newEmojis = content
-    .split(', ')
+    .split(", ")
     .map((emj) => emj.trim())
-    .filter((emj) => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu));
+    .filter(
+      (emj) => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu)
+    );
 
   const finalCon = await interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(`[ The new emojis will be set to ${newEmojis.join(', ')}. Confirm? ]`)
+        .setDescription(
+          `[ The new emojis will be set to ${newEmojis.join(", ")}. Confirm? ]`
+        )
         .setColor(util.embedColor),
     ],
     components: [finalConButtons],
@@ -82,7 +88,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
   await finalCollected.deferUpdate();
   const finalBtn = finalCollected.customId;
 
-  if (finalBtn == 'deny') {
+  if (finalBtn == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -92,7 +98,11 @@ export default async function emojiCon(interaction: CommandInteraction) {
   interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(`[ Done! The new emojis have been set to **${newEmojis.join(', ')}**. ]`)
+        .setDescription(
+          `[ Done! The new emojis have been set to **${newEmojis.join(
+            ", "
+          )}**. ]`
+        )
         .setColor(util.embedColor),
     ],
     components: [],

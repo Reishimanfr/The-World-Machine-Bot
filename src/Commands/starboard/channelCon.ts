@@ -5,21 +5,24 @@ import {
   CommandInteraction,
   ComponentType,
   EmbedBuilder,
-} from 'discord.js';
-import { Model } from 'sequelize';
-import { starboardConfig } from '../../../Helpers/DatabaseSchema';
-import util from '../../../Helpers/Util';
-import { confirmButtons, finalConButtons } from './stUtil';
+} from "discord.js";
+import { Model } from "sequelize";
+import { starboardConfig } from "../../Helpers/DatabaseSchema";
+import util from "../../Helpers/Util";
+import { confirmButtons, finalConButtons } from "./stUtil";
 
-export default async function channelCon(interaction: CommandInteraction, record: Model<any, any>) {
-  const oldChannel = record.getDataValue('boardId');
+export default async function channelCon(
+  interaction: CommandInteraction,
+  record: Model<any, any>
+) {
+  const oldChannel = record.getDataValue("boardId");
 
   const embeds = [
     new EmbedBuilder()
       .setDescription(
         `[ The current channel ${
           oldChannel ? `is set to <#${oldChannel}>` : "hasn't been set up yet"
-        }. ]`,
+        }. ]`
       )
       .setColor(util.embedColor),
 
@@ -45,7 +48,7 @@ export default async function channelCon(interaction: CommandInteraction, record
   await collector.deferUpdate();
   const value = collector.customId;
 
-  if (value == 'deny') {
+  if (value == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -54,10 +57,12 @@ export default async function channelCon(interaction: CommandInteraction, record
 
   const channelSelect = new ChannelSelectMenuBuilder()
     .setChannelTypes(ChannelType.GuildText)
-    .setCustomId('chSelect')
-    .setPlaceholder('Select a channel!');
+    .setCustomId("chSelect")
+    .setPlaceholder("Select a channel!");
 
-  const row = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect);
+  const row = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+    channelSelect
+  );
 
   const chSelectRes = await interaction.editReply({
     embeds: [embeds[2]],
@@ -75,7 +80,9 @@ export default async function channelCon(interaction: CommandInteraction, record
   const finalCon = await interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(`[ The new channel will be set to <#${channel}>. Confirm? ]`)
+        .setDescription(
+          `[ The new channel will be set to <#${channel}>. Confirm? ]`
+        )
         .setColor(util.embedColor),
     ],
     components: [finalConButtons],
@@ -89,7 +96,7 @@ export default async function channelCon(interaction: CommandInteraction, record
   await finalCollected.deferUpdate();
   const finalBtn = finalCollected.customId;
 
-  if (finalBtn == 'deny') {
+  if (finalBtn == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -99,7 +106,9 @@ export default async function channelCon(interaction: CommandInteraction, record
   interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(`[ Done! The new channel has been set to <#${channel}>. ]`)
+        .setDescription(
+          `[ Done! The new channel has been set to <#${channel}>. ]`
+        )
         .setColor(util.embedColor),
     ],
     components: [],
@@ -109,6 +118,6 @@ export default async function channelCon(interaction: CommandInteraction, record
     {
       boardId: channel,
     },
-    { where: { guildId: interaction.guildId } },
+    { where: { guildId: interaction.guildId } }
   );
 }

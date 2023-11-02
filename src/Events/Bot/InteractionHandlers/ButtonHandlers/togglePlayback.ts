@@ -7,7 +7,11 @@ export const togglePlayback = async (interaction: ButtonInteraction, player: Ext
   const isPaused = player.isPaused;
 
   // Append to audit log
-  util.addToAuditLog(player, interaction.user, !player.isPaused ? 'Resumed' : 'Paused' + ' the player');
+  util.addToAuditLog(
+    player,
+    interaction.user,
+    !player.isPaused ? 'Resumed' : 'Paused' + ' the player',
+  );
 
   player.pause(!isPaused);
 

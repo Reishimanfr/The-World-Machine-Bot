@@ -1,12 +1,12 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { ExtPlayer } from '../../../Helpers/ExtendedClient';
-import util from '../../../Helpers/Util';
-import { config } from '../../../config';
-import Subcommand from '../../../types/Subcommand';
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import util from "../../../Helpers/Util";
+import { config } from "../../../config";
+import Subcommand from "../../../types/Subcommand";
 
 // Check if string is in HH?:MM:SS format
 function validateTimestamp(timestamp: string): boolean {
-  const parts = timestamp.split(':');
+  const parts = timestamp.split(":");
 
   if (![3, 2].includes(parts.length)) return false;
 
@@ -14,10 +14,10 @@ function validateTimestamp(timestamp: string): boolean {
 }
 
 function convertToSeconds(timestamp: string): number {
-  const parts = timestamp.split(':');
+  const parts = timestamp.split(":");
   if (parts.length === 2) {
     // If the timestamp is in "MM:SS" format, assume hours part is 0.
-    parts.unshift('0');
+    parts.unshift("0");
   } else if (parts.length !== 3) {
     return 0;
   }
@@ -53,7 +53,7 @@ const seek: Subcommand = {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription('[ This track is not seekable. ]')
+            .setDescription("[ This track is not seekable. ]")
             .setColor(util.embedColor),
         ],
         ephemeral: true,
@@ -64,13 +64,13 @@ const seek: Subcommand = {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription('[ Nothing is playing right now. ]')
+            .setDescription("[ Nothing is playing right now. ]")
             .setColor(util.embedColor),
         ],
       });
     }
 
-    const seconds = interaction.options.getString('time', true);
+    const seconds = interaction.options.getString("time", true);
 
     let pos: number;
     let responseString: string;
@@ -78,16 +78,20 @@ const seek: Subcommand = {
     if (validateTimestamp(seconds)) {
       pos = convertToSeconds(seconds) * 1000;
       responseString = `Seeked to ${seconds}`;
-    } else if (['+', '-'].includes(seconds.charAt(0))) {
-      const direction = seconds.charAt(0) === '-' ? -1 : 1;
+    } else if (["+", "-"].includes(seconds.charAt(0))) {
+      const direction = seconds.charAt(0) === "-" ? -1 : 1;
       const time = parseInt(seconds.slice(1)) * 1000;
 
       pos = player.position + direction * time;
-      responseString = `Seeked ${seconds.slice(1)} ${direction == 1 ? 'forward' : 'backwards'}`;
+      responseString = `Seeked ${seconds.slice(1)} ${
+        direction == 1 ? "forward" : "backwards"
+      }`;
     } else {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder().setDescription('[ Invalid timestamp. ]').setColor(util.embedColor),
+          new EmbedBuilder()
+            .setDescription("[ Invalid timestamp. ]")
+            .setColor(util.embedColor),
         ],
         ephemeral: true,
       });

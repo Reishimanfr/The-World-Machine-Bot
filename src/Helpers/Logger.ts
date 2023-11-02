@@ -12,7 +12,6 @@ const format = winston.format.combine(
   winston.format.align(),
   winston.format.colorize({ all: true }),
   winston.format.prettyPrint({ colorize: true }),
-  winston.format.simple(),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
@@ -22,13 +21,7 @@ const format = winston.format.combine(
 const logger = winston.createLogger({
   level: 'debug',
   transports: [
-    new winston.transports.Console({ format }),
-    new winston.transports.File({
-      dirname: 'logs',
-      filename: 'logs/error.log',
-      level: 'error',
-    }),
-  ],
+    new winston.transports.Console({ format })],
 });
 
 export { logger };

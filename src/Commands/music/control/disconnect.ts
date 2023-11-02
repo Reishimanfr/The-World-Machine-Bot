@@ -1,7 +1,7 @@
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { ExtPlayer } from '../../../Helpers/ExtendedClient';
-import util from '../../../Helpers/Util';
-import Subcommand from '../../../types/Subcommand';
+import { CommandInteraction, EmbedBuilder } from "discord.js";
+import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import util from "../../../Helpers/Util";
+import Subcommand from "../../../types/Subcommand";
 
 const disconnect: Subcommand = {
   musicOptions: {
@@ -16,10 +16,9 @@ const disconnect: Subcommand = {
     interaction.reply({
       embeds: [
         new EmbedBuilder()
-          .setDescription('[ The bot has been disconnected. ]')
+          .setDescription("[ The bot has been disconnected. ]")
           .setColor(util.embedColor),
       ],
-      ephemeral: true,
     });
   },
 };

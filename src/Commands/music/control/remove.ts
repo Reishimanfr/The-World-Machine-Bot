@@ -1,10 +1,10 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { ExtPlayer } from '../../../Helpers/ExtendedClient';
-import { logger } from '../../../Helpers/Logger';
-import util from '../../../Helpers/Util';
-import { config } from '../../../config';
-import PlayerEmbedManager from '../../../functions/playerEmbedManager';
-import Subcommand from '../../../types/Subcommand';
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { logger } from "../../../Helpers/Logger";
+import util from "../../../Helpers/Util";
+import { config } from "../../../config";
+import PlayerEmbedManager from "../../../functions/playerEmbedManager";
+import Subcommand from "../../../types/Subcommand";
 
 const remove: Subcommand = {
   musicOptions: {
@@ -17,17 +17,17 @@ const remove: Subcommand = {
     interaction: ChatInputCommandInteraction,
     player: ExtPlayer,
     _: any,
-    builder: PlayerEmbedManager,
+    builder: PlayerEmbedManager
   ) => {
     let queue = player.queue;
-    let input = interaction.options.getString('songs', true);
+    let input = interaction.options.getString("songs", true);
 
     const positions: number[] = [];
 
     const parts = input.split(/[\s,]+/);
     for (const part of parts) {
-      if (part.includes('-')) {
-        const range = part.split('-');
+      if (part.includes("-")) {
+        const range = part.split("-");
         const start = parseInt(range[0]);
         const end = parseInt(range[1]);
 
@@ -55,13 +55,15 @@ const remove: Subcommand = {
     util.addToAuditLog(
       player,
       interaction.user,
-      `Removed song(s) from the queue (position(s): ${input}`,
+      `Removed song(s) from the queue (position(s): ${input}`
     );
 
     await interaction.reply({
       embeds: [
         new EmbedBuilder()
-          .setDescription(`[ Removed position(s) \`${input}\` from the queue. ]`)
+          .setDescription(
+            `[ Removed position(s) \`${input}\` from the queue. ]`
+          )
           .setColor(util.embedColor),
       ],
       ephemeral: !config.player.announcePlayerActions,
@@ -75,7 +77,7 @@ const remove: Subcommand = {
       .edit({
         embeds: [embed],
       })
-      .catch((error) => logger.error(error.stack));
+      .catch((error) => logger.error(error));
   },
 };
 

@@ -1,7 +1,5 @@
-node_modules
-database.sqlite
 application.yml
-logs
-Lavalink.jar
-.vscode
 config.yml
+database.sqlite
+lavalink.jar
+node_modules

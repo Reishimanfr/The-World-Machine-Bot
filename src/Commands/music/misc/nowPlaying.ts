@@ -1,9 +1,9 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Message } from 'discord.js';
-import { ExtPlayer } from '../../../Helpers/ExtendedClient';
-import { logger } from '../../../Helpers/Logger';
-import util from '../../../Helpers/Util';
-import PlayerEmbedManager from '../../../functions/playerEmbedManager';
-import Subcommand from '../../../types/Subcommand';
+import { ChatInputCommandInteraction, EmbedBuilder, Message } from "discord.js";
+import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { logger } from "../../../Helpers/Logger";
+import util from "../../../Helpers/Util";
+import PlayerEmbedManager from "../../../functions/playerEmbedManager";
+import Subcommand from "../../../types/Subcommand";
 
 const nowplaying: Subcommand = {
   musicOptions: {
@@ -16,7 +16,7 @@ const nowplaying: Subcommand = {
     interaction: ChatInputCommandInteraction,
     player: ExtPlayer,
     _: any,
-    builder: PlayerEmbedManager,
+    builder: PlayerEmbedManager
   ) => {
     if (!interaction.inCachedGuild()) return;
     interaction.deferReply({ ephemeral: true });
@@ -24,7 +24,7 @@ const nowplaying: Subcommand = {
     try {
       await player.message?.delete();
     } catch (error) {
-      logger.error(`Failed to delete old song state message: ${error.stack}`);
+      logger.error(`Failed to delete old song state message: ${error}`);
     }
 
     const nowPlayingEmbed = await builder.constructSongStateEmbed();
@@ -34,7 +34,9 @@ const nowplaying: Subcommand = {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription('[ Something went wrong while generating the embed. ]')
+            .setDescription(
+              "[ Something went wrong while generating the embed. ]"
+            )
             .setColor(util.embedColor),
         ],
       });
@@ -48,7 +50,7 @@ const nowplaying: Subcommand = {
         components: [buttons],
       });
     } catch (error) {
-      logger.error(`[nowplaying.ts]: Failed to send message: ${error.stack}`);
+      logger.error(`[nowplaying.ts]: Failed to send message: ${error}`);
     }
 
     if (!res) return;
@@ -57,7 +59,7 @@ const nowplaying: Subcommand = {
 
     try {
       await interaction.deleteReply();
-    } catch {}
+    } catch { }
   },
 };
 

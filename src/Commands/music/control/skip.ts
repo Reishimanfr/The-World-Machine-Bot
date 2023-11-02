@@ -7,37 +7,49 @@ import {
   ComponentType,
   EmbedBuilder,
   VoiceChannel,
-} from 'discord.js';
-import { setTimeout } from 'timers/promises';
-import { ExtPlayer } from '../../../Helpers/ExtendedClient';
-import { logger } from '../../../Helpers/Logger';
-import util from '../../../Helpers/Util';
-import { config } from '../../../config';
-import Subcommand from '../../../types/Subcommand';
+} from "discord.js";
+import { setTimeout } from "timers/promises";
+import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { logger } from "../../../Helpers/Logger";
+import util from "../../../Helpers/Util";
+import { config } from "../../../config";
+import Subcommand from "../../../types/Subcommand";
 
-async function skipvote(interaction: CommandInteraction | ButtonInteraction, player: ExtPlayer) {
-  const channel = <VoiceChannel>await interaction.guild!.channels.fetch(player.voiceChannel);
+async function skipvote(
+  interaction: CommandInteraction | ButtonInteraction,
+  player: ExtPlayer
+) {
+  const channel = <VoiceChannel>(
+    await interaction.guild!.channels.fetch(player.voiceChannel)
+  );
   // Amount of members without bots
   const memberCount = channel.members.filter((m) => !m.user.bot).size;
 
-  if (memberCount < config.player.skipvoteMemberRequirement || !config.player.enableSkipvote) {
-    util.addToAuditLog(player, interaction.user, 'Skipped a song: ' + player.currentTrack!.info.uri);
+  if (
+    memberCount < config.player.skipvoteMemberRequirement ||
+    !config.player.enableSkipvote
+  ) {
+    util.addToAuditLog(
+      player,
+      interaction.user,
+      "Skipped a song: " + player.currentTrack!.info.uri
+    );
     player.seekTo(player.currentTrack!.info.length);
 
-    let reason = '';
+    let reason = "";
 
     if (memberCount < config.player.skipvoteMemberRequirement)
-      reason = 'not enough members in voice channel.';
+      reason = "not enough members in voice channel.";
 
     if (!config.player.enableSkipvote) {
-      reason = 'skipvote disabled.';
+      reason = "skipvote disabled.";
     }
 
     const options = {
       embeds: [
         new EmbedBuilder()
           .setAuthor({ name: `Skipvote omited: ${reason}` })
-          .setDescription('[ Song skipped. ]')
+          .setDescription("[ Song skipped. ]")
           .setColor(util.embedColor),
       ],
     };
@@ -50,18 +62,20 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
 
     return;
   }
-  const requiredVotes = Math.round((memberCount * config.player.skipvoteThreshold) / 100);
+  const requiredVotes = Math.round(
+    (memberCount * config.player.skipvoteThreshold) / 100
+  );
 
   const buttons: ButtonBuilder[] = [
     new ButtonBuilder()
-      .setCustomId('yes')
-      .setEmoji('✅')
-      .setLabel('Skip!')
+      .setCustomId("yes")
+      .setEmoji("✅")
+      .setLabel("Skip!")
       .setStyle(ButtonStyle.Primary),
 
     new ButtonBuilder()
-      .setCustomId('no')
-      .setEmoji('❌')
+      .setCustomId("no")
+      .setEmoji("❌")
       .setLabel("Don't skip!")
       .setStyle(ButtonStyle.Primary),
   ];
@@ -81,7 +95,7 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
           iconURL: interaction.user.displayAvatarURL(),
         })
         .setDescription(
-          `[ Current votes: :white_check_mark: **${yesVotes}/${requiredVotes}**. Will expire in <t:${timestamp}:R> ]`,
+          `[ Current votes: :white_check_mark: **${yesVotes}/${requiredVotes}**. Will expire in <t:${timestamp}:R> ]`
         )
         .setColor(util.embedColor),
     ],
@@ -99,18 +113,21 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
     time: 60000, // one minute
   });
 
-  collect.on('collect', async (c) => {
+  collect.on("collect", async (c) => {
     await c.deferUpdate();
     const member = await util.fetchMember(c.guildId!, c.user.id);
 
     if (!member.voice.channel) {
-      c.followUp({ content: 'You must be in a voice channel to vote', ephemeral: true });
+      c.followUp({
+        content: "You must be in a voice channel to vote",
+        ephemeral: true,
+      });
       return;
     }
 
     if (member.voice.channel.id !== player.voiceChannel) {
       c.followUp({
-        content: 'You must be in the same voice channel to vote',
+        content: "You must be in the same voice channel to vote",
         ephemeral: true,
       });
       return;
@@ -118,17 +135,17 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
 
     if (votedUsers.includes(c.user.id)) {
       c.followUp({
-        content: 'You have already placed a vote.',
+        content: "You have already placed a vote.",
         ephemeral: true,
       });
       return;
     }
 
-    c.customId == 'yes' ? (yesVotes += 1) : (noVotes += 1);
+    c.customId == "yes" ? (yesVotes += 1) : (noVotes += 1);
     votedUsers.push(c.user.id);
 
     if (yesVotes >= requiredVotes) {
-      collect.stop('Enough votes collected');
+      collect.stop("Enough votes collected");
     }
 
     const embed = EmbedBuilder.from((await res.fetch()).embeds[0]);
@@ -136,17 +153,17 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
     res.edit({
       embeds: [
         embed.setDescription(
-          `[ Current votes: :white_check_mark: **${yesVotes}/${requiredVotes}**. Will expire in <t:${timestamp}:R> ]`,
+          `[ Current votes: :white_check_mark: **${yesVotes}/${requiredVotes}**. Will expire in <t:${timestamp}:R> ]`
         ),
       ],
     });
   });
 
-  collect.on('end', async (_, reason) => {
+  collect.on("end", async (_, reason) => {
     const success = yesVotes >= requiredVotes;
 
-    if (reason == 'limit') reason = 'Everyone voted';
-    if (reason == 'time') reason = 'Voting time passed';
+    if (reason == "limit") reason = "Everyone voted";
+    if (reason == "time") reason = "Voting time passed";
 
     res.edit({
       embeds: [
@@ -156,15 +173,14 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
             iconURL: interaction.user.displayAvatarURL(),
           })
           .setDescription(
-            `[ ${success ? ':white_check_mark:' : ':x:'} The song ${
-              success ? 'will' : "won't"
-            } be skipped. ]`,
+            `[ ${success ? ":white_check_mark:" : ":x:"} The song ${success ? "will" : "won't"
+            } be skipped. ]`
           )
           .setColor(util.embedColor),
       ],
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          buttons.map((b) => b.setDisabled(true)),
+          buttons.map((b) => b.setDisabled(true))
         ),
       ],
     });
@@ -173,7 +189,7 @@ async function skipvote(interaction: CommandInteraction | ButtonInteraction, pla
       util.addToAuditLog(
         player,
         interaction.user,
-        'Skipped a song: ' + player.currentTrack.info.uri,
+        "Skipped a song: " + player.currentTrack.info.uri
       );
       player.seekTo(player.currentTrack.info.length);
     }
@@ -202,4 +218,3 @@ const skip: Subcommand = {
 
 export default skip;
 export { skipvote };
-

@@ -5,10 +5,10 @@ import {
   CommandInteraction,
   ComponentType,
   EmbedBuilder,
-} from 'discord.js';
-import { starboardBlacklistedChannels } from '../../../Helpers/DatabaseSchema';
-import util from '../../../Helpers/Util';
-import { confirmButtons, finalConButtons } from './stUtil';
+} from "discord.js";
+import { starboardBlacklistedChannels } from "../../Helpers/DatabaseSchema";
+import util from "../../Helpers/Util";
+import { confirmButtons, finalConButtons } from "./stUtil";
 
 export default async function blChannelCon(interaction: CommandInteraction) {
   const blacklistedChannels = await starboardBlacklistedChannels.findAll({
@@ -20,9 +20,9 @@ export default async function blChannelCon(interaction: CommandInteraction) {
       .setDescription(
         blacklistedChannels.length > 0
           ? `[ The current blacklisted channels are: ${blacklistedChannels
-              .map((c) => `<#${c.getDataValue('channelId')}>`)
-              .join(', ')}]`
-          : `[ Blacklisted channels haven't been setup yet. ]`,
+              .map((c) => `<#${c.getDataValue("channelId")}>`)
+              .join(", ")}]`
+          : `[ Blacklisted channels haven't been setup yet. ]`
       )
       .setColor(util.embedColor),
 
@@ -31,7 +31,9 @@ export default async function blChannelCon(interaction: CommandInteraction) {
       .setColor(util.embedColor),
 
     new EmbedBuilder()
-      .setDescription(`[ Select channels to be blacklisted in the menu below. ]`)
+      .setDescription(
+        `[ Select channels to be blacklisted in the menu below. ]`
+      )
       .setColor(util.embedColor),
   ];
 
@@ -48,7 +50,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
   await collector.deferUpdate();
   const value = collector.customId;
 
-  if (value == 'deny') {
+  if (value == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -57,11 +59,13 @@ export default async function blChannelCon(interaction: CommandInteraction) {
 
   const channelSelect = new ChannelSelectMenuBuilder()
     .setChannelTypes(ChannelType.GuildText)
-    .setCustomId('chSelect')
-    .setPlaceholder('Select channels to be blacklisted!')
+    .setCustomId("chSelect")
+    .setPlaceholder("Select channels to be blacklisted!")
     .setMaxValues(interaction.guild?.channels.cache.size!);
 
-  const row = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect);
+  const row = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+    channelSelect
+  );
 
   const chSelectRes = await interaction.editReply({
     embeds: [embeds[2]],
@@ -82,7 +86,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
         .setDescription(
           `[ The new channel blacklist will be ${channels
             .map((c) => `<#${c}>`)
-            .join(', ')}. Confirm? ]`,
+            .join(", ")}. Confirm? ]`
         )
         .setColor(util.embedColor),
     ],
@@ -97,7 +101,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
   await finalCollected.deferUpdate();
   const finalBtn = finalCollected.customId;
 
-  if (finalBtn == 'deny') {
+  if (finalBtn == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -110,7 +114,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
         .setDescription(
           `[ Done! The new channel blacklist has been set to ${channels
             .map((c) => `<#${c}>`)
-            .join(', ')}. ]`,
+            .join(", ")}. ]`
         )
         .setColor(util.embedColor),
     ],
@@ -126,6 +130,8 @@ export default async function blChannelCon(interaction: CommandInteraction) {
     });
   }
 
-  await starboardBlacklistedChannels.destroy({ where: { guildId: interaction.guildId } });
+  await starboardBlacklistedChannels.destroy({
+    where: { guildId: interaction.guildId },
+  });
   await starboardBlacklistedChannels.bulkCreate(data);
 }

@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
-        "lib": ["ESNext"],
+        "lib": [
+            "ESNext"
+        ],
         "module": "CommonJS",
         "moduleResolution": "node",
         "target": "ESNext",
@@ -10,6 +12,12 @@
         "esModuleInterop": true,
         "strictNullChecks": true,
     },
-    "include": ["src/**/*", "environment.d.ts", "src/config.ts"],
-    "exclude": ["node_modules"]
+    "include": [
+        "src/**/*",
+        "environment.d.ts",
+        "src/config.ts",
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

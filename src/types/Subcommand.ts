@@ -10,11 +10,11 @@ interface Subcommand {
     builder: PlayerEmbedManager,
   ) => any;
   musicOptions: {
-    // Must be in vc to use
+    /** Must be in a voice channel to be used */
     requiresVc: boolean;
-    // Must be playing music to use
+    /** Must be playing music to use */
     requiresPlaying: boolean;
-    // Must be active player to use
+    /** Must be active player to use */
     requiresPlayer: boolean;
   };
 }

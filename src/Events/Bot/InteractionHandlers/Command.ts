@@ -5,13 +5,13 @@ import util from '../../../Helpers/Util';
 import commandList from '../../../functions/commandList';
 
 const Command = async (interaction: CommandInteraction) => {
-  const command = commandList.find((c) => c.data.name == interaction.commandName);
+  const command = commandList.find((command) => command.data.name == interaction.commandName);
 
   if (!command) {
     return interaction.reply({
       embeds: [
         new EmbedBuilder()
-          .setDescription('[ Something went wrong while running this command. ]')
+          .setDescription("[ This command doesn't exist! ]")
           .setColor(util.embedColor),
       ],
       ephemeral: true,
@@ -40,7 +40,7 @@ const Command = async (interaction: CommandInteraction) => {
   try {
     await command.callback(interaction, client);
   } catch (error) {
-    logger.error(`Command ${interaction.commandName} failed: ${error.stack}`);
+    logger.error(`Command ${interaction.commandName} failed: ${error}`);
   }
 };
 

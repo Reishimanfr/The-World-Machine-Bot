@@ -1,15 +1,20 @@
-import { CommandInteraction, ComponentType, EmbedBuilder } from 'discord.js';
-import { Model } from 'sequelize';
-import { starboardConfig } from '../../../Helpers/DatabaseSchema';
-import util from '../../../Helpers/Util';
-import { confirmButtons, finalConButtons } from './stUtil';
+import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
+import { Model } from "sequelize";
+import { starboardConfig } from "../../Helpers/DatabaseSchema";
+import util from "../../Helpers/Util";
+import { confirmButtons, finalConButtons } from "./stUtil";
 
-export default async function amountCon(interaction: CommandInteraction, record: Model<any, any>) {
-  const oldAmount = record.getDataValue('amount');
+export default async function amountCon(
+  interaction: CommandInteraction,
+  record: Model<any, any>
+) {
+  const oldAmount = record.getDataValue("amount");
 
   const embeds = [
     new EmbedBuilder()
-      .setDescription(`[ The current amount of required emojis is set to **${oldAmount}**. ]`)
+      .setDescription(
+        `[ The current amount of required emojis is set to **${oldAmount}**. ]`
+      )
       .setColor(util.embedColor),
 
     new EmbedBuilder()
@@ -38,7 +43,7 @@ export default async function amountCon(interaction: CommandInteraction, record:
   await collector.deferUpdate();
   const value = collector.customId;
 
-  if (value == 'deny') {
+  if (value == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -72,7 +77,9 @@ export default async function amountCon(interaction: CommandInteraction, record:
   const finalCon = await interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(`[ The new amount will be set to **${parseAmount}**. Confirm? ]`)
+        .setDescription(
+          `[ The new amount will be set to **${parseAmount}**. Confirm? ]`
+        )
         .setColor(util.embedColor),
     ],
     components: [finalConButtons],
@@ -86,7 +93,7 @@ export default async function amountCon(interaction: CommandInteraction, record:
   await finalCollected.deferUpdate();
   const finalBtn = finalCollected.customId;
 
-  if (finalBtn == 'deny') {
+  if (finalBtn == "deny") {
     return interaction.editReply({
       embeds: [embeds[1]],
       components: [],
@@ -96,7 +103,9 @@ export default async function amountCon(interaction: CommandInteraction, record:
   interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(`[ Done! The new amount has been set to **${parseAmount}**. ]`)
+        .setDescription(
+          `[ Done! The new amount has been set to **${parseAmount}**. ]`
+        )
         .setColor(util.embedColor),
     ],
     components: [],
@@ -106,6 +115,6 @@ export default async function amountCon(interaction: CommandInteraction, record:
     {
       amount: parseAmount,
     },
-    { where: { guildId: interaction.guildId } },
+    { where: { guildId: interaction.guildId } }
   );
 }

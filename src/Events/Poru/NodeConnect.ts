@@ -1,6 +1,7 @@
 import { logger } from "../../Helpers/Logger"
+import Event from "../../types/Event"
 
-const NodeConnect = {
+const NodeConnect: Event = {
   name: 'nodeConnect', 
   once: false,
   execute: (node) => {

@@ -1,52 +1,59 @@
-import { Dayjs } from 'dayjs';
-import { Client, Message, User } from 'discord.js';
-import { Player, Poru } from 'poru';
+import { Client, Message, User } from "discord.js";
+import { Player, Poru } from "poru";
 
 interface AuditLogEntryI {
   user: User;
   func: string;
-  date: Dayjs;
+  date: Date;
 }
-
 export class ExtClient extends Client {
   public poru: Poru;
 }
 
 export class ExtPlayer extends Player {
-  private _message?: Message | null;
-  private _auditLog: AuditLogEntryI[] = [];
-  private _pauseEditing: boolean;
-  private _bassboost: number = 0;
+  private $message?: Message | null;
+  private $auditLog: AuditLogEntryI[] = [];
+  private $pauseEditing: boolean;
+  private $UUID: string;
+  private $activeTimeout: NodeJS.Timeout | null;
 
   get message(): Message | null | undefined {
-    return this._message;
+    return this.$message;
   }
 
   set message(message: Message) {
-    this._message = message;
+    this.$message = message;
   }
 
   get auditLog(): AuditLogEntryI[] {
-    return this._auditLog ?? [];
+    return this.$auditLog ?? [];
   }
 
   set auditLog(entries: AuditLogEntryI[]) {
-    this._auditLog = entries;
+    this.$auditLog = entries;
   }
 
   get pauseEditing() {
-    return this._pauseEditing;
+    return this.$pauseEditing;
   }
 
   set pauseEditing(bool: boolean) {
-    this._pauseEditing = bool;
+    this.$pauseEditing = bool;
   }
 
-  get bassboost(): number {
-    return this._bassboost
+  get UUID(): string {
+    return this.$UUID;
   }
 
-  set bassboost(scale: number) {
-    this._bassboost = scale
+  set UUID(UUID: string) {
+    this.$UUID = UUID;
+  }
+
+  get playerTimeout(): NodeJS.Timeout | null {
+    return this.$activeTimeout;
+  }
+
+  set playerTimeout(timeout: NodeJS.Timeout | null) {
+    this.$activeTimeout = timeout;
   }
 }

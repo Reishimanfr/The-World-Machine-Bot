@@ -120,11 +120,11 @@ const say: Command = {
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(`There was a error while generating a textbox: ${error.stack}`)
+            .setDescription(`There was a error while generating a textbox: ${error}`)
             .setColor(Colors.Red),
         ],
       });
-      logger.error(`Error while generating a oneshot textbox: ${error.stack}\n(${character}) (${emotion})`);
+      logger.error(`Error while generating a oneshot textbox: ${error}\n(${character}) (${emotion})`);
     }
   },
 };
