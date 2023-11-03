@@ -3,10 +3,14 @@
 
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
-## ℹ️ Info
+## ℹ️ General info
 
-The world machine (or TWM for short) is a discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
+The world machine (or TWM for short) is a open source discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
 My motivation behind it was that all the other music bots I used didn't really suit me, so I decided to write my own!
+
+## ⭐ Features
+* A starboard script -> 
+
 
 ## ⚙️ Configuration
 You can configure my bot in multiple ways. If you're [self-hosting]() it go check out [this wiki page]() on possible options you can configure as a host.
