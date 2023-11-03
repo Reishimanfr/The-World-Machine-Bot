@@ -8,11 +8,11 @@
 The world machine (or TWM for short) is a discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
 My motivation behind it was that all the other music bots I used didn't really suit me, so I decided to write my own!
 
-## Configuration
+## ⚙️ Configuration
 You can configure my bot in multiple ways. If you're [self-hosting]() it go check out [this wiki page]() on possible options you can configure as a host.
 If you just want to configure some stuff as the user of the bot, [click here]() to check the wiki page for user configuration options!
 
-## Support
+## ❓ Support
 
 Message me on discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also be sure to check the wiki for most common topics!
 
