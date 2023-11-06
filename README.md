@@ -9,7 +9,7 @@ The world machine (or TWM for short) is a open source discord bot written in typ
 My motivation behind it was that all the other music bots I used didn't really suit me, so I decided to write my own!
 
 ## ⭐ Features
-* A starboard script -> 
+TODO :3
 
 
 ## ⚙️ Configuration
