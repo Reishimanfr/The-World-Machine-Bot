@@ -1,13 +1,16 @@
 import { EmbedBuilder } from "discord.js";
 import { ExtPlayer } from "../Helpers/ExtendedClient";
 import { logger } from "../Helpers/Logger";
-import { config } from "../config";
 import util from "../Helpers/Util";
 import PlayerEmbedManager from "./playerEmbedManager";
+import { config } from "../config";
 
 class timeoutPlayer {
+  /**
+   * 
+   */
   static setup(player: ExtPlayer) {
-    player.playerTimeout = setTimeout(async () => {
+    player.timeout = setTimeout(async () => {
       const message = player?.message
       const embedManager = new PlayerEmbedManager(player);
 
@@ -19,19 +22,19 @@ class timeoutPlayer {
           components: [embedManager.constructRow(true)]
         })
       } catch (error) {
-        logger.error(`A error occurred while editing message after event playerTimeout: ${error}`);
+        logger.error(`A error occurred while editing message after event playerTimeout: ${error.message}`);
       }
 
-    }, config.player.playerTimeout * 60 * 1000);
+    }, config.hostPlayerOptions.playerTimeout * 60 * 1000);
   }
 
   static cancel(player: ExtPlayer) {
     // Typeguard
-    if (!player.playerTimeout) return;
+    if (!player.timeout) return;
 
     // Cancel the timeout and set the player's timeout property to null
-    clearTimeout(player.playerTimeout);
-    player.playerTimeout = null;
+    clearTimeout(player.timeout);
+    player.timeout = null;
   }
 }
 

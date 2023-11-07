@@ -22,9 +22,6 @@ const queueHistory: Subcommand = {
 
   callback: async (
     interaction: ChatInputCommandInteraction,
-    player: ExtPlayer,
-    _,
-    builder
   ) => {
     const uuid = interaction.options.getString("uuid", true);
     const data = await queueHistoryDB.findOne({ where: { UUID: uuid } });
@@ -126,6 +123,7 @@ const queueHistory: Subcommand = {
         }),
       ],
       components: [components],
+      ephemeral: true
     });
 
     const collector = res.createMessageComponentCollector({

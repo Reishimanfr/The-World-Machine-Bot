@@ -74,32 +74,6 @@ export default async function amountCon(
     });
   }
 
-  const finalCon = await interaction.editReply({
-    embeds: [
-      new EmbedBuilder()
-        .setDescription(
-          `[ The new amount will be set to **${parseAmount}**. Confirm? ]`
-        )
-        .setColor(util.embedColor),
-    ],
-    components: [finalConButtons],
-  });
-
-  const finalCollected = await finalCon.awaitMessageComponent({
-    componentType: ComponentType.Button,
-    time: 6000,
-  });
-
-  await finalCollected.deferUpdate();
-  const finalBtn = finalCollected.customId;
-
-  if (finalBtn == "deny") {
-    return interaction.editReply({
-      embeds: [embeds[1]],
-      components: [],
-    });
-  }
-
   interaction.editReply({
     embeds: [
       new EmbedBuilder()

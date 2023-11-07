@@ -3,7 +3,6 @@ import { client } from "../..";
 import { queueHistory } from "../../Helpers/DatabaseSchema";
 import { ExtPlayer } from "../../Helpers/ExtendedClient";
 import { logger } from "../../Helpers/Logger";
-import { config } from "../../config";
 import PlayerEmbedManager from "../../functions/playerEmbedManager";
 import Event from "../../types/Event";
 import timeoutPlayer from "../../functions/timeoutPlayer";
@@ -15,7 +14,7 @@ const TrackStart: Event = {
     const guild = await client.guilds.fetch(player.guildId);
     const channel = await guild.channels?.fetch(player.textChannel);
 
-    if (player.playerTimeout) {
+    if (player.timeout) {
       timeoutPlayer.cancel(player);
     }
 
@@ -64,7 +63,7 @@ const TrackStart: Event = {
       return;
     }
 
-    if (config.player.resendEmbedAfterSongEnd) {
+    if (player.settings?.resendEmbedAfterSongEnd) {
       const exists = (await channel.messages.fetch({ limit: 1 })).at(0);
 
       // Message is not first

@@ -15,10 +15,14 @@ A open source, multi-purpose bot with music playing features. To get help use th
 Some of the features you can use are:
 * \`/starboard\` -> A advanced starboard feature with a lot of customization.
 * \`/music\` -> A very advanced music player with a lot of QoL features hosted on a \`lavalink\` server for best music quality!
-* \`/say\` -> Generate a oneshot textbox in discord!
+## Configuration
+The bot can be configured in many different ways to your liking! To check out the available configuration options use the \`/config\` command!
 ## Support
 If you need help with one of the aspects of the bot feel free to [join the support server](https://discord.gg/xBARxUqyVc) or message me on discord \`(@rei.shi)\`
 Alternatively you can check out the [bot's wiki repository](https://github.com/Reishimanfr/TWM-bot) to check for commonly asked questions and instructions on how to setup certain features!
+## Updates and upcoming features
+If you'd like to be updated on new features that get added to the bot, you can recieve channel updates via the \`/config\` command!
+To see what features I'm working on at the moment you can check out the [bot's TODO board](https://trello.com/b/MHqNTASH/the-world-machine-upcoming)
 ## Self-hosting
 If you'd like to self-host the bot check out the [bot's wiki repository](https://github.com/Reishimanfr/TWM-bot) for instructions on how to do this step by step!`)
       .setColor(util.embedColor)

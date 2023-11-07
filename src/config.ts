@@ -14,11 +14,14 @@ if (!fs.existsSync("config.yml")) {
 const configYAML = fs.readFileSync(path.join(__dirname, "../config.yml"));
 const configFile = yaml.load(configYAML);
 
+/**
+ * If anything gets added to this object it will automatically be added to the playerOverrides database.
+ * Same goes for removing keys from this object.
+ */
 const config = {
   botToken: configFile.botToken as string ?? null,
   devBotToken: configFile.devBotToken as string ?? null,
-  enableDev: configFile.enableDev as boolean ?? false,
-  ownerId: configFile.ownerId as string ?? '',
+  maintenance: configFile.maintenance as boolean ?? false,
   apiKeys: {
     steam: configFile.apiKeys.steam as string ?? '',
     tenor: configFile.apiKeys.tenor as string ?? '',
@@ -27,12 +30,6 @@ const config = {
   player: {
     /** Toggles if the bot should leave the voice channel after the queue ends */
     leaveAfterQueueEnd: configFile.player.leaveAfterQueueEnd as boolean ?? false,
-    /** Time after which the bot will be automatically disconnected from the voice channel (in minutes) */
-    playerTimeout: configFile.player.playerTimeout as number ?? 10,
-    /** Toggles /play command autocomplete */
-    autocomplete: configFile.player.autocomplete as boolean ?? true,
-    /** Toggles if the bot should send messages on actions like pausing or adding a track */
-    announcePlayerActions: configFile.player.announcePlayerActions as boolean ?? false,
     /** Toggles if the bot should resend the current track's embed if it's not the first message in the channel */
     resendEmbedAfterSongEnd: configFile.player.resendEmbedAfterSongEnd as boolean ?? false,
     /** Toggles if skiping should invoke a voting to skip or not */
@@ -41,8 +38,24 @@ const config = {
     skipvoteThreshold: configFile.player.skipvoteThreshold as number ?? 50,
     /** Sets the minimum amount of members in a voice channel to start a skipvote */
     skipvoteMemberRequirement: configFile.player.skipvoteMemberRequirement as number ?? 3,
+    /** Should the now playing message update itself every 15 seconds? */
+    dynamicNowPlayingMessage: configFile.player.dynamicNowPlayingMessage as boolean ?? true
   },
+  /** Only the bot's host can change these. */
+  hostPlayerOptions: {
+    /** Toggles if the bot should send messages on actions like pausing or adding a track */
+    announcePlayerActions: configFile.player.announcePlayerActions as boolean ?? false,
+    /** Toggles /play command autocomplete */
+    autocomplete: configFile.player.autocomplete as boolean ?? true,
+    /** Should the bot disconnect from the voice channel after being inactive for {playerTimeout} minutes? */
+    enablePlayerTimeout: configFile.player.enablePlayerTimeout as boolean ?? true,
+    /** Time after which the bot will be automatically disconnected from the voice channel (in minutes) */
+    playerTimeout: configFile.player.playerTimeout as number ?? 10,
+  }
 };
+
+export type BotConfig = typeof config
+export type PlayerSettings = typeof config.player
 
 if (!config.botToken && !config.devBotToken) {
   logger.error(

@@ -3,9 +3,17 @@ import { client } from '../../..';
 import { logger } from '../../../Helpers/Logger';
 import util from '../../../Helpers/Util';
 import commandList from '../../../functions/commandList';
+import { config } from '../../../config';
 
 const Command = async (interaction: CommandInteraction) => {
   const command = commandList.find((command) => command.data.name == interaction.commandName);
+
+  if (config.maintenance) {
+    return interaction.reply({
+      content: 'The bot is down for maintenance.',
+      ephemeral: true
+    })
+  }
 
   if (!command) {
     return interaction.reply({
@@ -25,15 +33,9 @@ const Command = async (interaction: CommandInteraction) => {
 
     if (missingPermissions.length) {
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription(
-              '[ Command requires missing bot permissions. ]\n' + missingPermissions.join(', '),
-            )
-            .setColor(util.embedColor),
-        ],
-        ephemeral: true,
-      });
+        content: "I'm missing permissions required for this command. Please try again after giving me these permissions:\n" + missingPermissions.join(', '),
+        ephemeral: true
+      })
     }
   }
 

@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import Subcommand from "../../../types/Subcommand";
 
 const clear: Subcommand = {
@@ -22,7 +21,7 @@ const clear: Subcommand = {
           .setDescription("[ Queue cleared. ]")
           .setColor(util.embedColor),
       ],
-      ephemeral: !config.player.announcePlayerActions,
+      ephemeral: true,
     });
   },
 };

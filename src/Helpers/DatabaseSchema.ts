@@ -1,4 +1,5 @@
 import { DataTypes, Sequelize } from "sequelize";
+import { config } from "../config";
 
 // I'm too lazy to set anything up here
 const sequelize = new Sequelize("database", "user", "password", {
@@ -84,33 +85,28 @@ export const starboardBlacklistedChannels = sequelize.define(
   }
 );
 
-export const playerOverrides = sequelize.define("playerOverrides", {
+const data = {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
-  },
-  leaveAfterQueueEnd: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  resendEmbedAfterSongEnd: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  enableSkipvote: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  skipvoteThreshold: {
-    type: DataTypes.NUMBER,
-    allowNull: false,
-  },
-  skipvoteMemberRequirement: {
-    type: DataTypes.NUMBER,
-    allowNull: false,
-  },
-});
+  }
+}
+
+const keys = Object.keys(config.player);
+const values = Object.values(config.player);
+
+for (let i = 0; i < Object.keys(config.player).length; i++) {
+  const key = keys[i]
+  const valueType = (typeof values[i]).toUpperCase()
+
+  data[key] = {
+    allowNull: true,
+    type: DataTypes[valueType],
+  }
+}
+
+export const playerOverrides = sequelize.define("playerOverrides", data);
 
 export const queueHistory = sequelize.define("queueHistory", {
   UUID: {
@@ -126,14 +122,4 @@ export const queueHistory = sequelize.define("queueHistory", {
   },
 });
 
-const tables = [
-  starboardEntries,
-  starboardEmojis,
-  starboardConfig,
-  starboardBlacklistedChannels,
-  playerOverrides,
-  queueHistory,
-  botConfigOptions
-].map(table => table.sync());
-
-export default tables;
+sequelize.sync({ alter: true })

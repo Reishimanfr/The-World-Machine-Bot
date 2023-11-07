@@ -8,6 +8,7 @@ const PlayerUpdate: Event = {
   name: "playerUpdate",
   once: false,
   execute: async (player: ExtPlayer) => {
+    if (!player.settings?.dynamicNowPlayingMessage) return
     const existsMessage = await player?.message?.fetch() ?? null;
 
     if (!existsMessage) return;

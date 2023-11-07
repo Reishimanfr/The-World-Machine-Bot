@@ -7,6 +7,7 @@
     "deploy-commands": "ts-node src/Helpers/DeployCommands.ts"
   },
   "dependencies": {
+    "async-mutex": "^0.4.0",
     "axios": "^1.5.1",
     "canvas": "^2.11.2",
     "canvas-constructor": "^7.0.1",

@@ -3,7 +3,7 @@ import { client } from '..';
 import { ExtPlayer } from './ExtendedClient';
 import { botConfigOptions } from './DatabaseSchema';
 
-type optionsType = {
+export type optionsType = {
   message: string,
   stackTrace: string,
   level: 'warn' | 'error',
@@ -87,8 +87,13 @@ class util {
       'error': Colors.DarkRed
     }
 
+    const icons = {
+      'warn': '⚠️',
+      'error': '⛔'
+    }
+
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `Level: ${options.level}\nStack trace: ${options.stackTrace}` })
+      .setAuthor({ name: `Level: ${icons[options.level]}\nStack trace: ${options.stackTrace}` })
       .setDescription(options.message)
       .setColor(colors[options.level])
       .setTimestamp()

@@ -1,9 +1,9 @@
-import { ChatInputCommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
+import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
 import { botConfigOptions } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
 import { changeSettingButtons, channelSelectMenu } from "./_buttons";
 
-export default async function errorLogs(interaction: ChatInputCommandInteraction): Promise<number> {
+export default async function errorLogs(interaction: CommandInteraction): Promise<number> {
   const currentConfig = await botConfigOptions.findOne({ where: { guildId: interaction.guild!.id } })
   const currentErrorChannel = currentConfig?.getDataValue('errorLogs')
   const messageString = `[ ${currentErrorChannel
@@ -67,14 +67,15 @@ export default async function errorLogs(interaction: ChatInputCommandInteraction
       }, { where: { guildId: interaction.guild!.id } })
     }
     return 1
-  } else {
-    interaction.editReply({
-      embeds: [new EmbedBuilder()
-        .setDescription('[ Sure! No changes will be made. ]')
-        .setColor(util.embedColor)
-      ],
-      components: []
-    })
-    return 2
   }
+
+
+  interaction.editReply({
+    embeds: [new EmbedBuilder()
+      .setDescription('[ Sure! No changes will be made. ]')
+      .setColor(util.embedColor)
+    ],
+    components: []
+  })
+  return 1
 }

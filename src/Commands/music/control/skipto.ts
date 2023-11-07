@@ -2,7 +2,6 @@ import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import Queue from "poru/dist/src/guild/Queue";
 import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import Subcommand from "../../../types/Subcommand";
 
 const skipto: Subcommand = {
@@ -52,7 +51,7 @@ const skipto: Subcommand = {
           )
           .setColor(util.embedColor),
       ],
-      ephemeral: !config.player.announcePlayerActions,
+      ephemeral: true
     });
   },
 };

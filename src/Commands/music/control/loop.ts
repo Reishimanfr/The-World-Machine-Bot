@@ -3,7 +3,6 @@ import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import util from "../../../Helpers/Util";
 import PlayerEmbedManager from "../../../functions/playerEmbedManager";
 import Subcommand from "../../../types/Subcommand";
-import { config } from "../../../config";
 
 const loop: Subcommand = {
   musicOptions: {
@@ -39,7 +38,7 @@ const loop: Subcommand = {
             }. ]`
           )
           .setColor(util.embedColor),
-      ], ephemeral: !config.player.announcePlayerActions,
+      ], ephemeral: true,
     });
   },
 };

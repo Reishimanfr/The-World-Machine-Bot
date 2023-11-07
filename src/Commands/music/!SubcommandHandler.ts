@@ -20,15 +20,15 @@ import save from "./misc/save";
 export const subcommandData = {
   audit: new SlashCommandSubcommandBuilder()
     .setName("audit")
-    .setDescription("See recent player events (like someone skipping a song)."),
+    .setDescription("See recent player events."),
 
   clear: new SlashCommandSubcommandBuilder()
     .setName("clear")
-    .setDescription("Clears the entire queue."),
+    .setDescription("Clear the entire queue."),
 
   bassboost: new SlashCommandSubcommandBuilder()
     .setName("bassboost")
-    .setDescription("Sets a bassboost filter for the player")
+    .setDescription("Set a bassboost filter")
     .addNumberOption((num) =>
       num
         .setName("value")
@@ -38,7 +38,7 @@ export const subcommandData = {
 
   timescale: new SlashCommandSubcommandBuilder()
     .setName("timescale")
-    .setDescription("Sets the timescale (speed up) filter for the player.")
+    .setDescription("Set the timescale filter.")
     .addNumberOption((scale) =>
       scale
         .setName("speed")
@@ -53,46 +53,42 @@ export const subcommandData = {
 
   disconnect: new SlashCommandSubcommandBuilder()
     .setName("disconnect")
-    .setDescription("Disconnects the bot from the channel."),
+    .setDescription("Disconnect the bot from the channel."),
 
   loop: new SlashCommandSubcommandBuilder()
     .setName("loop")
     .setDescription(
-      "Enable or disable looping for the currently playing track."
+      "Toggle looping for the currently playing track."
     ),
 
   nowplaying: new SlashCommandSubcommandBuilder()
     .setName("nowplaying")
     .setDescription(
-      "Show the currently playing song (along with control buttons)"
+      "Re-send the player embed."
     ),
 
   pause: new SlashCommandSubcommandBuilder()
     .setName("pause")
-    .setDescription("Pause the currently playing track."),
+    .setDescription("Toggle playback the player."),
 
   play: new SlashCommandSubcommandBuilder()
     .setName("play")
-    .setDescription(
-      "Plays a song or adds it to the queue if something else is already playing."
-    )
+    .setDescription("Plays or adds a song to the queue.")
     .addStringOption((input) =>
       input
         .setName("url-or-search")
-        .setDescription("Your search query or URL to the song.")
+        .setDescription("Search query or URL to the song/playlist.")
         .setRequired(true)
-        .setAutocomplete(botConfig.player.autocomplete)
+        .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
     ),
 
   queue: new SlashCommandSubcommandBuilder()
     .setName("queue")
-    .setDescription("Show the current queue."),
+    .setDescription("Show the queue."),
 
   queueHistory: new SlashCommandSubcommandBuilder()
     .setName("queue-history")
-    .setDescription(
-      "See the queue history of a player that finished it's session"
-    )
+    .setDescription("See the queue history of a session.")
     .addStringOption((uuid) =>
       uuid
         .setName("uuid")
@@ -114,22 +110,20 @@ export const subcommandData = {
 
   save: new SlashCommandSubcommandBuilder()
     .setName("save")
-    .setDescription("Save the currently playing track to your DMs!"),
+    .setDescription("Save the currently playing track."),
 
   seek: new SlashCommandSubcommandBuilder()
     .setName("seek")
-    .setDescription("Seek to a point in the currently playing song")
+    .setDescription("Seek to a point in the playing song.")
     .addStringOption((timestamp) =>
       timestamp
         .setName("time")
-        .setDescription(
-          "Adjust time: +/- seconds or HH:MM:SS format. Use + for forward, - for backward."
-        )
+        .setDescription("Adjust time: +/- seconds or HH:MM:SS format. Use + for forward, - for backward.")
         .setRequired(true)
     ),
   skipto: new SlashCommandSubcommandBuilder()
     .setName("skipto")
-    .setDescription("Skip to a specified song in the queue")
+    .setDescription("Skip to a specified song in the queue.")
     .addNumberOption((pos) =>
       pos
         .setName("position")
@@ -139,7 +133,7 @@ export const subcommandData = {
 
   skip: new SlashCommandSubcommandBuilder()
     .setName("skip")
-    .setDescription("Skips the currently playing song"),
+    .setDescription("Skips the currently playing song."),
 };
 
 export const subcommandHandler = {

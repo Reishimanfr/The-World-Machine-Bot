@@ -20,8 +20,7 @@ export default async function channelCon(
   const embeds = [
     new EmbedBuilder()
       .setDescription(
-        `[ The current channel ${
-          oldChannel ? `is set to <#${oldChannel}>` : "hasn't been set up yet"
+        `[ The current channel ${oldChannel ? `is set to <#${oldChannel}>` : "hasn't been set up yet"
         }. ]`
       )
       .setColor(util.embedColor),
@@ -76,32 +75,6 @@ export default async function channelCon(
 
   await chCollect.deferUpdate();
   const channel = chCollect.values[0];
-
-  const finalCon = await interaction.editReply({
-    embeds: [
-      new EmbedBuilder()
-        .setDescription(
-          `[ The new channel will be set to <#${channel}>. Confirm? ]`
-        )
-        .setColor(util.embedColor),
-    ],
-    components: [finalConButtons],
-  });
-
-  const finalCollected = await finalCon.awaitMessageComponent({
-    componentType: ComponentType.Button,
-    time: 6000,
-  });
-
-  await finalCollected.deferUpdate();
-  const finalBtn = finalCollected.customId;
-
-  if (finalBtn == "deny") {
-    return interaction.editReply({
-      embeds: [embeds[1]],
-      components: [],
-    });
-  }
 
   interaction.editReply({
     embeds: [

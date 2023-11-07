@@ -3,6 +3,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ChannelType,
   ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,

@@ -1,5 +1,6 @@
 import { Client, Message, User } from "discord.js";
 import { Player, Poru } from "poru";
+import { PlayerSettings } from "../config";
 
 interface AuditLogEntryI {
   user: User;
@@ -15,7 +16,8 @@ export class ExtPlayer extends Player {
   private $auditLog: AuditLogEntryI[] = [];
   private $pauseEditing: boolean;
   private $UUID: string;
-  private $activeTimeout: NodeJS.Timeout | null;
+  private $timeout: NodeJS.Timeout | null;
+  private $settings: PlayerSettings
 
   get message(): Message | null | undefined {
     return this.$message;
@@ -49,11 +51,19 @@ export class ExtPlayer extends Player {
     this.$UUID = UUID;
   }
 
-  get playerTimeout(): NodeJS.Timeout | null {
-    return this.$activeTimeout;
+  get timeout(): NodeJS.Timeout | null {
+    return this.$timeout;
   }
 
-  set playerTimeout(timeout: NodeJS.Timeout | null) {
-    this.$activeTimeout = timeout;
+  set timeout(timeout: NodeJS.Timeout | null) {
+    this.$timeout = timeout;
+  }
+
+  get settings(): PlayerSettings {
+    return this.$settings
+  }
+
+  set settings(settings: PlayerSettings) {
+    this.$settings = settings
   }
 }

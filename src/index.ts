@@ -6,21 +6,21 @@ import { ExtClient } from "./Helpers/ExtendedClient";
 import { logger } from "./Helpers/Logger";
 import { config, poruNodes, poruOptions } from "./config";
 
-process.on("unhandledRejection", (reason, promise) => {
-  logger.error("An unhandled rejection occurred in the main process:");
-  console.error(reason);
-  console.error(promise);
-});
+// process.on("unhandledRejection", (reason, promise) => {
+//   logger.error("An unhandled rejection occurred in the main process:");
+//   console.error(reason);
+//   console.error(promise);
+// });
 
-process.on("uncaughtException", (error) => {
-  logger.error("An uncaught exception occurred in the main process:");
-  console.error(error ? `${error}` : `${error}`);
-});
+// process.on("uncaughtException", (error) => {
+//   logger.error("An uncaught exception occurred in the main process:");
+//   console.error(error ? `${error}` : `${error}`);
+// });
 
-process.on("uncaughtExceptionMonitor", (error) => {
-  logger.error("An uncaught exception monitor occurred in the main process:");
-  console.error(error ? `${error}` : `${error}`);
-});
+// process.on("uncaughtExceptionMonitor", (error) => {
+//   logger.error("An uncaught exception monitor occurred in the main process:");
+//   console.error(error ? `${error}` : `${error}`);
+// });
 
 export const client = new ExtClient({
   failIfNotExists: true,
@@ -57,8 +57,6 @@ const botEvents = fs
 for (const file of botEvents) {
   const filePath = path.join(eventPath, file);
   const event = require(filePath).default;
-
-  console.log(event)
 
   if (event.once) {
     client.once(event.name, (...args) => event.execute(...args));

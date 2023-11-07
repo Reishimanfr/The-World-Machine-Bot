@@ -4,7 +4,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  Colors,
   EmbedBuilder,
   EmbedField,
   GuildBasedChannel,
@@ -23,6 +22,8 @@ import {
 } from "./DatabaseSchema";
 import { logger } from "./Logger";
 import util from "./Util";
+import { config as botConfig } from "../config";
+import { setTimeout } from "timers/promises"
 
 type UserOrPart = User | PartialUser;
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
@@ -213,20 +214,22 @@ class Starboard {
     return fields;
   }
 
-  public async main() {
+  public async main(): Promise<unknown> {
+    if (botConfig.maintenance) return;
+
     // Fetch the reaction if it's partial
     const reaction = this.reaction.partial
       ? await this.reaction.fetch()
       : this.reaction;
 
     const [emoji, config, blacklist] = await this.getServerConfig(
-      reaction.message.guildId!
+      reaction.message.guild!.id
     );
 
     if (!config || !config?.boardId) return; // There is no config or configured channel
     if (blacklist.includes(reaction.message.channelId)) return; // The channel is blacklisted
-    if (reaction.message.channelId == config.boardId) return; // The reaction channel is the same as starboard channel
-    if (reaction.message.author!.id == this.user.id) return; // If the user reacting is the same as the message's author
+    // if (reaction.message.channelId === config.boardId) return; // The reaction channel is the same as starboard channel
+    // if (reaction.message.author!.id === this.user.id) return; // If the user reacting is the same as the message's author
 
     const reactionEmoji = this.formatReactionString(reaction.emoji);
 
@@ -252,11 +255,14 @@ class Starboard {
     // None of the reactions are equal or more than config amount
     if (!reactions.some((rect) => rect.count >= config.amount)) return;
 
+    // Format the emojis: {emoji} * {emoji}...
+    const reactionStrings: string[] = reactions.map(r => `${r.emoji}: ${r.count}`);
+
     const boardChannel:
       | GuildBasedChannel
       | null
       | void
-      = await reaction.message.guild?.channels.fetch(config.boardId).catch(() => { }) ?? null
+      = await reaction.message.guild?.channels.fetch(config.boardId)
 
     // Return if channel is not a TextChannel or it doesn't exist
     if (!boardChannel || boardChannel.type != ChannelType.GuildText) {
@@ -268,33 +274,24 @@ class Starboard {
       })
     }
 
-    const message = await starboardEntries.findOne({
-      where: { starredMessageUrl: reaction.message.url },
-    });
+    const dbEntry = await starboardEntries.findOne({ where: { starredMessageUrl: reaction.message.url } });
 
-    const reactionStrings: string[] = reactions.map(
-      (rect) => `${rect.emoji}: ${rect.count}`
-    );
+    const messageDataSplit = await dbEntry?.getDataValue('botMessageUrl').split('/')
+    const messageId = messageDataSplit?.length ? messageDataSplit[messageDataSplit?.length - 1] : null
+    const entryMessage = messageId ? (await boardChannel.messages.fetch(messageId) ?? null) : null
 
-    if (!message) {
+    if (!entryMessage) {
       const [member, count, fields, embedImage] = await Promise.all([
-        await util.fetchMember(
+        util.fetchMember(
           reaction.message.guildId!,
           reaction.message.author!.id
         ),
-        await starboardEntries.count({
+        starboardEntries.count({
           where: { guildId: reaction.message.guildId },
         }),
-        await this.setFields(),
-        await this.setImage(reaction),
+        this.setFields(),
+        this.setImage(reaction),
       ]);
-
-      const lastMsg = await boardChannel.messages.fetch({ limit: 1 })
-
-      if (lastMsg.at(0)?.embeds) {
-        const lastEmbed = EmbedBuilder.from(lastMsg.at(0)!.embeds[0]) ?? null
-        if (lastEmbed && lastEmbed.data.author!.name === `Entry #${count}`) return
-      }
 
       const embed = new EmbedBuilder()
         .setAuthor({
@@ -321,44 +318,30 @@ class Starboard {
           components: [refButton],
         });
 
-        await starboardEntries.create({
-          guildId: reaction.message.guildId,
+        const data = {
+          guildId: reaction.message.guild?.id,
           botMessageUrl: res.url,
-          starredMessageUrl: reaction.message.url,
-        });
+          starredMessageUrl: reaction.message.url
+        }
+
+        await starboardEntries.create(data);
+
       } catch (error) {
         util.sendAdminErrorMsg({
           guildId: reaction.message.guild!.id,
           level: 'error',
-          message: `Failed to send a new starboard message: **${error.message}**`,
+          message: `Failed to send a new starboard message: **${error.stack}**`,
           stackTrace: 'Starboard script'
         })
 
         logger.error(`Failed to send starboard message: ${error.stack}`);
       }
-    } else if (message) {
-      const requestId: string = await message.getDataValue("botMessageUrl");
-      const messageId = requestId.split("/").pop();
-
-      if (!messageId) {
-        logger.error(
-          `Failed to update starboard embed due to a missing messageId`
-        );
-        return;
-      }
-
-      const fetchMsg = await boardChannel.messages
-        .fetch(messageId)
-        .catch(() => { });
-
-      if (!fetchMsg) return;
-
-      const embed = EmbedBuilder.from(fetchMsg.embeds[0]).setDescription(
-        reactionStrings.join(" • ")
-      );
+    } else if (entryMessage) {
+      const embed = EmbedBuilder.from(entryMessage.embeds.at(0)!)
+        .setDescription(reactionStrings.join(" • "));
 
       try {
-        await fetchMsg.edit({
+        await entryMessage.edit({
           embeds: [embed],
         });
       } catch (error) {

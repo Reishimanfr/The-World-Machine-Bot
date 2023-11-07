@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import Subcommand from "../../../types/Subcommand";
 
 // Check if string is in HH?:MM:SS format
@@ -83,9 +82,8 @@ const seek: Subcommand = {
       const time = parseInt(seconds.slice(1)) * 1000;
 
       pos = player.position + direction * time;
-      responseString = `Seeked ${seconds.slice(1)} ${
-        direction == 1 ? "forward" : "backwards"
-      }`;
+      responseString = `Seeked ${seconds.slice(1)} ${direction == 1 ? "forward" : "backwards"
+        }`;
     } else {
       return interaction.reply({
         embeds: [
@@ -103,7 +101,7 @@ const seek: Subcommand = {
 
     interaction.reply({
       embeds: [{ description: `[ ${responseString}. ]`, color: 9109708 }],
-      ephemeral: !config.player.announcePlayerActions,
+      ephemeral: true
     });
   },
 };

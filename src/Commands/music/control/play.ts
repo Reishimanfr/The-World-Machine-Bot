@@ -4,17 +4,18 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
+  ChannelType,
   ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,
-  GuildMember,
 } from "discord.js";
 import { v4 as UUID } from "uuid";
 import { ExtClient, ExtPlayer } from "../../../Helpers/ExtendedClient";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import Subcommand from "../../../types/Subcommand";
+import { playerOverrides } from "../../../Helpers/DatabaseSchema";
+import { PlayerSettings, config } from "../../../config";
 
 type interactionType =
   | ChatInputCommandInteraction
@@ -47,6 +48,7 @@ export async function loadTrack(
     source: "ytsearch",
     requester: interaction.member
   });
+
 
   if (result.loadType == "LOAD_FAILED") {
     return interaction.reply({
@@ -115,7 +117,7 @@ export async function loadTrack(
     }
   }
 
-  if (result.loadType == 'TRACK_LOADED') {
+  if (result.loadType == 'TRACK_LOADED' || result.loadType == 'SEARCH_RESULT') {
     const track = result.tracks[0];
     track.info.requester = interaction.member;
     player.queue.add(track);
@@ -145,7 +147,7 @@ const play: Subcommand = {
   ) => {
     if (!interaction.inCachedGuild()) return;
     await interaction.deferReply({
-      ephemeral: !config.player.announcePlayerActions,
+      ephemeral: true
     });
 
     const query = interaction.options.getString("url-or-search", true);
@@ -172,6 +174,24 @@ const play: Subcommand = {
 
     if (!player.UUID) {
       player.UUID = UUID();
+    }
+
+    if (!player.settings) {
+      const defaultPlayerConfig = config.player
+      const request = await playerOverrides.findOne({ where: { guildId: interaction.guild!.id } })
+      const configOverrides = await request?.dataValues
+
+      const settings: any = {}
+      const keys = Object.keys(defaultPlayerConfig)
+      const values = Object.values(defaultPlayerConfig)
+
+      for (let i = 0; i < keys.length; i++) {
+        const cur = keys[i]
+        const curOverride = configOverrides?.[keys[i]] ?? null
+        settings[cur] = curOverride ?? values[i]
+
+        player.settings = settings as PlayerSettings
+      }
     }
   },
 };

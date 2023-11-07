@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import Subcommand from "../../../types/Subcommand";
 
 const pause: Subcommand = {
@@ -32,7 +31,7 @@ const pause: Subcommand = {
           .setDescription(`[ ${player.isPaused ? "Paused" : "Resumed"}. ]`)
           .setColor(util.embedColor),
       ],
-      ephemeral: !config.player.announcePlayerActions,
+      ephemeral: true
     });
   },
 };

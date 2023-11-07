@@ -12,22 +12,19 @@ import { setTimeout } from "timers/promises";
 import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import Subcommand from "../../../types/Subcommand";
 
 async function skipvote(
   interaction: CommandInteraction | ButtonInteraction,
   player: ExtPlayer
 ) {
-  const channel = <VoiceChannel>(
-    await interaction.guild!.channels.fetch(player.voiceChannel)
-  );
+  const channel = (await interaction.guild!.channels.fetch(player.voiceChannel)) as VoiceChannel;
   // Amount of members without bots
   const memberCount = channel.members.filter((m) => !m.user.bot).size;
 
   if (
-    memberCount < config.player.skipvoteMemberRequirement ||
-    !config.player.enableSkipvote
+    !player.settings.enableSkipvote
+    // memberCount < player.settings.skipvoteMemberRequirement
   ) {
     util.addToAuditLog(
       player,
@@ -36,19 +33,9 @@ async function skipvote(
     );
     player.seekTo(player.currentTrack!.info.length);
 
-    let reason = "";
-
-    if (memberCount < config.player.skipvoteMemberRequirement)
-      reason = "not enough members in voice channel.";
-
-    if (!config.player.enableSkipvote) {
-      reason = "skipvote disabled.";
-    }
-
     const options = {
       embeds: [
         new EmbedBuilder()
-          .setAuthor({ name: `Skipvote omited: ${reason}` })
           .setDescription("[ Song skipped. ]")
           .setColor(util.embedColor),
       ],
@@ -62,8 +49,9 @@ async function skipvote(
 
     return;
   }
+
   const requiredVotes = Math.round(
-    (memberCount * config.player.skipvoteThreshold) / 100
+    (memberCount * player.settings.skipvoteThreshold) / 100
   );
 
   const buttons: ButtonBuilder[] = [
@@ -91,7 +79,7 @@ async function skipvote(
     embeds: [
       new EmbedBuilder()
         .setAuthor({
-          name: `Skipvote requested by ${interaction.user.username}`,
+          name: `${interaction.user.username} wants to skip the current song`,
           iconURL: interaction.user.displayAvatarURL(),
         })
         .setDescription(
@@ -113,12 +101,12 @@ async function skipvote(
     time: 60000, // one minute
   });
 
-  collect.on("collect", async (c) => {
-    await c.deferUpdate();
-    const member = await util.fetchMember(c.guildId!, c.user.id);
+  collect.on("collect", async (collected) => {
+    await collected.deferUpdate();
+    const member = await util.fetchMember(collected.guildId!, collected.user.id);
 
     if (!member.voice.channel) {
-      c.followUp({
+      collected.followUp({
         content: "You must be in a voice channel to vote",
         ephemeral: true,
       });
@@ -126,23 +114,23 @@ async function skipvote(
     }
 
     if (member.voice.channel.id !== player.voiceChannel) {
-      c.followUp({
+      collected.followUp({
         content: "You must be in the same voice channel to vote",
         ephemeral: true,
       });
       return;
     }
 
-    if (votedUsers.includes(c.user.id)) {
-      c.followUp({
+    if (votedUsers.includes(collected.user.id)) {
+      collected.followUp({
         content: "You have already placed a vote.",
         ephemeral: true,
       });
       return;
     }
 
-    c.customId == "yes" ? (yesVotes += 1) : (noVotes += 1);
-    votedUsers.push(c.user.id);
+    collected.customId == "yes" ? (yesVotes += 1) : (noVotes += 1);
+    votedUsers.push(collected.user.id);
 
     if (yesVotes >= requiredVotes) {
       collect.stop("Enough votes collected");

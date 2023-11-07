@@ -1,13 +1,14 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, CommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import Command from "../types/Command";
 import errorLogs from "./config/errorLogs";
 import util from "../Helpers/Util";
 import updateLogs from "./config/updateLogs";
+import playerSettings from "./config/playerSettings";
 
 type configType = {
   name: string,
   description: string,
-  function: (interaction: ChatInputCommandInteraction) => {},
+  function: (interaction: ChatInputCommandInteraction) => Promise<any>,
   icon: string,
   id: string,
 }
@@ -33,6 +34,13 @@ const config: Command = {
         function: updateLogs,
         icon: '📰',
         id: 'update_logs'
+      },
+      {
+        name: 'Music player settings',
+        description: 'Configures the music player settings to your liking.',
+        function: playerSettings,
+        icon: '🎶',
+        id: 'player_settings'
       }
     ]
 
@@ -83,7 +91,16 @@ const config: Command = {
       })
     }
 
-    handler(interaction)
+    const status = await handler(interaction)
+
+    if (status == 0) {
+      return interaction.editReply({
+        embeds: [new EmbedBuilder()
+          .setDescription('[ This interaction has timed out. ]')
+          .setColor(util.embedColor)
+        ]
+      })
+    }
   }
 }
 

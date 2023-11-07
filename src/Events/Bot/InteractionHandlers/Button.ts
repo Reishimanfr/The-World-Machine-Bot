@@ -3,10 +3,18 @@ import { client } from '../../..';
 import { ExtPlayer } from '../../../Helpers/ExtendedClient';
 import { logger } from '../../../Helpers/Logger';
 import util from '../../../Helpers/Util';
-import { config } from '../../../config';
 import { buttonMap } from './ButtonHandlers/!buttonHandler';
+import { config } from '../../../config';
 
 const Button = async (button: ButtonInteraction) => {
+
+  if (config.maintenance) {
+    return button.reply({
+      content: 'The bot is down for maintenance.',
+      ephemeral: true
+    })
+  }
+
   if (button.customId.startsWith('songcontrol')) {
     const player = client.poru.players.get(button.guildId!) as ExtPlayer;
     const member = await button.guild?.members.fetch(button.user.id);
@@ -51,7 +59,7 @@ const Button = async (button: ButtonInteraction) => {
     const handler = buttonMap[action];
     const args = [button, player, client];
 
-    if (!player.isPlaying && !player.isPaused && !isExceptionButton) {
+    if (!player?.isPlaying && !player.isPaused && !isExceptionButton) {
       return button.reply({
         embeds: [
           new EmbedBuilder()
@@ -73,29 +81,12 @@ const Button = async (button: ButtonInteraction) => {
       });
     }
 
-    await button.deferReply({ ephemeral: !config.player.announcePlayerActions });
+    await button.deferReply({ ephemeral: true });
 
     try {
       await handler(...args);
     } catch (error) {
       logger.error(`Failed to process button ${button.customId}: ${error}`);
-
-      const options: InteractionReplyOptions = {
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Something went wrong while running this. ]')
-            .setColor(util.embedColor),
-        ],
-        ephemeral: true,
-      };
-
-      if (button.replied) {
-        await button.followUp(options);
-      } else if (!button.replied) {
-        await button.reply(options);
-      } else {
-        logger.error(`xd`);
-      }
     }
   }
 };

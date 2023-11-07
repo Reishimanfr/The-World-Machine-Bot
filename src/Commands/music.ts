@@ -9,10 +9,11 @@ import PlayerEmbedManager from "../functions/playerEmbedManager";
 import Command from "../types/Command";
 import Subcommand from "../types/Subcommand";
 import { subcommandData, subcommandHandler } from "./music/!SubcommandHandler";
+import handleError from "../Helpers/ErrorHandler";
 
 const command = new SlashCommandBuilder()
   .setName("music")
-  .setDescription("All commands related to the music portion of the bot");
+  .setDescription("All commands related to the music portion of the bot")
 
 for (const part of Object.values(subcommandData)) {
   command.addSubcommand(part);
@@ -23,30 +24,42 @@ const music: Command = {
   data: command,
 
   callback: async (interaction: ChatInputCommandInteraction, client) => {
-    const subcommand = interaction.options.getSubcommand();
-    const player = client.poru.get(interaction.guildId!) as ExtPlayer;
-    const member = await util.fetchMember(
-      interaction.guild!.id,
-      interaction.user.id
-    );
+    const player: ExtPlayer | null = client.poru.get(interaction.guildId!) as ExtPlayer ?? null;
+    const member = await util.fetchMember(interaction.guild!.id, interaction.user.id);
 
-    const reqCommand: Subcommand = subcommandHandler[subcommand];
-    const options = reqCommand.musicOptions;
+    const handler: Subcommand = subcommandHandler[interaction.options.getSubcommand()];
+    const options = handler.musicOptions;
 
-    if (options.requiresPlayer && !player) {
+    if (!handler) {
+      return await handleError(interaction, new Error(`A music subcommand file "${interaction.options.getSubcommand()}" does not exist.`));
+    }
+
+    if (!player && options.requiresPlayer) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(
-              "[ The music player isn't active. Play something to activate it. ]"
-            )
+            .setDescription("[ Play something before using this command. ]")
             .setColor(util.embedColor),
         ],
         ephemeral: true,
       });
     }
 
-    if (!player && !member?.voice.channel?.joinable && options.requiresVc) {
+    if (options.requiresVc && !member.voice.channel) {
+      return interaction.reply({
+        embeds: [new EmbedBuilder()
+          .setDescription(`[ You have to be in a voice channel to use this. ]`)
+          .setColor(util.embedColor)
+        ],
+        ephemeral: true
+      })
+    }
+
+    if (
+      !player?.isConnected
+      && !member?.voice.channel?.joinable
+      && options.requiresVc
+    ) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -57,35 +70,24 @@ const music: Command = {
       });
     }
 
-    if (options.requiresPlaying && !player.isPlaying) {
+    if (options.requiresPlaying && !player?.isPlaying) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription("[ The player isn't playing right now. ]")
+            .setDescription('[ Nothing is playing right now. ]')
             .setColor(util.embedColor),
         ],
         ephemeral: true,
       });
     }
 
-    if (options.requiresVc && !member.voice.channel?.id) {
+    if (
+      player?.isConnected
+      && member.voice.channel?.id !== interaction.guild?.members.me?.voice.channel?.id) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription("[ You must be in a voice channel to use this. ]")
-            .setColor(util.embedColor),
-        ],
-        ephemeral: true,
-      });
-    }
-
-    if (player && options.requiresVc && member.voice.channel?.id !== interaction.guild?.members.me?.voice.channel?.id) {
-      return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription(
-              "[ You must be in the same voice channel to use this. ]"
-            )
+            .setDescription("[ You must be in the same voice channel to use this. ]")
             .setColor(util.embedColor),
         ],
         ephemeral: true,
@@ -93,7 +95,7 @@ const music: Command = {
     }
 
     const builder = new PlayerEmbedManager(player);
-    await reqCommand.callback(...[interaction, player, client, builder]);
+    await handler.callback(...[interaction, player, client, builder]);
   },
 };
 

@@ -2,7 +2,6 @@ import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { ExtPlayer } from "../../../Helpers/ExtendedClient";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
-import { config } from "../../../config";
 import PlayerEmbedManager from "../../../functions/playerEmbedManager";
 import Subcommand from "../../../types/Subcommand";
 
@@ -66,7 +65,7 @@ const remove: Subcommand = {
           )
           .setColor(util.embedColor),
       ],
-      ephemeral: !config.player.announcePlayerActions,
+      ephemeral: true
     });
 
     if (!player?.message) return;
