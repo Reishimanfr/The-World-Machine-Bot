@@ -1,14 +1,22 @@
 <p align="center"><img width=200 height=200 src="https://github.com/Reishimanfr/TWM-bot/assets/92938606/de4f51a7-8499-4798-ad8c-dc78f5006cd0"</img></p>
-<h3 align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> | <a href="https://discord.gg/QGeraSWsan">Support Server</a> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> | <a href="">Screenshots</a>
+<h3 align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> | <a href="https://discord.gg/QGeraSWsan">Support Server</a> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> | <a href="">Gallery</a>
 
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
-## ℹ️ Info
+## ℹ️ General info
 
-The world machine (or TWM for short) is a discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
+The world machine (or TWM for short) is a open source discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
 My motivation behind it was that all the other music bots I used didn't really suit me, so I decided to write my own!
 
-## Support
+## ⭐ Features
+TODO :3
+
+
+## ⚙️ Configuration
+You can configure my bot in multiple ways. If you're [self-hosting]() it go check out [this wiki page]() on possible options you can configure as a host.
+If you just want to configure some stuff as the user of the bot, [click here]() to check the wiki page for user configuration options!
+
+## ❓ Support
 
 Message me on discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also be sure to check the wiki for most common topics!
 
