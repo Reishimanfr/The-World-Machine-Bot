@@ -24,8 +24,8 @@ Message me on discord (@rei.shi) or [the support server](https://discord.gg/QGer
 
 Required:
 
-- [Lavalink](https://github.com/lavalink-devs/Lavalink) (I suggest ver. 3.7.8 since it worked best for me)
-- [Node.js](https://nodejs.org/en) (I suggest ver. 20.5.1)
+- [Lavalink](https://github.com/lavalink-devs/Lavalink)
+- [Node.js](https://nodejs.org/en)
 - A discord bot token, you can get one in the [Discord Developer Portal](https://discord.com/developers/applications)
 
 Optional:
