@@ -4,7 +4,7 @@
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
 # ⚠️ Notice:
-This repo is still work in progress, most of the information is missing
+This repo is still work in progress, most of the information is missing<br>
 % Done: `10%`
 
 ## ℹ️ General info
