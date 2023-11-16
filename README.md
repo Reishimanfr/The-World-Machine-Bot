@@ -3,6 +3,10 @@
 
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
+# ⚠️ Notice:
+This repo is still work in progress, most of the information is missing<br>
+% Done: `10%`
+
 ## ℹ️ General info
 
 The world machine (or TWM for short) is a open source discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
@@ -40,8 +44,8 @@ Message me on discord (@rei.shi) or [the support server](https://discord.gg/QGer
 
 Required:
 
-- [Node.js](https://nodejs.org/en)
-- [Lavalink](https://github.com/lavalink-devs/Lavalink)
+- [Lavalink](https://github.com/lavalink-devs/Lavalink) (I suggest ver. 3.7.8 since it worked best for me)
+- [Node.js](https://nodejs.org/en) (I suggest ver. 20.5.1)
 - A discord bot token, you can get one in the [Discord Developer Portal](https://discord.com/developers/applications)
 
 Optional:
