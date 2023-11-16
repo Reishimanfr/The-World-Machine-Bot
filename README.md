@@ -22,19 +22,7 @@ You can configure my bot in multiple ways. If you're [self-hosting]() it go chec
 If you just want to configure some stuff as the user of the bot, [click here]() to check the wiki page for user configuration options!<br>
 Below you can find a table with available configuration variables in the `config.yml` file:<br>
 
-<details>
-  <summary>Click here to view the <b>config.yml</b> variables</summary>
-  | Variable | Function | Optional? | Notes |
-|---|---|---|---|
-| `botToken` | Acts as the password for the bot user | ❌ | Get one in the [Discord Developer Portal](https://discord.dev/) |
-| `devBotToken` | A secondary bot token used to test new features | ✅ | You most likely don't need this. |
-| `apiKeys#steam` | Used for the `/tf2` command to fetch user data | ✅ | The `/tf2` command can't work without it. |
-| `apiKeys#tenor` | Used to fetch tenor gifs for the starboard | ✅ | Tenor gifs will be sent as normal text without this provided. |
-</details>
-
-<details>
-  <summary>Click here to view player config options</summary>
-</details>
+TODO :3
 
 ## ❓ Support
 
