@@ -7,7 +7,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { Track } from "poru";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
 import Subcommand from "../../../types/Subcommand";
@@ -17,6 +17,7 @@ const queue: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: false,
     requiresVc: false,
+    requiresDjRole: false
   },
 
   callback: async (

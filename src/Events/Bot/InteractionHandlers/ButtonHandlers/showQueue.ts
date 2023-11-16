@@ -7,10 +7,10 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { Track } from "poru";
-import { ExtPlayer } from "../../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../../Helpers/ExtendedClasses";
 import { logger } from "../../../../Helpers/Logger";
 import util from "../../../../Helpers/Util";
-import { formatSeconds } from "../../../../functions/formatSeconds";
+import { formatSeconds } from "../../../../functions/FormatSeconds";
 
 export const showQueue = async (
   interaction: ButtonInteraction,

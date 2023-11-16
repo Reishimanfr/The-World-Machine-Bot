@@ -2,8 +2,9 @@ import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { client } from '../../..';
 import { logger } from '../../../Helpers/Logger';
 import util from '../../../Helpers/Util';
-import commandList from '../../../functions/commandList';
+import commandList from '../../../Helpers/CommandExport';
 import { config } from '../../../config';
+import { botStats } from '../../../Helpers/DatabaseSchema';
 
 const Command = async (interaction: CommandInteraction) => {
   const command = commandList.find((command) => command.data.name == interaction.commandName);
@@ -43,6 +44,18 @@ const Command = async (interaction: CommandInteraction) => {
     await command.callback(interaction, client);
   } catch (error) {
     logger.error(`Command ${interaction.commandName} failed: ${error}`);
+  } finally {
+    const [record] = await botStats.findOrCreate(
+      {
+        where: { guildId: interaction.guild!.id },
+        defaults: {
+          guildId: interaction.guild!.id,
+          commandsRan: 0
+        }
+      }
+    )
+
+    await record?.increment('commandsRan', { by: 1 })
   }
 };
 

@@ -1,6 +1,6 @@
 import { ColorResolvable, Colors, EmbedBuilder, GuildMember, User } from 'discord.js';
 import { client } from '..';
-import { ExtPlayer } from './ExtendedClient';
+import { ExtPlayer } from './ExtendedClasses';
 import { botConfigOptions } from './DatabaseSchema';
 
 export type optionsType = {
@@ -66,14 +66,14 @@ class util {
    * Sends a message to the guild's error log channel if error is fixable without code changes
    */
   static async sendAdminErrorMsg(options: optionsType) {
-    const targetChannel = await botConfigOptions.findOne({ where: { guildId: options.guildId } })
-    const errorLogChannel = await targetChannel?.getDataValue('errorLogs')
+    const configOptions = await botConfigOptions.findOne({ where: { guildId: options.guildId } })
+    const channelId = await configOptions?.getDataValue('errorLogs')
 
     // Return if there's no channel data
-    if (!errorLogChannel) return;
+    if (!channelId) return;
 
     const guild = await client.guilds.fetch(options.guildId)
-    const channel = await guild.channels.fetch(errorLogChannel)
+    const channel = await guild.channels.fetch(channelId)
 
     // Return if channel doesn't exist, is not text based or we can't talk in it
     if (

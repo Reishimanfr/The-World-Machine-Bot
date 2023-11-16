@@ -1,10 +1,8 @@
-import { EmbedBuilder, Events, VoiceState } from "discord.js";
-import { ExtPlayer } from "../../Helpers/ExtendedClient";
-import { logger } from "../../Helpers/Logger";
-import util from "../../Helpers/Util";
-import PlayerEmbedManager from "../../functions/playerEmbedManager";
+import { Events, VoiceState } from "discord.js";
+import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import { client } from "../../index";
 import Event from "../../types/Event";
+import PlayerDestroy from "../Poru/PlayerDestroy";
 
 const UpdateVoiceState: Event = {
   name: Events.VoiceStateUpdate,
@@ -15,65 +13,19 @@ const UpdateVoiceState: Event = {
 
     if (!player) return;
 
-    const builder = new PlayerEmbedManager(player);
-    const newBotChannel = newState.guild.members.me?.voice.channel ?? null;
-
-    const UUIDEmbed = new EmbedBuilder().setDescription(
-      `Session UUID: ${player.UUID ?? "⚠️ Missing UUID!"}`
-    );
+    const newChannel = newState.guild.members.me?.voice.channel
 
     // Bot disconnect event
-    if (!newBotChannel) {
-      player.destroy();
-
-      if (!player?.message) return;
-
-      const embed = EmbedBuilder.from(player.message.embeds[0]);
-
-      embed.setAuthor({
-        name: `Stopped: bot was disconnected.`,
-        iconURL: util.playerGifUrl,
-      });
-
-      try {
-        player.message.edit({
-          embeds: [embed, UUIDEmbed],
-          components: [builder.constructRow(true)],
-        });
-      } catch (error) {
-        logger.error(
-          `A error occurred while editing message after event [bot disconnected]: ${error}`
-        );
-      }
-      return;
+    if (!newChannel) {
+      return await PlayerDestroy.execute(player, 'bot was disconnected.')
     }
 
-    const membersWithoutBots = newBotChannel?.members?.filter(
-      (user) => !user.user.bot
-    );
+    const membersWithoutBots = newChannel.members
+      .filter(m => !m.user.bot);
 
     // Everyone left voice
     if (membersWithoutBots.size == 0) {
-      player.destroy();
-
-      if (!player?.message) return;
-
-      const embed = EmbedBuilder.from(player.message.embeds[0]);
-      embed.setAuthor({
-        name: "Stopped: everyone left the channel.",
-        iconURL: util.playerGifUrl,
-      });
-
-      try {
-        await player.message.edit({
-          embeds: [embed, UUIDEmbed],
-          components: [builder.constructRow(true)],
-        });
-      } catch (error) {
-        logger.error(
-          `A error occurred while editing message after event [everyone left channel]: ${error}`
-        );
-      }
+      return await PlayerDestroy.execute(player, 'everyone left the channel.')
     }
   },
 };

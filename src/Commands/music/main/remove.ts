@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
-import PlayerEmbedManager from "../../../functions/playerEmbedManager";
+import PlayerEmbedManager from "../../../functions/MusicEmbedManager";
 import Subcommand from "../../../types/Subcommand";
 
 const remove: Subcommand = {
@@ -10,6 +10,7 @@ const remove: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true,
+    requiresDjRole: true
   },
 
   callback: async (

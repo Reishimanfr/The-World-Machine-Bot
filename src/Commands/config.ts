@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, CommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import Command from "../types/Command";
 import errorLogs from "./config/errorLogs";
 import util from "../Helpers/Util";
@@ -17,7 +17,8 @@ const config: Command = {
   permissions: ['SendMessages'],
   data: new SlashCommandBuilder()
     .setName('config')
-    .setDescription('Configure certain aspects of the bot!'),
+    .setDescription('Configure certain aspects of the bot!')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   callback: async (interaction: ChatInputCommandInteraction) => {
     const config: configType[] = [

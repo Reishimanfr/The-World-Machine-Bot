@@ -9,7 +9,7 @@ import {
   VoiceChannel,
 } from "discord.js";
 import { setTimeout } from "timers/promises";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
 import Subcommand from "../../../types/Subcommand";
@@ -21,11 +21,15 @@ async function skipvote(
   const channel = (await interaction.guild!.channels.fetch(player.voiceChannel)) as VoiceChannel;
   // Amount of members without bots
   const memberCount = channel.members.filter((m) => !m.user.bot).size;
+  const requiredVotes = Math.round((memberCount * player.settings.skipvoteThreshold) / 100);
 
   if (
-    !player.settings.enableSkipvote
-    // memberCount < player.settings.skipvoteMemberRequirement
+    !player.settings.enableSkipvote ||
+    memberCount < player.settings.skipvoteMemberRequirement ||
+    requiredVotes == 1
   ) {
+    const positionBeforeSkip = Math.trunc(player.position / 1000)
+
     util.addToAuditLog(
       player,
       interaction.user,
@@ -47,12 +51,11 @@ async function skipvote(
       interaction.reply({ options, ephemeral: true });
     }
 
+    const time = player.timeInVc
+    player.timeInVc = time + positionBeforeSkip
+
     return;
   }
-
-  const requiredVotes = Math.round(
-    (memberCount * player.settings.skipvoteThreshold) / 100
-  );
 
   const buttons: ButtonBuilder[] = [
     new ButtonBuilder()
@@ -71,9 +74,8 @@ async function skipvote(
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
   const timestamp = Math.trunc(Date.now() / 1000 + 60);
 
-  let yesVotes = 0;
-  let noVotes = 0;
-  let votedUsers: Array<string> = [];
+  let yesVotes = 1;
+  let votedUsers: Array<string> = [interaction.user.id];
 
   const res = await interaction.reply({
     embeds: [
@@ -129,7 +131,7 @@ async function skipvote(
       return;
     }
 
-    collected.customId == "yes" ? (yesVotes += 1) : (noVotes += 1);
+    collected.customId == "yes" ? (yesVotes += 1) : void (0);
     votedUsers.push(collected.user.id);
 
     if (yesVotes >= requiredVotes) {
@@ -174,21 +176,26 @@ async function skipvote(
     });
 
     if (success) {
+      const positionBeforeSkip = Math.trunc(player.position / 1000)
+
       util.addToAuditLog(
         player,
         interaction.user,
         "Skipped a song: " + player.currentTrack.info.uri
       );
+
+      const time = player.timeInVc
+      player.timeInVc = time + positionBeforeSkip
+
       player.seekTo(player.currentTrack.info.length);
     }
 
-    await setTimeout(10000); // 10s
-
     try {
+      await setTimeout(10000); // 10s
       await res.delete();
-    } catch (e) {
+    } catch (error) {
       logger.error(`Failed to delete voting message`);
-      logger.error(e.stack);
+      logger.error(error.stack);
     }
   });
 }
@@ -197,6 +204,7 @@ const skip: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true,
+    requiresDjRole: false
   },
 
   callback: async (interaction, player: ExtPlayer) => {

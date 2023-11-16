@@ -7,8 +7,7 @@ const NodeError: Event = {
   once: false,
   execute: (node, event) => {
     logger.error(
-      `Node ${node.name} encountered a error. Attempting to reconnect in ${(poruOptions.reconnectTimeout ?? 0) / 1000
-      }s`,
+      `Node ${node.name} encountered a error. Attempting to reconnect in ${(poruOptions.reconnectTimeout ?? 0) / 1000}s`,
     );
     logger.error(event);
   }

@@ -21,6 +21,35 @@ const funcMap = {
   blChannelCon: blChannelCon,
 };
 
+export const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
+  .addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId("conSelect")
+      .setPlaceholder("Select a option to configure!")
+      .setOptions(
+        new StringSelectMenuOptionBuilder()
+          .setLabel("⭐ Emojis")
+          .setDescription("Configure which emojis are accepted for the starboard.")
+          .setValue("emojiCon"),
+
+        new StringSelectMenuOptionBuilder()
+          .setLabel("🧵 Channel")
+          .setDescription("Set where the starboard channel should be.")
+          .setValue("channelCon"),
+
+        new StringSelectMenuOptionBuilder()
+          .setLabel("🔢 Amount")
+          .setDescription("Configure how many reaction are required to send a message.")
+          .setValue("amountCon"),
+
+        new StringSelectMenuOptionBuilder()
+          .setLabel("❌ Blacklisted channels")
+          .setDescription("Configure which channels should be ignored.")
+          .setValue("blChannelCon")
+      )
+  )
+
+
 const starboard: Command = {
   permissions: ["EmbedLinks", "SendMessages", "ViewChannel"],
   data: new SlashCommandBuilder()
@@ -29,63 +58,31 @@ const starboard: Command = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Make the commands vibisle only to admins
 
   callback: async (interaction: ChatInputCommandInteraction) => {
-    const selectMenu = new StringSelectMenuBuilder()
-      .setCustomId("conSelect")
-      .setPlaceholder("Select a option to configure!")
-      .setOptions(
-        new StringSelectMenuOptionBuilder()
-          .setLabel("⭐ Emojis")
-          .setDescription(
-            "Configure which emojis are accepted by the starboard"
-          )
-          .setValue("emojiCon"),
-
-        new StringSelectMenuOptionBuilder()
-          .setLabel("🧵 Channel")
-          .setDescription(
-            "Set in which channel the starboard should be located"
-          )
-          .setValue("channelCon"),
-
-        new StringSelectMenuOptionBuilder()
-          .setLabel("🔢 Amount")
-          .setDescription("Configure how many accepted reaction are required")
-          .setValue("amountCon"),
-
-        new StringSelectMenuOptionBuilder()
-          .setLabel("❌ Blacklisted channels")
-          .setDescription(
-            "Configure which channels should be ignored by the bot"
-          )
-          .setValue("blChannelCon")
-      );
-
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      selectMenu
-    );
-
     const res = await interaction.reply({
-      components: [row],
+      components: [menu],
       ephemeral: true,
     });
 
-    const collected = await res.awaitMessageComponent({
+    const collector = res.createMessageComponentCollector({
       componentType: ComponentType.StringSelect,
       time: 60000,
     });
 
-    await collected.deferUpdate();
-    const option = collected.values[0];
+    collector.on('collect', async (collected) => {
+      await collected.deferUpdate()
+      collector.resetTimer()
 
-    const [record] = await starboardConfig.findOrCreate({
-      where: { guildId: interaction.guildId },
-      defaults: { guildId: interaction.guildId, boardId: null, amount: 4 },
-    });
+      const option = collected.values[0]
+      const [record] = await starboardConfig.findOrCreate({
+        where: { guildId: interaction.guildId },
+        defaults: { guildId: interaction.guildId, boardId: null, amount: 4 },
+      });
 
-    const args = [interaction, record];
-    const handler = funcMap[option];
+      const args = [interaction, record];
+      const handler = funcMap[option];
 
-    await handler(...args);
+      await handler(...args);
+    })
   },
 };
 

@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import { Track } from "poru";
-import { ExtPlayer } from "../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import { logger } from "../../Helpers/Logger";
 import Event from "../../types/Event";
 
@@ -17,9 +17,7 @@ const TrackError: Event = {
     const statusEmbed = EmbedBuilder.from(message.embeds[0]);
 
     const errorEmbed = new EmbedBuilder()
-      .setDescription(
-        `[ ⚠️ A error occurred while trying to play track **${track.info.title}**. ]`
-      )
+      .setDescription(`[ ⚠️ A error occurred while trying to play track **${track.info.title}**. ]`)
       .setColor("DarkRed");
 
     try {

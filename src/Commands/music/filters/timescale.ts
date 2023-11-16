@@ -7,6 +7,7 @@ const timescale: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: false,
     requiresVc: true,
+    requiresDjRole: true
   },
 
   callback: async (interaction: ChatInputCommandInteraction, player) => {
@@ -22,8 +23,7 @@ const timescale: Subcommand = {
     util.addToAuditLog(
       player,
       interaction.user,
-      `Set the timescale filter to ${scale}x speed ${
-        pitch ? `And ${pitch}x pitch` : ""
+      `Set the timescale filter to ${scale}x speed ${pitch ? `And ${pitch}x pitch` : ""
       }`
     );
 
@@ -31,8 +31,7 @@ const timescale: Subcommand = {
       embeds: [
         new EmbedBuilder()
           .setDescription(
-            `[ Timescale filter set to **${scale}x speed** ${
-              pitch ? `And **${pitch}x pitch**` : ""
+            `[ Timescale filter set to **${scale}x speed** ${pitch ? `And **${pitch}x pitch**` : ""
             } ]`
           )
           .setColor(util.embedColor)

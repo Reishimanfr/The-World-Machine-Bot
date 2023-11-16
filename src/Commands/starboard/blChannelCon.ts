@@ -9,6 +9,7 @@ import {
 import { starboardBlacklistedChannels } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
 import { confirmButtons, finalConButtons } from "./stUtil";
+import { menu } from "../starboard";
 
 export default async function blChannelCon(interaction: CommandInteraction) {
   const blacklistedChannels = await starboardBlacklistedChannels.findAll({
@@ -39,7 +40,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
 
   const res = await interaction.editReply({
     embeds: [embeds[0]],
-    components: [confirmButtons],
+    components: [menu, confirmButtons],
   });
 
   const collector = await res.awaitMessageComponent({
@@ -118,7 +119,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
         )
         .setColor(util.embedColor),
     ],
-    components: [],
+    components: [menu],
   });
 
   let data: { guildId: string; channelId: string }[] = [];

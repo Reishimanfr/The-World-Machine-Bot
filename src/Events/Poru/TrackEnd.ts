@@ -1,4 +1,4 @@
-import { ExtPlayer } from "../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import Event from "../../types/Event";
 
 const TrackEnd: Event = {
@@ -6,6 +6,9 @@ const TrackEnd: Event = {
   once: false,
   execute: (player: ExtPlayer) => {
     player.pauseEditing = true
+    const currentTime = player.timeInVc
+
+    player.timeInVc = currentTime + Math.trunc(player.previousTrack.info.length / 1000)
   }
 }
 

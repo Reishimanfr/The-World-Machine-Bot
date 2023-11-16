@@ -1,5 +1,5 @@
 import { ActivityType, Events } from "discord.js";
-import { ExtClient } from "../../Helpers/ExtendedClient";
+import { ExtClient } from "../../Helpers/ExtendedClasses";
 import { logger } from "../../Helpers/Logger";
 import Event from "../../types/Event";
 import { config } from "../../config";

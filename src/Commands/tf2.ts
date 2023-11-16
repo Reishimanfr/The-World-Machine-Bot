@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 import util from '../Helpers/Util';
 import { config } from '../config';
-import { ITf2Stats, classIconEmoji, classIconObject, classes, statFields } from '../functions/tf2Data';
+import { ITf2Stats, classIconEmoji, classIconObject, classes, statFields } from '../functions/Tf2Data';
 import Command from '../types/Command';
 
 const token = config.apiKeys.steam;
@@ -198,7 +198,7 @@ const tf2: Command = {
     });
 
     collector.on('end', (_) => {
-      interaction.editReply({ components: [] }).catch(() => {}); // Ignore the error since we can't do anything about it
+      interaction.editReply({ components: [] }).catch(() => { }); // Ignore the error since we can't do anything about it
     });
   },
 };

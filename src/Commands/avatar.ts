@@ -4,7 +4,7 @@ import {
   GuildMember,
   SlashCommandBuilder,
 } from 'discord.js';
-import type { ExtClient } from '../Helpers/ExtendedClient';
+import type { ExtClient } from '../Helpers/ExtendedClasses';
 import util from '../Helpers/Util';
 import Command from '../types/Command';
 
@@ -22,7 +22,7 @@ const avatar: Command = {
         .setDescription("Should you be the only one seeing the command's reply?"),
     ),
 
-  callback: async (interaction: ChatInputCommandInteraction, client: ExtClient) => {
+  callback: async (interaction: ChatInputCommandInteraction) => {
     const member = interaction.options.getMember('user') as GuildMember;
     const secret = interaction.options.getBoolean('secret') ?? false;
 

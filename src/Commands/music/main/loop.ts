@@ -1,7 +1,7 @@
 import { CommandInteraction, EmbedBuilder } from "discord.js";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import util from "../../../Helpers/Util";
-import PlayerEmbedManager from "../../../functions/playerEmbedManager";
+import PlayerEmbedManager from "../../../functions/MusicEmbedManager";
 import Subcommand from "../../../types/Subcommand";
 
 const loop: Subcommand = {
@@ -9,6 +9,7 @@ const loop: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true,
+    requiresDjRole: true
   },
 
   callback: (interaction: CommandInteraction, player: ExtPlayer) => {

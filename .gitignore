@@ -3,3 +3,6 @@ config.yml
 database.sqlite
 lavalink.jar
 node_modules
+yarn.lock
+yarn-error.log
+ignore

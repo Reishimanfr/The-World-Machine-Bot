@@ -1,6 +1,6 @@
 import { Client, REST, Routes } from 'discord.js';
 import { config } from '../config';
-import commandList from '../functions/commandList';
+import commandList from './CommandExport';
 import { logger } from './Logger';
 
 async function main() {

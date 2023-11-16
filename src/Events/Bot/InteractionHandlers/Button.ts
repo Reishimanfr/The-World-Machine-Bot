@@ -1,6 +1,6 @@
 import { ButtonInteraction, EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 import { client } from '../../..';
-import { ExtPlayer } from '../../../Helpers/ExtendedClient';
+import { ExtPlayer } from '../../../Helpers/ExtendedClasses';
 import { logger } from '../../../Helpers/Logger';
 import util from '../../../Helpers/Util';
 import { buttonMap } from './ButtonHandlers/!buttonHandler';

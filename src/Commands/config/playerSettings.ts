@@ -2,14 +2,15 @@ import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, StringSel
 import { playerOverrides } from "../../Helpers/DatabaseSchema";
 import { config as defaultConfig, PlayerSettings } from "../../config";
 import { playerOptionsData } from "./_playerOptionDescriptions";
+import handlePlayerSettings from "./_handlePlayerSettings";
 
 /**
  * This function combines the default config with the overrides a user may have added.
  * Example: if a setting has been overriden the property for it's key will be the overriden
  * one, if it wasn't it will be set to the default value.
  */
-async function combineConfig(interaction: ChatInputCommandInteraction): Promise<PlayerSettings> {
-  const overrides = await playerOverrides.findOne({ where: { guildId: interaction.guildId } })
+export async function combineConfig(guildId: string): Promise<PlayerSettings> {
+  const overrides = await playerOverrides.findOne({ where: { guildId: guildId } })
 
   if (!overrides) return defaultConfig.player
 
@@ -56,7 +57,7 @@ function buildMenu(config: PlayerSettings): ActionRowBuilder<StringSelectMenuBui
 }
 
 export default async function playerSettings(interaction: ChatInputCommandInteraction) {
-  const playerConfig = await combineConfig(interaction)
+  const playerConfig = await combineConfig(interaction.guild!.id)
   const optionMenu = buildMenu(playerConfig)
   // Used to append messages to the end of the base content
   const baseContent = `:white_check_mark: -> This option is enabled. Clicking will disable it.
@@ -77,22 +78,25 @@ export default async function playerSettings(interaction: ChatInputCommandIntera
     await collected.deferUpdate()
     collector.resetTimer()
 
+    const updatePlayerConfig = await combineConfig(interaction.guild!.id)
     const option = collected.values[0]
     const type = playerOptionsData[option].type
+    let updated = {}
+    let content = baseContent
 
     if (type == 'boolean') {
-      playerConfig[option] = !playerConfig[option]
-
-      await interaction.editReply({
-        content: baseContent + `\n\n**${option}** toggled -> ${playerConfig[option] ? '✅' : '❌'}!`,
-        components: [buildMenu(playerConfig)]
-      })
+      updated[option] = !updatePlayerConfig[option]
+      content = baseContent + `\n\n**${option}** toggled -> ${!updatePlayerConfig[option] ? '✅' : '❌'}!`
+    } else {
+      updated[option] = await handlePlayerSettings(interaction, option)
     }
-  })
 
-  collector.on('end', async () => {
-    await playerOverrides.update({
-      dataCopy: playerConfig
-    }, { where: { guildId: interaction.guild!.id } })
+    await playerOverrides.update(updated, { where: { guildId: interaction.guild!.id } })
+
+    let lastUpdateCon = await combineConfig(interaction.guild!.id)
+    await interaction.editReply({
+      content: content,
+      components: [buildMenu(lastUpdateCon)]
+    })
   })
 }

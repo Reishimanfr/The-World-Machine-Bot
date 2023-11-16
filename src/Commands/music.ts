@@ -3,9 +3,9 @@ import {
   EmbedBuilder,
   SlashCommandBuilder,
 } from "discord.js";
-import { ExtPlayer } from "../Helpers/ExtendedClient";
+import { ExtPlayer } from "../Helpers/ExtendedClasses";
 import util from "../Helpers/Util";
-import PlayerEmbedManager from "../functions/playerEmbedManager";
+import PlayerEmbedManager from "../functions/MusicEmbedManager";
 import Command from "../types/Command";
 import Subcommand from "../types/Subcommand";
 import { subcommandData, subcommandHandler } from "./music/!SubcommandHandler";

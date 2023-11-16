@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
-import { ExtClient, ExtPlayer } from '../Helpers/ExtendedClient';
-import PlayerEmbedManager from '../functions/playerEmbedManager';
+import { ExtClient, ExtPlayer } from '../Helpers/ExtendedClasses';
+import PlayerEmbedManager from '../functions/MusicEmbedManager';
 
 interface Subcommand {
   callback: (
@@ -16,6 +16,8 @@ interface Subcommand {
     requiresPlaying: boolean;
     /** Must be active player to use */
     requiresPlayer: boolean;
+    /** Must have the DJ role to use */
+    requiresDjRole: boolean;
   };
 }
 

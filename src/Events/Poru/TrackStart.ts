@@ -1,11 +1,11 @@
 import { Track } from "poru";
 import { client } from "../..";
 import { queueHistory } from "../../Helpers/DatabaseSchema";
-import { ExtPlayer } from "../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import { logger } from "../../Helpers/Logger";
-import PlayerEmbedManager from "../../functions/playerEmbedManager";
+import PlayerEmbedManager from "../../functions/MusicEmbedManager";
 import Event from "../../types/Event";
-import timeoutPlayer from "../../functions/timeoutPlayer";
+import timeoutPlayer from "../../functions/TimeoutPlayer";
 
 const TrackStart: Event = {
   name: "trackStart",
@@ -21,7 +21,7 @@ const TrackStart: Event = {
     if (!channel?.isTextBased()) return;
 
     const oldData = await queueHistory.findOne({
-      where: { UUID: player.UUID },
+      where: { UUID: player.sessionId },
     });
 
     const currentEntries = await oldData?.getDataValue("entries") ?? "";
@@ -43,7 +43,7 @@ const TrackStart: Event = {
     if (oldData) {
       await oldData.update({ entries: newEntries });
     } else if (!oldData) {
-      await queueHistory.create({ UUID: player.UUID, entries: newEntries });
+      await queueHistory.create({ UUID: player.sessionId, entries: newEntries });
     }
 
     const builder = new PlayerEmbedManager(player);
@@ -68,6 +68,7 @@ const TrackStart: Event = {
 
       // Message is not first
       if (
+        exists &&
         exists?.author.id !== client.user?.id &&
         !exists?.embeds.length &&
         !exists?.embeds.at(0)?.footer?.text.startsWith("Requested by")

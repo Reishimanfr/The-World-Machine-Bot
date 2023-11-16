@@ -1,8 +1,8 @@
 import { EmbedBuilder } from "discord.js";
-import { ExtPlayer } from "../Helpers/ExtendedClient";
+import { ExtPlayer } from "../Helpers/ExtendedClasses";
 import { logger } from "../Helpers/Logger";
 import util from "../Helpers/Util";
-import PlayerEmbedManager from "./playerEmbedManager";
+import PlayerEmbedManager from "./MusicEmbedManager";
 import { config } from "../config";
 
 class timeoutPlayer {
@@ -10,6 +10,8 @@ class timeoutPlayer {
    * 
    */
   static setup(player: ExtPlayer) {
+    if (config.hostPlayerOptions.playerTimeout <= 0) return;
+
     player.timeout = setTimeout(async () => {
       const message = player?.message
       const embedManager = new PlayerEmbedManager(player);

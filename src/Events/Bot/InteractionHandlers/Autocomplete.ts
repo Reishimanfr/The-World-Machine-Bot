@@ -1,6 +1,6 @@
 import { AutocompleteInteraction } from "discord.js";
 import { client } from "../../..";
-import { formatSeconds } from "../../../functions/formatSeconds";
+import { formatSeconds } from "../../../functions/FormatSeconds";
 
 type tracksType = {
   name: string,

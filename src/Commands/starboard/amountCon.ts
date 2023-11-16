@@ -2,7 +2,8 @@ import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
 import { Model } from "sequelize";
 import { starboardConfig } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
-import { confirmButtons, finalConButtons } from "./stUtil";
+import { confirmButtons } from "./stUtil";
+import { menu } from "../starboard";
 
 export default async function amountCon(
   interaction: CommandInteraction,
@@ -12,9 +13,7 @@ export default async function amountCon(
 
   const embeds = [
     new EmbedBuilder()
-      .setDescription(
-        `[ The current amount of required emojis is set to **${oldAmount}**. ]`
-      )
+      .setDescription(`[ The current amount of required emojis is set to **${oldAmount}**. ]`)
       .setColor(util.embedColor),
 
     new EmbedBuilder()
@@ -32,7 +31,7 @@ export default async function amountCon(
 
   const res = await interaction.editReply({
     embeds: [embeds[0]],
-    components: [confirmButtons],
+    components: [menu, confirmButtons],
   });
 
   const collector = await res.awaitMessageComponent({
@@ -82,7 +81,7 @@ export default async function amountCon(
         )
         .setColor(util.embedColor),
     ],
-    components: [],
+    components: [menu],
   });
 
   await starboardConfig.update(

@@ -5,7 +5,7 @@ import {
   ComponentType,
   EmbedBuilder,
 } from "discord.js";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
 import Subcommand from "../../../types/Subcommand";
@@ -15,6 +15,7 @@ const audit: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: false,
     requiresVc: false,
+    requiresDjRole: false
   },
 
   callback: async (interaction, player: ExtPlayer) => {

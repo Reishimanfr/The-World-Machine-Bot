@@ -12,12 +12,13 @@ export class ExtClient extends Client {
 }
 
 export class ExtPlayer extends Player {
-  private $message?: Message | null;
-  private $auditLog: AuditLogEntryI[] = [];
+  private $message: Message | null;
   private $pauseEditing: boolean;
-  private $UUID: string;
+  private $auditLog: AuditLogEntryI[] = [];
+  private $sessionId: string;
   private $timeout: NodeJS.Timeout | null;
-  private $settings: PlayerSettings
+  private $settings: PlayerSettings;
+  private $timeInVc: number;
 
   get message(): Message | null | undefined {
     return this.$message;
@@ -28,11 +29,11 @@ export class ExtPlayer extends Player {
   }
 
   get auditLog(): AuditLogEntryI[] {
-    return this.$auditLog ?? [];
+    return this.$auditLog
   }
 
   set auditLog(entries: AuditLogEntryI[]) {
-    this.$auditLog = entries;
+    this.$auditLog = entries
   }
 
   get pauseEditing() {
@@ -43,12 +44,12 @@ export class ExtPlayer extends Player {
     this.$pauseEditing = bool;
   }
 
-  get UUID(): string {
-    return this.$UUID;
+  get sessionId(): string {
+    return this.$sessionId;
   }
 
-  set UUID(UUID: string) {
-    this.$UUID = UUID;
+  set sessionId(id: string) {
+    this.$sessionId = id;
   }
 
   get timeout(): NodeJS.Timeout | null {
@@ -65,5 +66,13 @@ export class ExtPlayer extends Player {
 
   set settings(settings: PlayerSettings) {
     this.$settings = settings
+  }
+
+  get timeInVc(): number {
+    return this.$timeInVc
+  }
+
+  set timeInVc(time: number) {
+    this.$timeInVc = time
   }
 }

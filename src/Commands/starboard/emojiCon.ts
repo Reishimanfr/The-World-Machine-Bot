@@ -1,12 +1,11 @@
-import { CommandInteraction, ComponentType, EmbedBuilder, GuildMember } from "discord.js";
+import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
 import { starboardEmojis } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
 import { confirmButtons, finalConButtons } from "./stUtil";
+import { menu } from "../starboard";
 
 export default async function emojiCon(interaction: CommandInteraction) {
-  const oldEmojis = await starboardEmojis.findAll({
-    where: { guildId: interaction.guildId },
-  });
+  const oldEmojis = await starboardEmojis.findAll({ where: { guildId: interaction.guildId } });
   const emojis = oldEmojis.map((d) => d.dataValues.emoji);
 
   const embeds = [
@@ -29,7 +28,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
 
   const res = await interaction.editReply({
     embeds: [embeds[0]],
-    components: [confirmButtons],
+    components: [menu, confirmButtons],
   });
 
   const collector = await res.awaitMessageComponent({
@@ -65,16 +64,12 @@ export default async function emojiCon(interaction: CommandInteraction) {
   const newEmojis = content
     .split(", ")
     .map((emj) => emj.trim())
-    .filter(
-      (emj) => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu)
-    );
+    .filter(emj => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu));
 
   const finalCon = await interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(
-          `[ The new emojis will be set to ${newEmojis.join(", ")}. Confirm? ]`
-        )
+        .setDescription(`[ The new emojis will be set to ${newEmojis.join(", ")}. Confirm? ]`)
         .setColor(util.embedColor),
     ],
     components: [finalConButtons],
@@ -105,7 +100,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
         )
         .setColor(util.embedColor),
     ],
-    components: [],
+    components: [menu],
   });
 
   await starboardEmojis.destroy({ where: { guildId: interaction.guildId } });

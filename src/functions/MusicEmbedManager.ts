@@ -6,10 +6,10 @@ import {
   EmbedBuilder,
   GuildMember,
 } from "discord.js";
-import { ExtPlayer } from "../Helpers/ExtendedClient";
+import { ExtPlayer } from "../Helpers/ExtendedClasses";
 import util from "../Helpers/Util";
-import { formatSeconds } from "./formatSeconds";
-import constructProgressBar from "./progressBar";
+import { formatSeconds } from "./FormatSeconds";
+import constructProgressBar from "./ProgressBarConstructor";
 import { logger } from "../Helpers/Logger";
 import { Track } from "poru";
 
@@ -71,7 +71,6 @@ class PlayerEmbedManager {
 
   public async constructSongStateEmbed(): Promise<EmbedBuilder> {
     const player = this.player
-    const queue = player.queue
     const info = player.currentTrack.info
     const requester = info.requester as GuildMember
 
@@ -88,9 +87,9 @@ class PlayerEmbedManager {
       ? await this.requestSpotifyThumbnail(info.identifier)
       : info.image;
 
-    const queueLenOrPlayingStatus = (queue.length > 0)
+    const queueLenOrPlayingStatus = (player.queue.length > 0)
       // If there are multiple tracks in the queue
-      ? `There ${queue.length == 1 ? "is one song" : `are ${queue.length} songs`} in the queue`
+      ? `There ${player.queue.length == 1 ? "is one song" : `are ${player.queue.length} songs`} in the queue`
       // If there is only one track in the queue
       : `${player.isPaused ? "Paused" : "Now Playing"}...`
 

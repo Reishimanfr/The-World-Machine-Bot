@@ -9,7 +9,8 @@ import {
 import { Model } from "sequelize";
 import { starboardConfig } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
-import { confirmButtons, finalConButtons } from "./stUtil";
+import { confirmButtons } from "./stUtil";
+import { menu } from "../starboard";
 
 export default async function channelCon(
   interaction: CommandInteraction,
@@ -19,10 +20,7 @@ export default async function channelCon(
 
   const embeds = [
     new EmbedBuilder()
-      .setDescription(
-        `[ The current channel ${oldChannel ? `is set to <#${oldChannel}>` : "hasn't been set up yet"
-        }. ]`
-      )
+      .setDescription(`[ The current channel ${oldChannel ? `is set to <#${oldChannel}>` : "hasn't been set up yet"}. ]`)
       .setColor(util.embedColor),
 
     new EmbedBuilder()
@@ -36,7 +34,7 @@ export default async function channelCon(
 
   const res = await interaction.editReply({
     embeds: [embeds[0]],
-    components: [confirmButtons],
+    components: [menu, confirmButtons],
   });
 
   const collector = await res.awaitMessageComponent({
@@ -84,7 +82,7 @@ export default async function channelCon(
         )
         .setColor(util.embedColor),
     ],
-    components: [],
+    components: [menu],
   });
 
   await starboardConfig.update(

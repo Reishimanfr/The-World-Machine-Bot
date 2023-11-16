@@ -4,18 +4,17 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  ChannelType,
   ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,
 } from "discord.js";
-import { v4 as UUID } from "uuid";
-import { ExtClient, ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtClient, ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
 import Subcommand from "../../../types/Subcommand";
-import { playerOverrides } from "../../../Helpers/DatabaseSchema";
-import { PlayerSettings, config } from "../../../config";
+import crypto from "node:crypto"
+import { combineConfig } from "../../config/playerSettings";
+import { botStats } from "../../../Helpers/DatabaseSchema";
 
 type interactionType =
   | ChatInputCommandInteraction
@@ -31,7 +30,7 @@ async function sendEmbed(
     .setColor(util.embedColor);
 
   try {
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed], components: [] });
   } catch (error) {
     logger.error(`Error while sending play callback: ${error}`);
   }
@@ -51,7 +50,7 @@ export async function loadTrack(
 
 
   if (result.loadType == "LOAD_FAILED") {
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [new EmbedBuilder()
         .setDescription(`[ Failed to load track for **${query}**. ]`)
         .setColor(util.embedColor)
@@ -60,7 +59,7 @@ export async function loadTrack(
   }
 
   if (result.loadType == "NO_MATCHES") {
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [new EmbedBuilder()
         .setDescription(`[ No matches for **${query}**. ]`)
         .setColor(util.embedColor)
@@ -111,7 +110,13 @@ export async function loadTrack(
       result.tracks.map(track => {
         player.queue.add(track);
       })
-      sendEmbed(interaction, `[ **${result.tracks.length}** tracks were added to the queue. ]`);
+
+      await sendEmbed(interaction, `[ **${result.tracks.length}** tracks were added to the queue. ]`);
+
+      await botStats.update(
+        { longestPlaylist: result.tracks.length },
+        { where: { guildId: interaction.guild!.id } }
+      )
     } else {
       sendEmbed(interaction, "[ Playlist discarded. ]");
     }
@@ -122,12 +127,7 @@ export async function loadTrack(
     track.info.requester = interaction.member;
     player.queue.add(track);
 
-
-    await interaction.editReply({
-      embeds: [new EmbedBuilder()
-        .setDescription(`[ Track **${track.info.title}** added to queue. ]`)
-        .setColor(util.embedColor)]
-    })
+    sendEmbed(interaction, `[ Track **${track.info.title}** added to queue. ]`)
   }
 
   if (!player.isPlaying && player.isConnected) player.play();
@@ -138,6 +138,7 @@ const play: Subcommand = {
     requiresPlayer: false,
     requiresPlaying: false,
     requiresVc: true,
+    requiresDjRole: true
   },
 
   callback: async (
@@ -146,9 +147,7 @@ const play: Subcommand = {
     client: ExtClient
   ) => {
     if (!interaction.inCachedGuild()) return;
-    await interaction.deferReply({
-      ephemeral: true
-    });
+    await interaction.deferReply({ ephemeral: true });
 
     const query = interaction.options.getString("url-or-search", true);
 
@@ -168,31 +167,9 @@ const play: Subcommand = {
 
     await loadTrack(interaction, client, player, query);
 
-    if (!player.guildId) {
-      player.guildId = interaction.guildId;
-    }
-
-    if (!player.UUID) {
-      player.UUID = UUID();
-    }
-
-    if (!player.settings) {
-      const defaultPlayerConfig = config.player
-      const request = await playerOverrides.findOne({ where: { guildId: interaction.guild!.id } })
-      const configOverrides = await request?.dataValues
-
-      const settings: any = {}
-      const keys = Object.keys(defaultPlayerConfig)
-      const values = Object.values(defaultPlayerConfig)
-
-      for (let i = 0; i < keys.length; i++) {
-        const cur = keys[i]
-        const curOverride = configOverrides?.[keys[i]] ?? null
-        settings[cur] = curOverride ?? values[i]
-
-        player.settings = settings as PlayerSettings
-      }
-    }
+    player.guildId ||= interaction.guild!.id
+    player.sessionId ||= crypto.randomBytes(15).toString('hex')
+    player.settings ||= await combineConfig(interaction.guild!.id)
   },
 };
 

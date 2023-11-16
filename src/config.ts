@@ -34,12 +34,12 @@ const config = {
     resendEmbedAfterSongEnd: configFile.player.resendEmbedAfterSongEnd as boolean ?? false,
     /** Toggles if skiping should invoke a voting to skip or not */
     enableSkipvote: configFile.player.enableSkipvote as boolean ?? true,
+    /** Should the now playing message update itself every 15 seconds? */
+    dynamicNowPlayingMessage: configFile.player.dynamicNowPlayingMessage as boolean ?? true,
     /** Sets the threshold of users required to vote yes to skip the current track (in percents) */
     skipvoteThreshold: configFile.player.skipvoteThreshold as number ?? 50,
     /** Sets the minimum amount of members in a voice channel to start a skipvote */
     skipvoteMemberRequirement: configFile.player.skipvoteMemberRequirement as number ?? 3,
-    /** Should the now playing message update itself every 15 seconds? */
-    dynamicNowPlayingMessage: configFile.player.dynamicNowPlayingMessage as boolean ?? true
   },
   /** Only the bot's host can change these. */
   hostPlayerOptions: {
@@ -49,7 +49,7 @@ const config = {
     autocomplete: configFile.player.autocomplete as boolean ?? true,
     /** Should the bot disconnect from the voice channel after being inactive for {playerTimeout} minutes? */
     enablePlayerTimeout: configFile.player.enablePlayerTimeout as boolean ?? true,
-    /** Time after which the bot will be automatically disconnected from the voice channel (in minutes) */
+    /** Time after which the bot will be automatically disconnected from the voice channel (in minutes). 0 - disable */
     playerTimeout: configFile.player.playerTimeout as number ?? 10,
   }
 };
@@ -86,7 +86,7 @@ const poruOptions: PoruOptions = {
 
 const poruNodes: NodeGroup[] = [
   {
-    name: "localNode",
+    name: "local",
     host: "localhost",
     port: 2333,
     password: "MyPassword",

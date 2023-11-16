@@ -1,13 +1,13 @@
 {
   "scripts": {
+    "start:dev": "npm-run-all --parallel watch lavalink",
+    "start": "npm-run-all --parallel test lavalink",
+    "watch": "nodemon --watch src/** --exec ts-node src/index.ts",
     "test": "ts-node src/index.ts",
-    "build": "tsc --build",
-    "start": "node dist/index.js",
     "lavalink": "java -jar lavalink.jar",
     "deploy-commands": "ts-node src/Helpers/DeployCommands.ts"
   },
   "dependencies": {
-    "async-mutex": "^0.4.0",
     "axios": "^1.5.1",
     "canvas": "^2.11.2",
     "canvas-constructor": "^7.0.1",
@@ -21,7 +21,10 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "npm-run-all": "^4.1.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
 }

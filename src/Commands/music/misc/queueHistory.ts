@@ -7,10 +7,10 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { queueHistory as queueHistoryDB } from "../../../Helpers/DatabaseSchema";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
-import { formatSeconds } from "../../../functions/formatSeconds";
+import { formatSeconds } from "../../../functions/FormatSeconds";
 import Subcommand from "../../../types/Subcommand";
 
 const queueHistory: Subcommand = {
@@ -18,6 +18,7 @@ const queueHistory: Subcommand = {
     requiresPlayer: false,
     requiresPlaying: false,
     requiresVc: false,
+    requiresDjRole: false
   },
 
   callback: async (

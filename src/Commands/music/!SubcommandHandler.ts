@@ -1,14 +1,14 @@
 import { SlashCommandSubcommandBuilder } from "discord.js";
 import { config as botConfig } from "../../config";
-import clear from "./control/clear";
-import disconnect from "./control/disconnect";
-import loop from "./control/loop";
-import pause from "./control/pause";
-import play from "./control/play";
-import remove from "./control/remove";
-import seek from "./control/seek";
-import skip from "./control/skip";
-import skipto from "./control/skipto";
+import clear from "./main/clear";
+import disconnect from "./main/disconnect";
+import loop from "./main/loop";
+import pause from "./main/pause";
+import play from "./main/play";
+import remove from "./main/remove";
+import seek from "./main/seek";
+import skip from "./main/skip";
+import skipto from "./main/skipto";
 import bassboost from "./filters/bassboost";
 import timescale from "./filters/timescale";
 import audit from "./misc/audit";
@@ -29,57 +29,49 @@ export const subcommandData = {
   bassboost: new SlashCommandSubcommandBuilder()
     .setName("bassboost")
     .setDescription("Set a bassboost filter")
-    .addNumberOption((num) =>
-      num
-        .setName("value")
-        .setDescription("Scale of the bass boost filter (in percents)")
-        .setRequired(true)
+    .addNumberOption(num => num
+      .setName("value")
+      .setDescription("Scale of the bass boost filter (in percents)")
+      .setRequired(true)
     ),
 
   timescale: new SlashCommandSubcommandBuilder()
     .setName("timescale")
     .setDescription("Set the timescale filter.")
-    .addNumberOption((scale) =>
-      scale
-        .setName("speed")
-        .setDescription("The speed at which the song should play")
-        .setRequired(true)
+    .addNumberOption(scale => scale
+      .setName("speed")
+      .setDescription("The speed at which the song should play")
+      .setRequired(true)
     )
-    .addNumberOption((pitch) =>
-      pitch
-        .setName("pitch")
-        .setDescription("The pitch at which the song should play")
+    .addNumberOption(pitch => pitch
+      .setName("pitch")
+      .setDescription("The pitch at which the song should play")
     ),
 
   disconnect: new SlashCommandSubcommandBuilder()
     .setName("disconnect")
-    .setDescription("Disconnect the bot from the channel."),
+    .setDescription("Disconnect the bot from the channel and clears the queue."),
 
   loop: new SlashCommandSubcommandBuilder()
     .setName("loop")
-    .setDescription(
-      "Toggle looping for the currently playing track."
-    ),
+    .setDescription("Toggle looping for the currently playing track."),
 
   nowplaying: new SlashCommandSubcommandBuilder()
     .setName("nowplaying")
-    .setDescription(
-      "Re-send the player embed."
-    ),
+    .setDescription("Re-send the now playing embed."),
 
   pause: new SlashCommandSubcommandBuilder()
     .setName("pause")
-    .setDescription("Toggle playback the player."),
+    .setDescription("Toggle playback of the player."),
 
   play: new SlashCommandSubcommandBuilder()
     .setName("play")
     .setDescription("Plays or adds a song to the queue.")
-    .addStringOption((input) =>
-      input
-        .setName("url-or-search")
-        .setDescription("Search query or URL to the song/playlist.")
-        .setRequired(true)
-        .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
+    .addStringOption(input => input
+      .setName("url-or-search")
+      .setDescription("Search query or URL to the song/playlist.")
+      .setRequired(true)
+      .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
     ),
 
   queue: new SlashCommandSubcommandBuilder()
@@ -89,23 +81,19 @@ export const subcommandData = {
   queueHistory: new SlashCommandSubcommandBuilder()
     .setName("queue-history")
     .setDescription("See the queue history of a session.")
-    .addStringOption((uuid) =>
-      uuid
-        .setName("uuid")
-        .setDescription("UUID of the player's session")
-        .setRequired(true)
+    .addStringOption(uuid => uuid
+      .setName("uuid")
+      .setDescription("UUID of the player's session.")
+      .setRequired(true)
     ),
 
   remove: new SlashCommandSubcommandBuilder()
     .setName("remove")
-    .setDescription("Remove a song (or multiple songs) from the queue")
-    .addStringOption((input) =>
-      input
-        .setName("songs")
-        .setDescription(
-          "Songs to be removed. Formats: (position) | (position1, position2...) | (position1 - position2)"
-        )
-        .setRequired(true)
+    .setDescription("Remove a song (or multiple songs) from the queue.")
+    .addStringOption(input => input
+      .setName("songs")
+      .setDescription("Songs to be removed. Check help for bulk removing.")
+      .setRequired(true)
     ),
 
   save: new SlashCommandSubcommandBuilder()
@@ -115,20 +103,18 @@ export const subcommandData = {
   seek: new SlashCommandSubcommandBuilder()
     .setName("seek")
     .setDescription("Seek to a point in the playing song.")
-    .addStringOption((timestamp) =>
-      timestamp
-        .setName("time")
-        .setDescription("Adjust time: +/- seconds or HH:MM:SS format. Use + for forward, - for backward.")
-        .setRequired(true)
+    .addStringOption(timestamp => timestamp
+      .setName("time")
+      .setDescription("Seek to a specified timestamp (HH:MM:SS format) or by X seconds. (See /help)")
+      .setRequired(true)
     ),
   skipto: new SlashCommandSubcommandBuilder()
     .setName("skipto")
     .setDescription("Skip to a specified song in the queue.")
-    .addNumberOption((pos) =>
-      pos
-        .setName("position")
-        .setDescription("Position in the queue to skip to.")
-        .setRequired(true)
+    .addNumberOption(pos => pos
+      .setName("position")
+      .setDescription("Position in the queue to skip to.")
+      .setRequired(true)
     ),
 
   skip: new SlashCommandSubcommandBuilder()

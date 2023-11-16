@@ -8,8 +8,8 @@ const PATH = path.join(__dirname, '../commands');
 // to the commandList var
 const commandList: Command[] = fs
   .readdirSync(PATH)
-  .filter((file) => file.endsWith('.ts'))
-  .map((file) => {
+  .filter(file => file.endsWith('.ts'))
+  .map(file => {
     const module = require(`${PATH}/${file}`);
     return module.default;
   });

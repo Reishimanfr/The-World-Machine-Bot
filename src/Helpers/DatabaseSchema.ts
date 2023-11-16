@@ -106,7 +106,7 @@ for (let i = 0; i < Object.keys(config.player).length; i++) {
   }
 }
 
-export const playerOverrides = sequelize.define("playerOverrides", data);
+export const playerOverrides = sequelize.define("playerOverrides", data)
 
 export const queueHistory = sequelize.define("queueHistory", {
   UUID: {
@@ -121,5 +121,25 @@ export const queueHistory = sequelize.define("queueHistory", {
     allowNull: false,
   },
 });
+
+export const botStats = sequelize.define('botStats', {
+  guildId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  sessionCount: {
+    type: DataTypes.INTEGER,
+  },
+  vcTime: {
+    type: DataTypes.BIGINT
+  },
+  commandsRan: {
+    type: DataTypes.INTEGER
+  },
+  longestPlaylist: {
+    type: DataTypes.INTEGER
+  }
+})
 
 sequelize.sync({ alter: true })

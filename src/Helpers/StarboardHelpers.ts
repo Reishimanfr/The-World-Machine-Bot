@@ -23,7 +23,6 @@ import {
 import { logger } from "./Logger";
 import util from "./Util";
 import { config as botConfig } from "../config";
-import { setTimeout } from "timers/promises"
 
 type UserOrPart = User | PartialUser;
 type ReactionOrPart = MessageReaction | PartialMessageReaction;

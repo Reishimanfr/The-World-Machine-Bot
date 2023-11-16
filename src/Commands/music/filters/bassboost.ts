@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import util from "../../../Helpers/Util";
 import Subcommand from "../../../types/Subcommand";
 
@@ -8,6 +8,7 @@ const bassboost: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: false,
     requiresVc: true,
+    requiresDjRole: true
   },
 
   callback: async (

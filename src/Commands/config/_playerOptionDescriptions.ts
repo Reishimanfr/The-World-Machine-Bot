@@ -22,12 +22,12 @@ export const playerOptionsData = {
   skipvoteThreshold: {
     name: 'Vote skipping threshold',
     description: 'Sets the % of users required to vote "yes" to skip a song.',
-    type: 'number 1-100',
+    type: 'number',
   },
   skipvoteMemberRequirement: {
     name: 'Vote skipping member amount',
     description: 'Sets the required amount of members to invoke a vote skip.',
-    type: 'number any',
+    type: 'number',
   }
 }
 

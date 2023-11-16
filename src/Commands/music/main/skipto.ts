@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import Queue from "poru/dist/src/guild/Queue";
-import { ExtPlayer } from "../../../Helpers/ExtendedClient";
+import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import util from "../../../Helpers/Util";
 import Subcommand from "../../../types/Subcommand";
 
@@ -9,6 +9,7 @@ const skipto: Subcommand = {
     requiresPlayer: true,
     requiresPlaying: false,
     requiresVc: true,
+    requiresDjRole: true
   },
 
   callback: async (
