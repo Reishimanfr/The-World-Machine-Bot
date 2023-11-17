@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { starboardBlacklistedChannels } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
-import { confirmButtons, finalConButtons } from "./stUtil";
+import { confirmButtons, finalConButtons } from "./_buttons";
 import { menu } from "../starboard";
 
 export default async function blChannelCon(interaction: CommandInteraction) {
@@ -21,8 +21,8 @@ export default async function blChannelCon(interaction: CommandInteraction) {
       .setDescription(
         blacklistedChannels.length > 0
           ? `[ The current blacklisted channels are: ${blacklistedChannels
-              .map((c) => `<#${c.getDataValue("channelId")}>`)
-              .join(", ")}]`
+            .map((c) => `<#${c.getDataValue("channelId")}>`)
+            .join(", ")}]`
           : `[ Blacklisted channels haven't been setup yet. ]`
       )
       .setColor(util.embedColor),

@@ -12,7 +12,7 @@ export type optionsType = {
 
 class util {
   /**
-   * Clips a string to a maximum length and appeds a string provided by the sliceEnd paratemer
+   * Clips a string to a maximum length and appends a string provided by the sliceEnd parameter
    * @param string The string input
    * @param maxLength Max length of the string (defaults to 1023 which is Discord's max description field length)
    * @param sliceEnd Substring to append to the end of the clipped string (defaults to "...")
@@ -28,17 +28,6 @@ class util {
     return string.slice(0, string.length - sliceEnd.length || 3) + sliceEnd || '';
   }
 
-  static wrapString(string: string, maxLength: number) {
-    if (string.length <= maxLength) return string;
-
-    let wrappedString = '';
-    for (let i = 0; i < string.length; i += maxLength) {
-      wrappedString += string.substring(i, i + maxLength) + '\n';
-    }
-
-    return wrappedString.trim();
-  }
-
   /**
    * Fetches a member from a guild
    * @param guildId Id of the guild
@@ -50,16 +39,6 @@ class util {
     const member = await guild.members.fetch(userId);
 
     return member;
-  }
-
-  static addToAuditLog(player: ExtPlayer, user: User, message: string) {
-    const newData = {
-      date: new Date(),
-      user: user,
-      func: message,
-    };
-
-    player.auditLog = player.auditLog ? [...player.auditLog, newData] : [newData];
   }
 
   /**

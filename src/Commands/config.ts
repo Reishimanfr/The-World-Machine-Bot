@@ -20,6 +20,19 @@ const config: Command = {
     .setDescription('Configure certain aspects of the bot!')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
+  helpPage: new EmbedBuilder()
+    .setDescription(`Allows you to configure multiple aspects of the bot.
+Currently you can configure these options:
+* \`Error logs channel\` -> Sets where the bot should send error warnings to.
+* \`Update channel\` -> Sets where the bot should send new updates (like bugfixes)
+
+You can also configure a lot of option for the \`music player\`.
+There are way too many options there to list them all here, so just go run the command and change what you want!
+## Note
+Options starting with ✅ or ❌ are \`toggles\` which means you just have to click on them to toggle them on or off.
+Options that start with :cog: on the other hand require additional input to be configured.`)
+    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1174779866240004116/configcommand.png'),
+
   callback: async (interaction: ChatInputCommandInteraction) => {
     const config: configType[] = [
       {
@@ -31,7 +44,7 @@ const config: Command = {
       },
       {
         name: 'Update logs',
-        description: 'Configues where the bot should send new update messages.',
+        description: 'Configures where the bot should send new update messages.',
         function: updateLogs,
         icon: '📰',
         id: 'update_logs'

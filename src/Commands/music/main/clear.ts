@@ -22,8 +22,6 @@ const clear: Subcommand = {
     }
     player.queue.length = 0;
 
-    util.addToAuditLog(player, interaction.user, "Cleared the queue");
-
     interaction.reply({
       embeds: [
         new EmbedBuilder()

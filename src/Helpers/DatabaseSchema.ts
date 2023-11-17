@@ -110,9 +110,7 @@ export const playerOverrides = sequelize.define("playerOverrides", data)
 
 export const queueHistory = sequelize.define("queueHistory", {
   UUID: {
-    type: DataTypes.UUIDV4,
-    allowNull: false,
-    unique: true,
+    type: DataTypes.STRING,
   },
   // Group is surrounded by brackets and split by |
   // Example: { some data } | { some other data }

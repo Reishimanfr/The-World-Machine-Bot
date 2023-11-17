@@ -112,16 +112,16 @@ function createStatField(name: string, overall: number, max: number) {
 function generateEmbed(tf2Data, playerClass, profileData, command) {
   const [accum, max] = filterTf2Data(tf2Data, playerClass);
 
-  const fields = statFields.reduce((accumilated: EmbedField[], fieldData) => {
+  const fields = statFields.reduce((accumulated: EmbedField[], fieldData) => {
     if (fieldData.playerClass) {
       if (fieldData.playerClass == playerClass) {
-        accumilated.push(createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat]));
+        accumulated.push(createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat]));
       }
     } else {
-      accumilated.push(createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat]));
+      accumulated.push(createStatField(fieldData.title, accum[fieldData.stat], max[fieldData.stat]));
     }
 
-    return accumilated;
+    return accumulated;
   }, []);
 
   const embed = new EmbedBuilder()

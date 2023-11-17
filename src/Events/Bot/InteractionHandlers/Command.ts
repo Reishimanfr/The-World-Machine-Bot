@@ -20,7 +20,7 @@ const Command = async (interaction: CommandInteraction) => {
     return interaction.reply({
       embeds: [
         new EmbedBuilder()
-          .setDescription("[ This command doesn't exist! ]")
+          .setDescription("[ This command doesn't exist. ]")
           .setColor(util.embedColor),
       ],
       ephemeral: true,

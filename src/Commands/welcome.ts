@@ -1,4 +1,4 @@
-import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, Embed, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
 import Command from "../types/Command";
 import util from "../Helpers/Util";
 import { logger } from "../Helpers/Logger";
@@ -7,12 +7,27 @@ const welcome: Command = {
   permissions: [],
   data: new SlashCommandBuilder()
     .setName('welcome')
-    .setDescription('Re-sends the welcome message.')
+    .setDescription('Re-send the bot welcome message.')
     .addChannelOption(channel => channel
       .setName('channel')
       .setDescription('Where to send the welcome message.')
       .addChannelTypes(ChannelType.GuildText)
+      .setRequired(false)
     ),
+
+  helpPage: new EmbedBuilder()
+    .setDescription('Re-send the bot welcome message.')
+    .addFields(
+      {
+        name: 'Options',
+        value: `* \`Channel\` -> Where to send the welcome message.`
+      },
+      {
+        name: 'Notes',
+        value: 'Only members with the `Administrator` permissions may use the channel option.\nIf the option isn\'t specified the bot will reply with a ephemeral message to the user that used the command'
+      }
+    )
+    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175113282730860684/image.png'),
 
   callback: async (interaction: ChatInputCommandInteraction) => {
     const channel: TextChannel | null = interaction.options.getChannel('channel')
@@ -30,7 +45,7 @@ The bot can be configured in many different ways to your liking! To check out th
 If you need help with one of the aspects of the bot feel free to [join the support server](https://discord.gg/xBARxUqyVc) or message me on discord \`(@rei.shi)\`
 Alternatively you can check out the [bot's wiki repository](https://github.com/Reishimanfr/TWM-bot) to check for commonly asked questions and instructions on how to setup certain features!
 ## Updates and upcoming features
-If you'd like to be updated on new features that get added to the bot, you can recieve channel updates via the \`/config\` command!
+If you'd like to be updated on new features that get added to the bot, you can receive channel updates via the \`/config\` command!
 To see what features I'm working on at the moment you can check out the [bot's TODO board](https://trello.com/b/MHqNTASH/the-world-machine-upcoming)
 ## Self-hosting
 If you'd like to self-host the bot check out the [bot's wiki repository](https://github.com/Reishimanfr/TWM-bot) for instructions on how to do this step by step!`)

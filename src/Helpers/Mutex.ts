@@ -4,16 +4,16 @@ class Mutex {
 
   lock(): Promise<void> {
     return new Promise<void>((resolve) => {
-      const aquireLock = () => {
+      const acquireLock = () => {
         if (!this.isLocked) {
           this.isLocked = true
           resolve()
         } else {
-          this.queue.push(aquireLock)
+          this.queue.push(acquireLock)
         }
       }
 
-      aquireLock();
+      acquireLock();
     })
   }
 

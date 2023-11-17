@@ -3,7 +3,6 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ChannelType,
   ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,
@@ -31,7 +30,7 @@ const picture: Command = {
         .addChoices(
           { name: 'Bird', value: 'bird' },
           { name: 'Cat', value: 'cat' },
-          { name: 'Capybara', value: 'capy' },
+          { name: 'Capybara', value: 'capybara' },
           { name: 'Dog', value: 'dog' },
           { name: 'Fox', value: 'fox' },
           { name: 'Kangaroo', value: 'kangaroo' },
@@ -48,6 +47,25 @@ const picture: Command = {
         .setDescription('Should you be the only one seeing the command reply?')
     ),
 
+  helpPage: new EmbedBuilder()
+    .setDescription('Sends cute pictures of a selected animal')
+    .addFields(
+      {
+        name: 'Options',
+        value: `* \`Animal\` -> A animal to show pictures of.
+* \`Secret\` -> Toggles if only you should see the reply`
+      },
+      {
+        name: 'Returns',
+        value: 'A picture of the selected animal in PNG format.'
+      },
+      {
+        name: 'Notes',
+        value: 'You can use the 🔄️ button to get another picture more quickly instead of sending the command again.'
+      }
+    )
+    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175081409497534534/image.png'),
+
   callback: async (interaction: ChatInputCommandInteraction) => {
     if (!interaction.inCachedGuild()) return;
 
@@ -56,7 +74,7 @@ const picture: Command = {
 
     // Depending on the choice prepare the link to be used in the getImage function
     const link: string =
-      choice === 'capy'
+      choice === 'capybara'
         ? 'https://api.capy.lol/v1/capybara?json=true'
         : `https://some-random-api.com/animal/${choice}`;
 

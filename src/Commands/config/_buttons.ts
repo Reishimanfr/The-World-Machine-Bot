@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, RoleSelectMenuBuilder } from "discord.js";
 
 export const changeSettingButtons = new ActionRowBuilder<ButtonBuilder>()
   .addComponents(
@@ -22,4 +22,11 @@ export const channelSelectMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>(
       .setMaxValues(1)
       .setPlaceholder('Select a channel!')
       .setChannelTypes(ChannelType.GuildText)
+  )
+
+export const roleSelectMenu = new ActionRowBuilder<RoleSelectMenuBuilder>()
+  .addComponents(
+    new RoleSelectMenuBuilder()
+      .setCustomId('roles')
+      .setMaxValues(1)
   )

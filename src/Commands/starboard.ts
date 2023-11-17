@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   ChatInputCommandInteraction,
   ComponentType,
+  EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
@@ -13,6 +14,7 @@ import amountCon from "./starboard/amountCon";
 import blChannelCon from "./starboard/blChannelCon";
 import channelCon from "./starboard/channelCon";
 import emojiCon from "./starboard/emojiCon";
+import util from "../Helpers/Util";
 
 const funcMap = {
   emojiCon: emojiCon,
@@ -55,7 +57,14 @@ const starboard: Command = {
   data: new SlashCommandBuilder()
     .setName("starboard")
     .setDescription("Configure the starboard to your liking")
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Make the commands vibisle only to admins
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Make the commands visible only to admins
+
+  helpPage: new EmbedBuilder()
+    .setDescription(`Configure the starboard feature.
+Running this command will show you a menu of possible configuration options for the starboard like how many reactions are required or what emojis are accepted.
+## Note
+Everything noteworthy about the starboard feature was described in the starboard feature page.`)
+    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175086512958873600/Discord_bx7OlzKNHT.png'),
 
   callback: async (interaction: ChatInputCommandInteraction) => {
     const res = await interaction.reply({

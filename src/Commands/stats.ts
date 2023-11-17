@@ -46,6 +46,7 @@ const stats: Command = {
           inline: true
         }
       )
+      .setColor('#2b2d31')
 
     interaction.reply({
       embeds: [embed],

@@ -9,7 +9,8 @@ import PlayerEmbedManager from "../functions/MusicEmbedManager";
 import Command from "../types/Command";
 import Subcommand from "../types/Subcommand";
 import { subcommandData, subcommandHandler } from "./music/!SubcommandHandler";
-import handleError from "../Helpers/ErrorHandler";
+// import { config } from "../config";
+import { combineConfig } from "./config/playerSettings";
 
 const command = new SlashCommandBuilder()
   .setName("music")
@@ -23,16 +24,15 @@ const music: Command = {
   permissions: ["SendMessages", "Speak", "UseExternalEmojis", "Connect"],
   data: command,
 
+  // implement help embed
+
   callback: async (interaction: ChatInputCommandInteraction, client) => {
     const player: ExtPlayer | null = client.poru.get(interaction.guildId!) as ExtPlayer ?? null;
     const member = await util.fetchMember(interaction.guild!.id, interaction.user.id);
 
     const handler: Subcommand = subcommandHandler[interaction.options.getSubcommand()];
     const options = handler.musicOptions;
-
-    if (!handler) {
-      return await handleError(interaction, new Error(`A music subcommand file "${interaction.options.getSubcommand()}" does not exist.`));
-    }
+    const overrides = await combineConfig(interaction.guild!.id)
 
     if (!player && options.requiresPlayer) {
       return interaction.reply({
@@ -48,8 +48,36 @@ const music: Command = {
     if (options.requiresVc && !member.voice.channel) {
       return interaction.reply({
         embeds: [new EmbedBuilder()
-          .setDescription(`[ You have to be in a voice channel to use this. ]`)
+          .setDescription(`[ You must be in a voice channel to use this. ]`)
           .setColor(util.embedColor)
+        ],
+        ephemeral: true
+      })
+    }
+
+    if (
+      player?.isConnected
+      && member.voice.channel?.id !== interaction.guild?.members.me?.voice.channel?.id) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription("[ You must be in the same voice channel to use this. ]")
+            .setColor(util.embedColor),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    if (options.requiresDjRole &&
+      overrides.requireDjRole &&
+      overrides.djRoleId.length &&
+      !member.roles.cache.find(role => role.id == overrides.djRoleId)
+    ) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ This command requires you to have the <@&${overrides.djRoleId}> role. ]`)
+            .setColor(util.embedColor)
         ],
         ephemeral: true
       })
@@ -75,19 +103,6 @@ const music: Command = {
         embeds: [
           new EmbedBuilder()
             .setDescription('[ Nothing is playing right now. ]')
-            .setColor(util.embedColor),
-        ],
-        ephemeral: true,
-      });
-    }
-
-    if (
-      player?.isConnected
-      && member.voice.channel?.id !== interaction.guild?.members.me?.voice.channel?.id) {
-      return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription("[ You must be in the same voice channel to use this. ]")
             .setColor(util.embedColor),
         ],
         ephemeral: true,

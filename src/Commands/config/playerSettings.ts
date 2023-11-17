@@ -6,15 +6,18 @@ import handlePlayerSettings from "./_handlePlayerSettings";
 
 /**
  * This function combines the default config with the overrides a user may have added.
- * Example: if a setting has been overriden the property for it's key will be the overriden
+ * Example: if a setting has been overridden the property for it's key will be the overridden
  * one, if it wasn't it will be set to the default value.
  */
 export async function combineConfig(guildId: string): Promise<PlayerSettings> {
-  const overrides = await playerOverrides.findOne({ where: { guildId: guildId } })
+  const [record] = await playerOverrides.findOrCreate({
+    where: { guildId: guildId },
+    defaults: defaultConfig.player
+  })
 
-  if (!overrides) return defaultConfig.player
+  if (!record) return defaultConfig.player
 
-  const data = overrides.dataValues
+  const data = record.dataValues
   // We don't need these properties
   delete data.id
   delete data.guildId
@@ -92,11 +95,12 @@ export default async function playerSettings(interaction: ChatInputCommandIntera
     }
 
     await playerOverrides.update(updated, { where: { guildId: interaction.guild!.id } })
+    const lastUpdateCon = await combineConfig(interaction.guild!.id)
 
-    let lastUpdateCon = await combineConfig(interaction.guild!.id)
     await interaction.editReply({
       content: content,
-      components: [buildMenu(lastUpdateCon)]
+      components: [buildMenu(lastUpdateCon)],
+      embeds: []
     })
   })
 }

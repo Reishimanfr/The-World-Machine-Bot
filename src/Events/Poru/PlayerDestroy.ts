@@ -11,8 +11,8 @@ const PlayerDestroy: Event = {
   once: false,
   execute: async (player: ExtPlayer, reason?: string) => {
     const record = await botStats.findOne({ where: { guildId: player.guildId } })
-    const currentVcTime = record?.getDataValue('vcTime') || 0
-    const currentSessions = record?.getDataValue('sessionCount') || 0
+    const currentVcTime = record?.getDataValue('vcTime') ?? 0
+    const currentSessions = record?.getDataValue('sessionCount') ?? 0
 
     await botStats.update({
       vcTime: currentVcTime + player.timeInVc,

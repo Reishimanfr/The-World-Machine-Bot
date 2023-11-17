@@ -1,17 +1,9 @@
 import { ButtonInteraction } from 'discord.js';
 import { ExtPlayer } from '../../../../Helpers/ExtendedClasses';
-import util from '../../../../Helpers/Util';
 import PlayerEmbedManager from '../../../../functions/MusicEmbedManager';
 
 export const togglePlayback = async (interaction: ButtonInteraction, player: ExtPlayer) => {
   const isPaused = player.isPaused;
-
-  // Append to audit log
-  util.addToAuditLog(
-    player,
-    interaction.user,
-    !player.isPaused ? 'Resumed' : 'Paused' + ' the player',
-  );
 
   player.pause(!isPaused);
 

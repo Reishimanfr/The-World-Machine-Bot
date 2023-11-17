@@ -96,8 +96,6 @@ const seek: Subcommand = {
       });
     }
 
-    util.addToAuditLog(player, interaction.user, responseString);
-
     player.seekTo(pos);
 
     interaction.reply({

@@ -11,7 +11,7 @@ export const playerOptionsData = {
   },
   enableSkipvote: {
     name: 'Vote skipping',
-    description: 'Toggles if skiping should invoke a voting to skip.',
+    description: 'Toggles if skipping should invoke a voting to skip.',
     type: 'boolean',
   },
   dynamicNowPlayingMessage: {
@@ -28,6 +28,16 @@ export const playerOptionsData = {
     name: 'Vote skipping member amount',
     description: 'Sets the required amount of members to invoke a vote skip.',
     type: 'number',
+  },
+  requireDjRole: {
+    name: 'DJ role requirement',
+    description: 'Toggles if a user has to have the DJ role to use music commands.',
+    type: 'boolean'
+  },
+  djRoleId: {
+    name: 'DJ role',
+    description: 'Sets which role is the DJ role.',
+    type: 'role'
   }
 }
 

@@ -2,7 +2,7 @@ import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
 import { Model } from "sequelize";
 import { starboardConfig } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
-import { confirmButtons } from "./stUtil";
+import { confirmButtons } from "./_buttons";
 import { menu } from "../starboard";
 
 export default async function amountCon(

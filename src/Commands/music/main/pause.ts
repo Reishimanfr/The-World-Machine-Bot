@@ -23,12 +23,6 @@ const pause: Subcommand = {
     // Toggle playback
     player.isPaused ? player.pause(false) : player.pause(true);
 
-    util.addToAuditLog(
-      player,
-      interaction.user,
-      `${player.isPaused ? "Paused" : "Resumed"} the player`
-    );
-
     await interaction.reply({
       embeds: [
         new EmbedBuilder()

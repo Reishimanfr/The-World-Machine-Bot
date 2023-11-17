@@ -7,7 +7,6 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { queueHistory as queueHistoryDB } from "../../../Helpers/DatabaseSchema";
-import { ExtPlayer } from "../../../Helpers/ExtendedClasses";
 import { logger } from "../../../Helpers/Logger";
 import util from "../../../Helpers/Util";
 import { formatSeconds } from "../../../functions/FormatSeconds";
@@ -24,14 +23,14 @@ const queueHistory: Subcommand = {
   callback: async (
     interaction: ChatInputCommandInteraction,
   ) => {
-    const uuid = interaction.options.getString("uuid", true);
-    const data = await queueHistoryDB.findOne({ where: { UUID: uuid } });
+    const id = interaction.options.getString("id", true);
+    const data = await queueHistoryDB.findOne({ where: { UUID: id } });
 
     if (!data) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription("[ No data for this UUID. ]")
+            .setDescription("[ No data for this ID. ]")
             .setColor(util.embedColor),
         ],
         ephemeral: true,
@@ -53,7 +52,7 @@ const queueHistory: Subcommand = {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription("[ No entries for this UUID. ]")
+            .setDescription("[ No entries for this ID. ]")
             .setColor(util.embedColor),
         ],
         ephemeral: true,
@@ -77,6 +76,8 @@ const queueHistory: Subcommand = {
       // Duration
       content += `| Duration: \`${formatSeconds(entry.length / 1000)}\`\n\n`;
 
+      // title author uri requester length 
+
       queueHistoryEntries.push(content);
     }
 
@@ -86,7 +87,7 @@ const queueHistory: Subcommand = {
       embeds.push(
         new EmbedBuilder()
           .setAuthor({
-            name: `[ ${queueHistoryEntries.length} songs were played in this session. ]`,
+            name: `[ ${queueHistoryEntries.length} songs were played during this session. ]`,
           })
           .setDescription(arraySlice.join(""))
       );

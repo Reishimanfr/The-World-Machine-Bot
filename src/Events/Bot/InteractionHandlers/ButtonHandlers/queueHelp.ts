@@ -12,7 +12,7 @@ export const queueHelp = (
 You can view the queue either with the \`/queue\` command or with the <:show_queue:1136985358920331274> button.`),
 
     new EmbedBuilder().setDescription(`### Removing songs
-To do this, use the \`/remove\` command. Depeding on how you write the array of songs to remove, you can do different things.
+To do this, use the \`/remove\` command. Depending on how you write the array of songs to remove, you can do different things.
 * You can input a number to delete a song at a specific position in the queue
   * Example: \`/remove 2\` <- This would remove the song at position \`2\`
 * You can also type in multiple songs positions at once, separated by \`,\`'s
@@ -27,7 +27,7 @@ This one's a bit simpler, all you have to do is:
 * Input the queue position you want to replace as the 2nd one
   * Example: \`/replace (My burden is light) (3)\` <- This will replace the 3rd song in the queue with "My burden is light"
 
-*Pssst... If the original player embed was lost, you can always use the \`/now-playing\` command to bring it back!*`),
+*Psst... If the original player embed was lost, you can always use the \`/now-playing\` command to bring it back!*`),
   ];
 
   interaction.editReply({

@@ -67,12 +67,6 @@ export async function loadTrack(
     })
   }
 
-  util.addToAuditLog(
-    player,
-    interaction.user,
-    "Added a track (or a playlist) to the queue"
-  );
-
   if (result.loadType == "PLAYLIST_LOADED") {
     const actionEmbed = new EmbedBuilder()
       .setDescription(`[ A playlist consisting of **${result.tracks.length}** tracks was found. Do you want to load them? ]`)

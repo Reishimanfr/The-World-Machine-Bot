@@ -52,12 +52,6 @@ const remove: Subcommand = {
       }
     }
 
-    util.addToAuditLog(
-      player,
-      interaction.user,
-      `Removed song(s) from the queue (position(s): ${input}`
-    );
-
     await interaction.reply({
       embeds: [
         new EmbedBuilder()

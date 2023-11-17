@@ -8,8 +8,6 @@ export const loop = (interaction: ButtonInteraction, player: ExtPlayer) => {
 
   loop == 'NONE' ? player.setLoop('TRACK') : player.setLoop('NONE');
 
-  util.addToAuditLog(player, interaction.user, `Toggled looping (${player.loop})`);
-
   if (player?.message) {
     const row = new PlayerEmbedManager(player).constructRow();
 

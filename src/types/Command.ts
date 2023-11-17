@@ -1,5 +1,6 @@
 import {
   CommandInteraction,
+  EmbedBuilder,
   PermissionResolvable,
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -12,6 +13,7 @@ type Command = {
   | SlashCommandSubcommandsOnlyBuilder;
   permissions: PermissionResolvable[] | null;
   callback: (interaction: CommandInteraction, client: ExtClient) => any;
+  helpPage?: EmbedBuilder
 };
 
 export default Command;

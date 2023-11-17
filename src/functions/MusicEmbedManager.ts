@@ -36,7 +36,6 @@ class PlayerEmbedManager {
         .setStyle(ButtonStyle.Primary)
         .setDisabled(disableAll),
 
-
       new ButtonBuilder()
         .setCustomId('songcontrol-skip')
         .setEmoji('<:skip:1137003301259444305>')
@@ -56,7 +55,8 @@ class PlayerEmbedManager {
         .setDisabled(disableAll),
     ]
 
-    return new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
+    return new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(buttons);
   }
 
   private async requestSpotifyThumbnail(identifier: string): Promise<string | null> {
@@ -109,7 +109,7 @@ class PlayerEmbedManager {
         text: `Requested by ${requester.user.username}`,
         iconURL: requester.user.displayAvatarURL(),
       })
-      .setColor(util.embedColor);
+      .setColor('#2b2d31');
   }
 
   public constructQueueEmbed(queue = this.player.queue): EmbedBuilder[] {

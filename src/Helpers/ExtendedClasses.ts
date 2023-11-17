@@ -2,11 +2,6 @@ import { Client, Message, User } from "discord.js";
 import { Player, Poru } from "poru";
 import { PlayerSettings } from "../config";
 
-interface AuditLogEntryI {
-  user: User;
-  func: string;
-  date: Date;
-}
 export class ExtClient extends Client {
   public poru: Poru;
 }
@@ -14,7 +9,6 @@ export class ExtClient extends Client {
 export class ExtPlayer extends Player {
   private $message: Message | null;
   private $pauseEditing: boolean;
-  private $auditLog: AuditLogEntryI[] = [];
   private $sessionId: string;
   private $timeout: NodeJS.Timeout | null;
   private $settings: PlayerSettings;
@@ -26,14 +20,6 @@ export class ExtPlayer extends Player {
 
   set message(message: Message) {
     this.$message = message;
-  }
-
-  get auditLog(): AuditLogEntryI[] {
-    return this.$auditLog
-  }
-
-  set auditLog(entries: AuditLogEntryI[]) {
-    this.$auditLog = entries
   }
 
   get pauseEditing() {

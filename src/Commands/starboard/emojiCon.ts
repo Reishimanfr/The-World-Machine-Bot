@@ -1,7 +1,7 @@
 import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
 import { starboardEmojis } from "../../Helpers/DatabaseSchema";
 import util from "../../Helpers/Util";
-import { confirmButtons, finalConButtons } from "./stUtil";
+import { confirmButtons, finalConButtons } from "./_buttons";
 import { menu } from "../starboard";
 
 export default async function emojiCon(interaction: CommandInteraction) {

@@ -30,11 +30,6 @@ async function skipvote(
   ) {
     const positionBeforeSkip = Math.trunc(player.position / 1000)
 
-    util.addToAuditLog(
-      player,
-      interaction.user,
-      "Skipped a song: " + player.currentTrack!.info.uri
-    );
     player.seekTo(player.currentTrack!.info.length);
 
     const options = {
@@ -177,12 +172,6 @@ async function skipvote(
 
     if (success) {
       const positionBeforeSkip = Math.trunc(player.position / 1000)
-
-      util.addToAuditLog(
-        player,
-        interaction.user,
-        "Skipped a song: " + player.currentTrack.info.uri
-      );
 
       const time = player.timeInVc
       player.timeInVc = time + positionBeforeSkip

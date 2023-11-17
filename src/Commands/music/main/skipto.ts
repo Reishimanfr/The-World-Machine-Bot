@@ -38,12 +38,6 @@ const skipto: Subcommand = {
     player.queue = newQueue;
     player.seekTo(player.currentTrack!.info.length);
 
-    util.addToAuditLog(
-      player,
-      interaction.user,
-      `(skipto): Skipped to song at position ${pos}`
-    );
-
     return await interaction.reply({
       embeds: [
         new EmbedBuilder()

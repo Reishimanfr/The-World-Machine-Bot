@@ -1,13 +1,10 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
-import { PlayerSettings } from "../../config";
+import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, RoleSelectMenuBuilder } from "discord.js";
 import { playerOptionsData } from "./_playerOptionDescriptions";
 import util from "../../Helpers/Util";
-import { playerOverrides } from "../../Helpers/DatabaseSchema";
+import { roleSelectMenu } from "./_buttons";
 
 export default async function handlePlayerSettings(interaction: ChatInputCommandInteraction, option: string) {
   const type: string = playerOptionsData[option].type
-
-  console.log(type)
 
   if (type.startsWith('number')) {
     const subType = type?.split(' ')[1]
@@ -81,5 +78,26 @@ export default async function handlePlayerSettings(interaction: ChatInputCommand
     })
 
     return newValue
+  } else if (type == 'role') {
+    const response = await interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setDescription('[ Select a new DJ role. ]')
+          .setColor(util.embedColor)
+      ],
+      components: [roleSelectMenu]
+    })
+
+    const awaitRole = await response.awaitMessageComponent({
+      componentType: ComponentType.RoleSelect,
+      time: 60000,
+    })
+
+    if (!awaitRole.values[0]) return;
+
+    await awaitRole.deferUpdate()
+    const role = awaitRole.values[0]
+
+    return role
   }
 }
