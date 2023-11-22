@@ -1,6 +1,6 @@
 <p align="center"><img width=200 height=200 src="https://github.com/Reishimanfr/TWM-bot/assets/92938606/de4f51a7-8499-4798-ad8c-dc78f5006cd0"</img></p>
 <h3 align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> | <a href="https://discord.gg/QGeraSWsan">Support Server</a> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> | <a href="">Gallery</a>
-
+[![HitCount](https://hits.dwyl.com/Reishimanfr/TWM-bot.svg?style=flat&show=unique)](http://hits.dwyl.com/Reishimanfr/TWM-bot)
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
 # ⚠️ Notice:
@@ -41,5 +41,3 @@ Optional:
 - [Tenor API token](https://tenor.com/developer/dashboard) (for the starboard to be able to embed tenor gifs)
 - [Spotify client & client secret](https://developer.spotify.com/documentation/web-api) (for playing songs from spotify using the music player)
 - [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
-
-  [![HitCount](https://hits.dwyl.com/Reishimanfr/TWM-bot.svg?style=flat)](http://hits.dwyl.com/Reishimanfr/TWM-bot)
