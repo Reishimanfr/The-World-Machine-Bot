@@ -42,4 +42,4 @@ Optional:
 - [Spotify client & client secret](https://developer.spotify.com/documentation/web-api) (for playing songs from spotify using the music player)
 - [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
 
-[![HitCount](https://hits.dwyl.com/Reishimanfr/https://githubcom/Reishimanfr/TWM-bot.svg?style=flat&show=unique)](http://hits.dwyl.com/Reishimanfr/https://githubcom/Reishimanfr/TWM-bot)
+  [![HitCount](https://hits.dwyl.com/Reishimanfr/TWM-bot.svg?style=flat)](http://hits.dwyl.com/Reishimanfr/TWM-bot)
