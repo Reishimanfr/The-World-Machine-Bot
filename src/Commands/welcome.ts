@@ -1,7 +1,8 @@
-import { ChannelType, ChatInputCommandInteraction, Embed, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
+import { ChannelType, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
+import { fetchMember } from "../Funcs/FetchMember";
+import { log } from "../Helpers/Logger";
+import { embedColor } from "../Helpers/Util";
 import Command from "../types/Command";
-import util from "../Helpers/Util";
-import { logger } from "../Helpers/Logger";
 
 const welcome: Command = {
   permissions: [],
@@ -16,7 +17,7 @@ const welcome: Command = {
     ),
 
   helpPage: new EmbedBuilder()
-    .setDescription('Re-send the bot welcome message.')
+    .setDescription('Send the bot welcome message.')
     .addFields(
       {
         name: 'Options',
@@ -29,7 +30,7 @@ const welcome: Command = {
     )
     .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175113282730860684/image.png'),
 
-  callback: async (interaction: ChatInputCommandInteraction) => {
+  callback: async ({ interaction }) => {
     const channel: TextChannel | null = interaction.options.getChannel('channel')
 
     const embed = new EmbedBuilder()
@@ -49,7 +50,7 @@ If you'd like to be updated on new features that get added to the bot, you can r
 To see what features I'm working on at the moment you can check out the [bot's TODO board](https://trello.com/b/MHqNTASH/the-world-machine-upcoming)
 ## Self-hosting
 If you'd like to self-host the bot check out the [bot's wiki repository](https://github.com/Reishimanfr/TWM-bot) for instructions on how to do this step by step!`)
-      .setColor(util.embedColor)
+      .setColor(embedColor)
 
     if (!channel) {
       interaction.reply({
@@ -59,14 +60,14 @@ If you'd like to self-host the bot check out the [bot's wiki repository](https:/
       return
     }
 
-    const member = await util.fetchMember(interaction.guild!.id, interaction.user.id)
+    const member = await fetchMember(interaction.guild!.id, interaction.user.id)
 
-    if (!member.permissions.has('Administrator')) {
+    if (!member!.permissions.has('Administrator')) {
       interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription('[ Only server administrators can re-send the welcome message to a channel. ]')
-            .setColor(util.embedColor)
+            .setColor(embedColor)
         ], ephemeral: true
       })
       return
@@ -77,7 +78,7 @@ If you'd like to self-host the bot check out the [bot's wiki repository](https:/
         embeds: [
           new EmbedBuilder()
             .setDescription('[ I can\'t send messages in this channel. ]')
-            .setColor(util.embedColor)
+            .setColor(embedColor)
         ], ephemeral: true
       })
       return
@@ -91,7 +92,7 @@ If you'd like to self-host the bot check out the [bot's wiki repository](https:/
       // terrible
       interaction.deferReply().then(_ => _.delete()).catch(() => { })
     } catch (error) {
-      logger.error(`Failed to re-send welcome message: ${error.stack}`)
+      log.error(`Failed to re-send welcome message: ${error.stack}`)
     }
   }
 }

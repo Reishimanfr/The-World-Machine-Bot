@@ -1,4 +1,4 @@
-import { queueHistory } from "../../Helpers/DatabaseSchema";
+import { queueHistory } from "../../Data/DatabaseSchema";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import Event from "../../types/Event";
 
@@ -22,7 +22,7 @@ const TrackEnd: Event = {
       author: info.author,
       uri: info.uri,
       length: info.length,
-      requester: info.requester.user.id
+      requester: info.requester.id
     }
 
     const newEntries = `${currentEntries}${JSON.stringify(addData)}/split/`

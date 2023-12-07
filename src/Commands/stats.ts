@@ -1,7 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { botStats } from "../Data/DatabaseSchema";
+import FormatTime from "../Funcs/FormatTime";
 import Command from "../types/Command";
-import { botStats } from "../Helpers/DatabaseSchema";
-import FormatTime from "../functions/FormatTime";
 
 function statElement(input: string): string {
   return `\`\`\`${input}\`\`\``
@@ -13,21 +13,30 @@ const stats: Command = {
     .setName('stats')
     .setDescription('View global(todo), per-user(todo) or per-server stats for the bot.'),
 
-  callback: async (interaction) => {
-    const record = await botStats.findOne({ where: { guildId: interaction.guild!.id } });
+  callback: async ({ interaction }) => {
+    const [record] = await botStats.findOrCreate({
+      where: { guildId: interaction.guild!.id },
+      defaults: {
+        commandsRan: 0,
+        sessionCount: 0,
+        vcTime: 0,
+        longestPlaylist: 0
+      }
+    });
+
     const vcTime = FormatTime(record?.getDataValue('vcTime') ?? 0)
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `Showing stats for ${interaction.guild?.name}`, iconURL: interaction.guild?.iconURL() ?? '' })
+      .setAuthor({ name: `Showing stats for ${interaction.guild?.name}`, iconURL: interaction.guild?.iconURL() ?? undefined })
       .addFields(
         {
           name: 'Commands Ran',
-          value: statElement(record?.getDataValue('commandsRan')),
+          value: statElement(record?.getDataValue('commandsRan') ?? 0),
           inline: true
         },
         {
           name: 'Music Sessions',
-          value: statElement(record?.getDataValue('sessionCount')),
+          value: statElement(record?.getDataValue('sessionCount') ?? 0),
           inline: true
         },
         {

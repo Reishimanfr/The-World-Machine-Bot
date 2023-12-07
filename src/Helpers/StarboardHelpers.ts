@@ -10,21 +10,19 @@ import {
   GuildEmoji,
   MessageReaction,
   PartialMessageReaction,
-  PartialUser,
-  ReactionEmoji,
-  User,
+  ReactionEmoji
 } from "discord.js";
 import {
   starboardBlacklistedChannels,
   starboardConfig,
   starboardEmojis,
   starboardEntries,
-} from "./DatabaseSchema";
-import { logger } from "./Logger";
-import util from "./Util";
+} from "../Data/DatabaseSchema";
+import { clipString } from "../Funcs/ClipString";
+import { fetchMember } from "../Funcs/FetchMember";
 import { config as botConfig } from "../config";
+import { log } from "./Logger";
 
-type UserOrPart = User | PartialUser;
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
 
 const AcceptedImages = ["image/gif", "image/jpeg", "image/png", "image/webp"];
@@ -34,12 +32,10 @@ const AcceptedLinkHeaders = [
 ];
 
 class Starboard {
-  private user: UserOrPart;
   private reaction: ReactionOrPart;
 
-  constructor(reaction: ReactionOrPart, user: UserOrPart) {
+  constructor(reaction: ReactionOrPart) {
     this.reaction = reaction;
-    this.user = user;
   }
 
   /**
@@ -60,7 +56,7 @@ class Starboard {
     const content = reaction.message.content?.trim();
     const attachment = reaction.message.attachments?.at(0);
 
-    if (attachment && AcceptedImages.includes(attachment.contentType!)) {
+    if (attachment && attachment.contentType !== null && AcceptedImages.includes(attachment.contentType)) {
       return attachment.url;
     }
 
@@ -104,7 +100,7 @@ class Starboard {
 
       return false;
     } catch (error) {
-      logger.error(`Error checking URL ${url}: ${error}`);
+      log.error(`Error checking URL ${url}: ${error}`);
       return false;
     }
   }
@@ -177,10 +173,7 @@ class Starboard {
 
       fields.push({
         name: "📄 Message:",
-        value:
-          contentString.length > 500
-            ? contentString.slice(0, 500) + "..."
-            : contentString,
+        value: clipString({ string: contentString, maxLength: 500, sliceEnd: '...' }),
         inline: false,
       });
     }
@@ -202,10 +195,7 @@ class Starboard {
 
       fields.push({
         name: "↩️ Replying to:",
-        value:
-          (referenceString.length > 500
-            ? referenceString.slice(0, 500) + "..."
-            : referenceString) + "\n​",
+        value: clipString({ string: referenceString, maxLength: 500, sliceEnd: '...' }),
         inline: false,
       });
     }
@@ -264,14 +254,7 @@ class Starboard {
       = await reaction.message.guild?.channels.fetch(config.boardId)
 
     // Return if channel is not a TextChannel or it doesn't exist
-    if (!boardChannel || boardChannel.type != ChannelType.GuildText) {
-      return util.sendAdminErrorMsg({
-        guildId: reaction.message.guild!.id,
-        level: 'warn',
-        message: `Failed to send starboard entry message with reason: **Starboard channel set, but not found**.`,
-        stackTrace: 'Starboard script'
-      })
-    }
+    if (!boardChannel || boardChannel.type != ChannelType.GuildText) return
 
     const dbEntry = await starboardEntries.findOne({ where: { starredMessageUrl: reaction.message.url } });
 
@@ -281,10 +264,7 @@ class Starboard {
 
     if (!entryMessage) {
       const [member, count, fields, embedImage] = await Promise.all([
-        util.fetchMember(
-          reaction.message.guildId!,
-          reaction.message.author!.id
-        ),
+        fetchMember(reaction.message.guildId!, reaction.message.author!.id),
         starboardEntries.count({
           where: { guildId: reaction.message.guildId },
         }),
@@ -297,8 +277,8 @@ class Starboard {
           name: `Entry #${count == 0 ? 1 : count}`,
           iconURL: reaction.message.guild?.iconURL()!,
         })
-        .setColor(member.roles.highest.color)
-        .setThumbnail(member.displayAvatarURL({ extension: "png" }))
+        .setColor(member?.roles.highest.color || null)
+        .setThumbnail(member?.displayAvatarURL({ extension: "png" }) || null)
         .setDescription(reactionStrings.join(" • "))
         .addFields(fields)
         .setImage(embedImage)
@@ -326,32 +306,16 @@ class Starboard {
         await starboardEntries.create(data);
 
       } catch (error) {
-        util.sendAdminErrorMsg({
-          guildId: reaction.message.guild!.id,
-          level: 'error',
-          message: `Failed to send a new starboard message: **${error.stack}**`,
-          stackTrace: 'Starboard script'
-        })
-
-        logger.error(`Failed to send starboard message: ${error.stack}`);
+        log.error(`Failed to send starboard message: ${error.stack}`);
       }
     } else if (entryMessage) {
       const embed = EmbedBuilder.from(entryMessage.embeds.at(0)!)
         .setDescription(reactionStrings.join(" • "));
 
       try {
-        await entryMessage.edit({
-          embeds: [embed],
-        });
+        await entryMessage.edit({ embeds: [embed] });
       } catch (error) {
-        util.sendAdminErrorMsg({
-          guildId: this.reaction.message.guild!.id,
-          level: 'error',
-          message: `Failed to update a starboard message: **${error.message}**`,
-          stackTrace: 'Starboard script'
-        })
-
-        logger.error(`Failed to update starboard message: ${error.stack}`);
+        log.error(`Failed to update starboard message: ${error.stack}`);
       }
     }
   }

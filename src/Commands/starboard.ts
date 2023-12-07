@@ -1,26 +1,24 @@
 import {
   ActionRowBuilder,
-  ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
+  StringSelectMenuOptionBuilder
 } from "discord.js";
-import { starboardConfig } from "../Helpers/DatabaseSchema";
+import { starboardConfig } from "../Data/DatabaseSchema";
+import amountCon from "../Helpers/starboard/amountCon";
+import blChannelCon from "../Helpers/starboard/blChannelCon";
+import channelCon from "../Helpers/starboard/channelCon";
+import emojiCon from "../Helpers/starboard/emojiCon";
 import Command from "../types/Command";
-import amountCon from "./starboard/amountCon";
-import blChannelCon from "./starboard/blChannelCon";
-import channelCon from "./starboard/channelCon";
-import emojiCon from "./starboard/emojiCon";
-import util from "../Helpers/Util";
 
 const funcMap = {
-  emojiCon: emojiCon,
-  channelCon: channelCon,
-  amountCon: amountCon,
-  blChannelCon: blChannelCon,
+  emojiCon,
+  channelCon,
+  amountCon,
+  blChannelCon,
 };
 
 export const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
@@ -66,7 +64,7 @@ Running this command will show you a menu of possible configuration options for 
 Everything noteworthy about the starboard feature was described in the starboard feature page.`)
     .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175086512958873600/Discord_bx7OlzKNHT.png'),
 
-  callback: async (interaction: ChatInputCommandInteraction) => {
+  callback: async ({ interaction }) => {
     const res = await interaction.reply({
       components: [menu],
       ephemeral: true,

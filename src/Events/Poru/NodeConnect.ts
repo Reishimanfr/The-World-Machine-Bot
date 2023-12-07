@@ -1,11 +1,11 @@
-import { logger } from "../../Helpers/Logger"
+import { log } from "../../Helpers/Logger"
 import Event from "../../types/Event"
 
 const NodeConnect: Event = {
-  name: 'nodeConnect', 
+  name: 'nodeConnect',
   once: false,
   execute: (node) => {
-    logger.info(`${node.name} connected to lavalink server successfully.`)
+    log.info(`${node.name} connected to lavalink server successfully.`)
   }
 }
 

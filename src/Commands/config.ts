@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { embedColor } from "../Helpers/Util";
+import errorLogs from "../Helpers/config/errorLogs";
+import playerSettings from "../Helpers/config/playerSettings";
+import updateLogs from "../Helpers/config/updateLogs";
 import Command from "../types/Command";
-import errorLogs from "./config/errorLogs";
-import util from "../Helpers/Util";
-import updateLogs from "./config/updateLogs";
-import playerSettings from "./config/playerSettings";
 
 type configType = {
   name: string,
@@ -33,7 +33,7 @@ Options starting with ✅ or ❌ are \`toggles\` which means you just have to cl
 Options that start with :cog: on the other hand require additional input to be configured.`)
     .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1174779866240004116/configcommand.png'),
 
-  callback: async (interaction: ChatInputCommandInteraction) => {
+  callback: async ({ interaction }) => {
     const config: configType[] = [
       {
         name: 'Error logs',
@@ -99,7 +99,7 @@ Options that start with :cog: on the other hand require additional input to be c
       return interaction.editReply({
         embeds: [new EmbedBuilder()
           .setDescription('[ Something went wrong while processing this command. ]')
-          .setColor(util.embedColor)
+          .setColor(embedColor)
         ],
         components: []
       })
@@ -111,7 +111,7 @@ Options that start with :cog: on the other hand require additional input to be c
       return interaction.editReply({
         embeds: [new EmbedBuilder()
           .setDescription('[ This interaction has timed out. ]')
-          .setColor(util.embedColor)
+          .setColor(embedColor)
         ]
       })
     }

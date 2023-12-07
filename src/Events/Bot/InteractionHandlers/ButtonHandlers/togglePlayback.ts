@@ -1,29 +1,16 @@
-import { ButtonInteraction } from 'discord.js';
-import { ExtPlayer } from '../../../../Helpers/ExtendedClasses';
-import PlayerEmbedManager from '../../../../functions/MusicEmbedManager';
+import { EmbedBuilder } from 'discord.js';
+import { embedColor } from '../../../../Helpers/Util';
+import { ButtonFunc } from './!buttonHandler';
 
-export const togglePlayback = async (interaction: ButtonInteraction, player: ExtPlayer) => {
-  const isPaused = player.isPaused;
+export const togglePlayback: ButtonFunc = async ({ interaction, player, controller, builder }) => {
+  await controller.togglePlayback()
+  await builder.updatePlayerMessage()
 
-  player.pause(!isPaused);
-
-  if (player.message) {
-    const builder = new PlayerEmbedManager(player);
-    const embed = await builder.constructSongStateEmbed();
-    const newRow = builder.constructRow();
-
-    player.message.edit({
-      embeds: [embed],
-      components: [newRow],
-    });
-  }
-
-  return interaction.editReply({
+  await interaction.followUp({
     embeds: [
-      {
-        description: `[ ${player.isPaused ? 'Paused' : 'Resumed'}. ]`,
-        color: 9109708,
-      },
-    ],
+      new EmbedBuilder()
+        .setDescription(`[ ${player.isPaused ? "Paused" : "Resumed"}. ]`)
+        .setColor(embedColor),
+    ], ephemeral: true
   });
 };

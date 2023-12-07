@@ -2,12 +2,10 @@ import fs from "fs";
 import yaml from "js-yaml";
 import path from "path";
 import { NodeGroup, PoruOptions } from "poru";
-import { logger } from "./Helpers/Logger";
+import { log } from "./Helpers/Logger";
 
 if (!fs.existsSync("config.yml")) {
-  logger.error(
-    "Unable to find the config.yml file. Please copy the default configuration file from the github page and place it in the root directory."
-  );
+  log.error("Unable to find the config.yml file. Please copy the default configuration file from the github page and place it in the root directory.");
   process.exit(1);
 }
 
@@ -15,7 +13,7 @@ const configYAML = fs.readFileSync(path.join(__dirname, "../config.yml"));
 const configFile = yaml.load(configYAML);
 
 /**
- * If anything gets added to this object it will automatically be added to the playerOverrides database.
+ * If anything gets added to this object it will automatically be added to the playerOverrides table.
  * Same goes for removing keys from this object.
  */
 const config = {
@@ -43,7 +41,7 @@ const config = {
     /** Toggles if most music commands require the user to have a DJ role */
     requireDjRole: configFile.player.requireDjRole as boolean ?? false,
     /** Sets the DJ role (a member must have this role to use most music commands) */
-    djRoleId: `${configFile.player.djRoleId}` as string ?? ''
+    djRoleId: ''
   },
   /** Only the bot's host can change these. */
   hostPlayerOptions: {
@@ -61,23 +59,17 @@ const config = {
 export type BotConfig = typeof config
 export type PlayerSettings = typeof config.player
 
-if (!config.botToken && !config.devBotToken) {
-  logger.error(
-    `Provide a bot token in the config.yml file located in the root of the folder!`
-  );
+if (config.botToken === '' && config.devBotToken === '') {
+  log.error(`Provide a bot token in the config.yml file located in the root of the folder!`);
   process.exit(1);
 }
 
 if (!config.apiKeys.steam) {
-  logger.warn(
-    "You haven't provided a steam API key. The /tf2 command will NOT work!"
-  );
+  log.warn("You haven't provided a steam API key. The /tf2 command will NOT work!");
 }
 
 if (!config.apiKeys.tenor) {
-  logger.warn(
-    "You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!"
-  );
+  log.warn("You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!");
 }
 
 const poruOptions: PoruOptions = {
@@ -95,6 +87,13 @@ const poruNodes: NodeGroup[] = [
     port: 2333,
     password: "MyPassword",
   },
+  {
+    name: 'local2',
+    host: "localhost",
+    port: 2333,
+    password: "MyPassword",
+  }
 ];
 
 export { config, poruNodes, poruOptions };
+

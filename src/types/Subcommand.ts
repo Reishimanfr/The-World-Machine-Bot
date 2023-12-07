@@ -1,24 +1,30 @@
-import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import { ExtClient, ExtPlayer } from '../Helpers/ExtendedClasses';
-import PlayerEmbedManager from '../functions/MusicEmbedManager';
+import { MessageManager } from '../Helpers/MessageManager';
+import { PlayerController } from '../Helpers/PlayerController';
+import { QueueManager } from '../Helpers/QueueManager';
+
+export interface MusicOptions {
+  /** Must be in a voice channel to be used */
+  requiresVc?: boolean;
+  /** Must be playing music to use */
+  requiresPlaying?: boolean;
+  /** Must be active player to use */
+  requiresPlayer?: boolean;
+  /** Must have the DJ role to use */
+  requiresDjRole?: boolean;
+}
 
 interface Subcommand {
-  callback: (
-    interaction: CommandInteraction | ChatInputCommandInteraction,
+  callback: (args: {
+    interaction: ChatInputCommandInteraction,
     player: ExtPlayer,
     client: ExtClient,
-    builder: PlayerEmbedManager,
-  ) => any;
-  musicOptions: {
-    /** Must be in a voice channel to be used */
-    requiresVc: boolean;
-    /** Must be playing music to use */
-    requiresPlaying: boolean;
-    /** Must be active player to use */
-    requiresPlayer: boolean;
-    /** Must have the DJ role to use */
-    requiresDjRole: boolean;
-  };
+    controller: PlayerController,
+    builder: MessageManager,
+    queue: QueueManager
+  }) => any;
+  musicOptions: MusicOptions
 }
 
 export default Subcommand;

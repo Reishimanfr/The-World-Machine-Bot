@@ -1,27 +1,30 @@
 {
   "scripts": {
-    "start:dev": "npm-run-all --parallel watch lavalink",
-    "start": "npm-run-all --parallel test lavalink",
-    "watch": "nodemon --watch src/** --exec sucrase-node src/index.ts",
-    "test": "pnpm sucrase-node src/index.ts",
+    "watch": "nodemon --quiet --watch src/** --exec sucrase-node src/index.ts",
+    "start": "sucrase-node src/index.ts",
     "lavalink": "java -jar lavalink.jar",
-    "deploy-commands": "sucrase-node src/Helpers/DeployCommands.ts"
+    "start:parallel": "npm-run-all --parallel start lavalink",
+    "deploy": "sucrase-node src/Data/DeployCommands.ts",
+    "test": "pnpm ts-jest"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "discord.js": "^14.13.0",
     "js-yaml": "^4.1.0",
     "npm-run-all": "^4.1.5",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "pino": "^8.16.2",
+    "pino-pretty": "^10.2.3",
     "poru": "^4.2.2",
     "sequelize": "^6.33.0",
-    "sqlite3": "^5.1.6",
-    "sucrase": "^3.34.0",
-    "ts-node": "^10.9.1",
-    "tslib": "^2.6.2",
-    "typescript": "^5.2.2",
-    "winston": "^3.11.0"
+    "sucrase": "^3.34.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/jest": "^29.5.10",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.2"
   }
 }

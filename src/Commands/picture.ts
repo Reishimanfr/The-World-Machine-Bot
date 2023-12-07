@@ -3,12 +3,11 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,
-  SlashCommandBuilder,
+  SlashCommandBuilder
 } from 'discord.js';
-import util from '../Helpers/Util';
+import { embedColor } from '../Helpers/Util';
 import Command from '../types/Command';
 
 async function getImage(link: string) {
@@ -66,7 +65,7 @@ const picture: Command = {
     )
     .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175081409497534534/image.png'),
 
-  callback: async (interaction: ChatInputCommandInteraction) => {
+  callback: async ({ interaction }) => {
     if (!interaction.inCachedGuild()) return;
 
     const choice = interaction.options.getString('animal');
@@ -82,7 +81,7 @@ const picture: Command = {
 
     const embed = new EmbedBuilder()
       .setImage(image) // Get and set the image
-      .setColor(util.embedColor);
+      .setColor(embedColor);
 
     // The reason we use a array is so we can edit the .setDisabled value of the button once the interaction expires
     const components = [
@@ -115,7 +114,7 @@ const picture: Command = {
 
       const newEmbed = new EmbedBuilder()
         .setImage(image) // Get set image
-        .setColor(util.embedColor);
+        .setColor(embedColor);
 
       try {
         await reply.edit({ embeds: [newEmbed] });

@@ -1,15 +1,18 @@
 import { client } from "../..";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import PlayerEmbedManager from "../../functions/MusicEmbedManager";
+import { MessageManager } from "../../Helpers/MessageManager";
+import { PlayerController } from "../../Helpers/PlayerController";
 import Event from "../../types/Event";
-import timeoutPlayer from "../../functions/TimeoutPlayer";
 
 const TrackStart: Event = {
   name: "trackStart",
   once: false,
   execute: async (player: ExtPlayer) => {
+    const controller = new PlayerController(player)
+    const builder = new MessageManager(player)
+
     if (player.timeout) {
-      timeoutPlayer.cancel(player);
+      controller.cancelPlayerTimeout()
     }
 
     const guild = await client.guilds.fetch(player.guildId);
@@ -17,13 +20,12 @@ const TrackStart: Event = {
 
     if (!channel?.isTextBased()) return;
 
-    const builder = new PlayerEmbedManager(player);
-    const row = builder.constructRow();
-    const embed = await builder.constructSongStateEmbed();
+    const buttons = builder.createPlayerButtons(false, { save: false });
+    const embed = await builder.createPlayerEmbed();
 
     const options = {
       embeds: [embed],
-      components: [row],
+      components: [buttons],
     };
 
     // Send initial message
@@ -41,16 +43,24 @@ const TrackStart: Event = {
         !firstMessage.embeds.length ||
         !firstMessage.embeds.at(0)?.footer?.text.startsWith('Requested by')
       ) {
-        player.message.delete()
-          .catch(() => { })
+        const message = await player.message.fetch()
+          .catch(() => null)
+
+        if (message && message.deletable) {
+          await message.delete()
+        }
 
         player.message = await channel.send(options)
       }
     }
 
     if (player.message) {
-      await player.message.edit(options)
-        .catch(() => { })
+      const message = await player.message.fetch()
+        .catch(() => null)
+
+      if (message) {
+        await message.edit(options)
+      }
     }
 
     player.pauseEditing = false;

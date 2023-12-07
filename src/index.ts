@@ -3,24 +3,20 @@ import fs from "fs";
 import path from "path";
 import { Poru } from "poru";
 import { ExtClient } from "./Helpers/ExtendedClasses";
-import { logger } from "./Helpers/Logger";
+import { log } from "./Helpers/Logger";
 import { config, poruNodes, poruOptions } from "./config";
 
-// process.on("unhandledRejection", (reason, promise) => {
-//   logger.error("An unhandled rejection occurred in the main process:");
-//   console.error(reason);
-//   console.error(promise);
-// });
+process.on("unhandledRejection", (reason, promise) => {
+  log.error(`An unhandled rejection occurred in the main process: Reason: ${reason}, Promise: ${promise}`);
+});
 
-// process.on("uncaughtException", (error) => {
-//   logger.error("An uncaught exception occurred in the main process:");
-//   console.error(error ? `${error}` : `${error}`);
-// });
+process.on("uncaughtException", (error) => {
+  log.error(`An uncaught exception occurred in the main process: ${error}`);
+});
 
-// process.on("uncaughtExceptionMonitor", (error) => {
-//   logger.error("An uncaught exception monitor occurred in the main process:");
-//   console.error(error ? `${error}` : `${error}`);
-// });
+process.on("uncaughtExceptionMonitor", (error) => {
+  log.error(`An uncaught exception monitor occurred in the main process: ${error}`);
+});
 
 export const client = new ExtClient({
   failIfNotExists: true,

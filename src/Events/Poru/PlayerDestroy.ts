@@ -1,10 +1,10 @@
 import { EmbedBuilder } from "discord.js";
-import { botStats } from "../../Helpers/DatabaseSchema";
+import { botStats } from "../../Data/DatabaseSchema";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
+import { log } from "../../Helpers/Logger";
+import { MessageManager } from "../../Helpers/MessageManager";
+import { inactiveGifUrl } from "../../Helpers/Util";
 import Event from "../../types/Event";
-import PlayerEmbedManager from "../../functions/MusicEmbedManager";
-import { logger } from "../../Helpers/Logger";
-import util from "../../Helpers/Util";
 
 const PlayerDestroy: Event = {
   name: 'playerDestroy',
@@ -14,13 +14,19 @@ const PlayerDestroy: Event = {
     const currentVcTime = record?.getDataValue('vcTime') ?? 0
     const currentSessions = record?.getDataValue('sessionCount') ?? 0
 
+    if (!player.timeInVc) {
+      player.timeInVc = 0
+    }
+
     await botStats.update({
       vcTime: currentVcTime + player.timeInVc,
       sessionCount: currentSessions + 1
     }, { where: { guildId: player.guildId } })
 
-    const message = player?.message
-    const builder = new PlayerEmbedManager(player)
+    const message = await player?.message?.fetch()
+      .catch(() => null)
+
+    const builder = new MessageManager(player)
 
     if (reason) {
       player.disconnect()
@@ -32,23 +38,26 @@ const PlayerDestroy: Event = {
 
     const IDEmbed = new EmbedBuilder()
       .setDescription(`Session ID: ${player.sessionId ?? "⚠️ missing ID!"}`)
+      .setColor('#2b2d31')
 
-    const embed = EmbedBuilder.from(message!.embeds[0])
+    const embed = await builder.createPlayerEmbed()
+    const buttons = builder.createPlayerButtons(true)
 
-    embed.setAuthor({
-      name: 'Stopped: ' + reason || 'no reason provided',
-      iconURL: util.playerGifUrl
-    })
-
-    try {
-      message?.edit({
-        embeds: [embed, IDEmbed],
-        components: [builder.constructRow(true)]
+    if (reason) {
+      embed.setAuthor({
+        name: `Player stop reason: ${reason}`,
+        iconURL: inactiveGifUrl
       })
-    } catch (error) {
-      logger.error(`A error occurred while editing message after player destroy event: ${error.stack}`)
     }
 
+    try {
+      await message.edit({
+        embeds: [embed, IDEmbed],
+        components: [buttons]
+      })
+    } catch (error) {
+      log.error(`A error occurred while editing message after player destroy event: ${error.stack}`)
+    }
   }
 }
 

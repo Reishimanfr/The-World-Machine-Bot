@@ -1,4 +1,4 @@
-import { Client, Message, User } from "discord.js";
+import { Client, Message } from "discord.js";
 import { Player, Poru } from "poru";
 import { PlayerSettings } from "../config";
 
@@ -7,14 +7,14 @@ export class ExtClient extends Client {
 }
 
 export class ExtPlayer extends Player {
-  private $message: Message | null;
+  private $message: Message | undefined;
   private $pauseEditing: boolean;
   private $sessionId: string;
   private $timeout: NodeJS.Timeout | null;
   private $settings: PlayerSettings;
-  private $timeInVc: number;
+  private $timeInVc: number = 0;
 
-  get message(): Message | null | undefined {
+  get message(): Message | undefined {
     return this.$message;
   }
 

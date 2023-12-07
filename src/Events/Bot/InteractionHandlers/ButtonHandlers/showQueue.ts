@@ -1,30 +1,26 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
   ButtonStyle,
   ComponentType,
-  EmbedBuilder,
+  EmbedBuilder
 } from "discord.js";
 import { Track } from "poru";
-import { ExtPlayer } from "../../../../Helpers/ExtendedClasses";
-import { logger } from "../../../../Helpers/Logger";
-import util from "../../../../Helpers/Util";
-import { formatSeconds } from "../../../../functions/FormatSeconds";
+import { formatSeconds } from "../../../../Funcs/FormatSeconds";
+import { log } from "../../../../Helpers/Logger";
+import { embedColor } from "../../../../Helpers/Util";
+import { ButtonFunc } from "./!buttonHandler";
 
-export const showQueue = async (
-  interaction: ButtonInteraction,
-  player: ExtPlayer
-) => {
+export const showQueue: ButtonFunc = async ({ interaction, player }) => {
   const queue: Track[] = player.queue;
 
   if (!queue.length) {
-    return interaction.editReply({
+    return interaction.followUp({
       embeds: [
         new EmbedBuilder()
           .setDescription("[ The queue is empty. ]")
-          .setColor(util.embedColor),
-      ],
+          .setColor(embedColor),
+      ], ephemeral: true
     });
   }
 
@@ -37,7 +33,7 @@ export const showQueue = async (
 
     queueEntries.push(
       `\`${i + 1}\`: **[${entry.info.title} - ${entry.info.author}](${entry.info.uri
-      })**\nAdded by <@${entry.info.requester?.user.id
+      })**\nAdded by <@${entry.info.requester.id
       }> | Duration: \`${formatSeconds(entry.info.length / 1000)}\`\n\n`
     );
   }
@@ -46,11 +42,9 @@ export const showQueue = async (
 
   if (queue.length > splitter) {
     let embeds: EmbedBuilder[] = [];
-    let idx = 0;
 
     for (let i = 0; i < queueEntries.length; i += splitter) {
       const arraySlice = queueEntries.slice(i, i + splitter);
-      idx++;
 
       let description = "";
 
@@ -79,20 +73,19 @@ export const showQueue = async (
         .setStyle(ButtonStyle.Primary),
     ];
 
-    const components = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      buttons
-    );
+    const components = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(buttons);
 
     let page = 0;
 
-    const res = await interaction.editReply({
+    const res = await interaction.followUp({
       embeds: [
         embeds[page].setFooter({
           text: `Page 1/${embeds.length} • Queue length: ${formatSeconds(
             queueLength / 1000
           )}`,
         }),
-      ],
+      ], ephemeral: true,
       components: [components],
     });
 
@@ -111,7 +104,7 @@ export const showQueue = async (
         page = page + 1 < embeds.length ? ++page : 0;
       }
 
-      interaction.editReply({
+      button.editReply({
         embeds: [
           embeds[page].setFooter({
             text: `Page ${page + 1}/${embeds.length
@@ -121,7 +114,7 @@ export const showQueue = async (
       });
     });
 
-    collector.on("end", async (_) => {
+    collector.on("end", async (c) => {
       const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         buttons[0].setDisabled(true),
         buttons[1].setDisabled(true)
@@ -130,7 +123,7 @@ export const showQueue = async (
       try {
         await interaction.editReply({ components: [newRow] });
       } catch (error) {
-        logger.error(
+        log.error(
           `Failed to remove buttons from player audit log message: ${error}`
         );
       }
@@ -141,7 +134,7 @@ export const showQueue = async (
         new EmbedBuilder()
           .setAuthor({ name: `There are ${queue.length} songs in the queue` })
           .setDescription(queueEntries.join("\n"))
-          .setColor(util.embedColor),
+          .setColor(embedColor),
       ],
     });
   }

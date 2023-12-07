@@ -1,10 +1,9 @@
 import {
-  ChatInputCommandInteraction,
   EmbedBuilder,
   GuildMember,
-  SlashCommandBuilder,
+  SlashCommandBuilder
 } from 'discord.js';
-import util from '../Helpers/Util';
+import { embedColor } from '../Helpers/Util';
 import Command from '../types/Command';
 
 // Almost every bot you could imagine has one so I couldn't be worse than them right?
@@ -38,13 +37,13 @@ const avatar: Command = {
     )
     .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1174770707578761276/image.png'),
 
-  callback: async (interaction: ChatInputCommandInteraction) => {
+  callback: async ({ interaction }) => {
     const member = interaction.options.getMember('user') as GuildMember;
     const secret = interaction.options.getBoolean('secret') ?? false;
 
     const embed = new EmbedBuilder()
       .setImage(member.displayAvatarURL({ size: 2048, extension: 'png' }))
-      .setColor(util.embedColor);
+      .setColor(embedColor);
 
     await interaction.reply({ embeds: [embed], ephemeral: secret });
   },

@@ -1,6 +1,6 @@
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { logger } from "../../Helpers/Logger";
-import PlayerEmbedManager from "../../functions/MusicEmbedManager";
+import { log } from "../../Helpers/Logger";
+import { MessageManager } from "../../Helpers/MessageManager";
 import Event from "../../types/Event";
 
 // Updates the player song state embed stuff
@@ -8,31 +8,27 @@ const PlayerUpdate: Event = {
   name: "playerUpdate",
   once: false,
   execute: async (player: ExtPlayer) => {
-    const time = player.timeInVc ||= 0
-    player.timeInVc = time + 15
-
     if (!player.settings?.dynamicNowPlayingMessage) return
     if (player.pauseEditing) return;
     if (!player.isPlaying) return;
     if (player.isPaused) return;
 
-    const existsMessage = await player?.message?.fetch().catch(() => { }) ?? null;
+    const message = await player.message?.fetch()
+      .catch(() => null)
 
-    if (!existsMessage) return;
+    if (!message) return;
 
-    const builder = new PlayerEmbedManager(player);
-    const embed = await builder.constructSongStateEmbed();
-    const row = builder.constructRow();
+    const builder = new MessageManager(player);
+    const embed = await builder.createPlayerEmbed();
+    const row = builder.createPlayerButtons();
 
     try {
-      player.message!.edit({
+      await message.edit({
         embeds: [embed],
         components: [row],
       });
     } catch (error) {
-      logger.error(
-        `Failed to update player song state embed in guild ${player.message?.guildId}: ${error}`
-      );
+      log.error(`Failed to update player song state embed in guild ${player.message?.guildId}: ${error}`);
     }
   },
 };

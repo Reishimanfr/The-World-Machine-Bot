@@ -1,42 +1,50 @@
-import { EmbedBuilder } from "discord.js";
+import constructProgressBar from "../../Funcs/ProgressBarConstructor";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { logger } from "../../Helpers/Logger";
-import util from "../../Helpers/Util";
-import constructProgressBar from "../../functions/ProgressBarConstructor";
+import { log } from "../../Helpers/Logger";
+import { MessageManager } from "../../Helpers/MessageManager";
+import { PlayerController } from "../../Helpers/PlayerController";
+import { inactiveGifUrl } from "../../Helpers/Util";
 import Event from "../../types/Event";
-import timeoutPlayer from "../../functions/TimeoutPlayer";
 import PlayerDestroy from "./PlayerDestroy";
 
 const QueueEnd: Event = {
   name: "queueEnd",
   once: false,
   execute: async (player: ExtPlayer) => {
-    if (!player?.message) return;
+    const message = await player.message?.fetch()
+      .catch(() => null)
 
-    const embed = EmbedBuilder.from(player.message?.embeds[0]);
+    if (!message) return
+
+    const builder = new MessageManager(player)
+    const controller = new PlayerController(player)
+
+    const embed = await builder.createPlayerEmbed()
+    const buttons = builder.createPlayerButtons(true)
     const descriptionSplit = embed.data.description?.split("\n");
 
     if (player.settings.leaveAfterQueueEnd) {
       return await PlayerDestroy.execute(player, 'the queue ended.')
     }
 
-    // Sets the player timeout 
-    timeoutPlayer.setup(player);
+    // Set the player timeout
+    controller.setupPlayerTimeout()
 
     embed.setDescription(`${descriptionSplit?.[0] ?? ""}\n\n${constructProgressBar(1, 1)}\nSong ended.`);
     embed.setAuthor({
       name: "Waiting for another song...",
-      iconURL: util.playerGifUrl,
+      iconURL: inactiveGifUrl
     });
 
     player.pauseEditing = true;
 
     try {
-      player.message.edit({
+      await message.edit({
         embeds: [embed],
+        components: [buttons]
       });
     } catch (error) {
-      logger.error(`Failed to update message on queue end: ${error}`);
+      log.error(`Failed to update message on queue end: ${error}`);
     }
   },
 };

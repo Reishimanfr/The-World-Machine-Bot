@@ -1,27 +1,21 @@
-import { ButtonInteraction } from 'discord.js';
-import { ExtPlayer } from '../../../../Helpers/ExtendedClasses';
-import util from '../../../../Helpers/Util';
-import PlayerEmbedManager from '../../../../functions/MusicEmbedManager';
+import { EmbedBuilder } from 'discord.js';
+import { embedColor } from '../../../../Helpers/Util';
+import { ButtonFunc } from './!buttonHandler';
 
-export const loop = (interaction: ButtonInteraction, player: ExtPlayer) => {
-  const { loop } = player;
-
-  loop == 'NONE' ? player.setLoop('TRACK') : player.setLoop('NONE');
-
-  if (player?.message) {
-    const row = new PlayerEmbedManager(player).constructRow();
-
-    player.message.edit({
-      components: [row],
-    });
+export const loop: ButtonFunc = async ({ interaction, player, controller }) => {
+  const loopString = {
+    'NONE': 'Looping disabled',
+    'TRACK': 'Looping this track',
+    'QUEUE': 'Looping the queue'
   }
 
-  return interaction.editReply({
+  await interaction.reply({
     embeds: [
-      {
-        description: `[ ${player.loop == 'TRACK' ? 'Looping this track' : 'Looping disabled'}. ]`,
-        color: 9109708,
-      },
-    ],
+      new EmbedBuilder()
+        .setDescription(`[ ${loopString[player.loop]}. ]`)
+        .setColor(embedColor),
+    ], ephemeral: true,
   });
+
+  await controller.toggleLoop()
 };

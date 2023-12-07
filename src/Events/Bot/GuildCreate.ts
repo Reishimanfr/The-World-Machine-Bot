@@ -1,6 +1,6 @@
-import { EmbedBuilder, Events, Guild, NonThreadGuildBasedChannel } from "discord.js";
+import { EmbedBuilder, Events, Guild } from "discord.js";
 import Event from "../../types/Event";
-import util from "../../Helpers/Util";
+import { embedColor } from "../../Helpers/Util";
 
 // This event is fired when the bot gets added to a server
 const GuildCreate: Event = {
@@ -25,7 +25,7 @@ If you'd like to be updated on new features that get added to the bot, you can r
 To see what features I'm working on at the moment you can check out the [TODO board](https://trello.com/b/MHqNTASH/the-world-machine-upcoming)
 ## Self-hosting
 If you'd like to self-host the bot check out the [wiki page](https://github.com/Reishimanfr/TWM-bot) for instructions on how to do this step by step.`)
-      .setColor(util.embedColor)
+      .setColor(embedColor)
 
     for (let i = 0; i < channels.size; i++) {
       const channel = channels.at(i)

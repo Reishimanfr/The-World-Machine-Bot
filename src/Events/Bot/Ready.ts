@@ -1,15 +1,16 @@
 import { ActivityType, Events } from "discord.js";
 import { ExtClient } from "../../Helpers/ExtendedClasses";
-import { logger } from "../../Helpers/Logger";
-import Event from "../../types/Event";
+import { log } from "../../Helpers/Logger";
 import { config } from "../../config";
+import Event from "../../types/Event";
 
 const Ready: Event = {
   name: Events.ClientReady,
   once: true,
   execute: async (client: ExtClient) => {
+    console.clear()
     client.poru.init(client);
-    logger.info(`${client.user?.username} is online.`);
+    log.info(`${client.user?.username} is online.`);
 
     if (!config.maintenance) {
       setInterval(function () {
