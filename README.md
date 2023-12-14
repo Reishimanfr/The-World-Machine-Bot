@@ -15,7 +15,7 @@ My motivation behind it was that all the other music bots I used didn't really s
 ## ⭐ Features
 - 🎵 [A very advanced music player]('fixme')
 - 🌟 [A starboard script]('fixme')
-- 👀 [Multiple fun-to-use commands]((https://github.com/Reishimanfr/TWM-bot/wiki/Commands)
+- 👀 [Multiple fun-to-use commands](https://github.com/Reishimanfr/TWM-bot/wiki/Commands)
 
 ## ⚙️ Configuration
 <details>
