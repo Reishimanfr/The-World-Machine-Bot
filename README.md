@@ -18,11 +18,54 @@ My motivation behind it was that all the other music bots I used didn't really s
 - 👀 [Multiple fun-to-use commands]('fixme')
 
 ## ⚙️ Configuration
-You can configure my bot in multiple ways. If you're [self-hosting]() it go check out [this wiki page]() on possible options you can configure as a host.
-If you just want to configure some stuff as the user of the bot, [click here]() to check the wiki page for user configuration options!<br>
-Below you can find a table with available configuration variables in the `config.yml` file:<br>
+<details>
+ <summary>Example config.yml file:</summary>
 
-TODO :3
+```yaml
+# This is a example configuration file for the bot. You can download it and fill out it's contents
+
+# Token for the bot to login with
+botToken: 'Insert your bot token here'
+
+apiKeys:
+  # This key is used for the /tf2 command to get data from a user's profile
+  steam: 'Your steam api key here'
+
+  # This is used in the starboard script to display tenor gifs correctly
+  tenor: 'Your tenor api key here'
+
+# Settings to control the bot's player behavior
+player:
+  # Should the bot leave the voice channel after the queue ends?
+  leaveAfterQueueEnd: false
+
+  # Time after which the bot will be automatically disconnected from the voice channel
+  # (in minutes)
+  playerTimeout: 10
+
+  # Enables search suggestions in the /music play command when typing stuff in the field
+  # You must run the command deployment script after enabling/disabling this!
+  # Deployment script: <npm> run deploy
+  autocomplete: true
+
+  # Instead of making all responses to commands like /music play ephemeral, make them public
+  announcePlayerActions: false # TODO
+
+  # Re-sends the now playing embed after a song ends
+  resendEmbedAfterSongEnd: true
+
+  # Enables vote to skip song
+  enableSkipvote: true
+
+  # Sets the percentage of voice chat users required to vote "Yes" for the song to be skipped
+  # Values between 0 - 100 (percents). This will be ignored if enableSkipvote is set to false
+  skipvoteThreshold: 50
+
+  # Sets how many people should be in vc for skipvotes to be enabled
+  # -1 -> Always initiate skipvote
+  skipvoteMemberRequirement: 3
+```
+</details>
 
 ## ❓ Support
 
