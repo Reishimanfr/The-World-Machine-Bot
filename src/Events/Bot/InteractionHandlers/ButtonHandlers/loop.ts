@@ -9,7 +9,7 @@ export const loop: ButtonFunc = async ({ interaction, player, controller }) => {
     'QUEUE': 'Looping the queue'
   }
 
-  await interaction.reply({
+  await interaction.followUp({
     embeds: [
       new EmbedBuilder()
         .setDescription(`[ ${loopString[player.loop]}. ]`)

@@ -16,11 +16,14 @@ const help: Command = {
 
   callback: async ({ interaction }) => {
     const mainEmbed = new EmbedBuilder()
-      .setAuthor({ name: `Main page • ${interaction.guild?.name}`, iconURL: interaction.guild?.iconURL()! })
+      .setAuthor({ name: `Main page • ${interaction.guild?.name}`, iconURL: interaction.guild?.iconURL() ?? undefined })
       .setDescription(`Welcome to the help menu.
+You can view the list of commands **[here](https://github.com/Reishimanfr/TWM-bot/wiki/Commands)**
+
 To get help with a command select something from the \`1st\` menu that says \`Select a command.\`
 To get help with a feature (like the starboard or music player) use the 2nd menu labeled \`Select a feature.\`
-If you still need help with something don't hesitate to DM me \`(@rei.shi)\` or to [check out the bot's wiki page](https://github.com/Reishimanfr/TWM-bot/wiki) on github`)
+
+If you still need help with something don't hesitate to DM me \`(@rei.shi)\` or to **[check out the bot's wiki page](https://github.com/Reishimanfr/TWM-bot/wiki)** on github`)
       .setColor(embedColor);
 
     const commandOptions: StringSelectMenuOptionBuilder[] = [];

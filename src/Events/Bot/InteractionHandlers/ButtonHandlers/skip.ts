@@ -10,7 +10,7 @@ export const skip: ButtonFunc = async ({ interaction, controller, player }) => {
     return interaction.followUp({
       embeds: [
         new EmbedBuilder()
-          .setDescription('[ Disable looping the track to skip. ]')
+          .setDescription('[ Disable looping to skip this track. ]')
           .setColor(embedColor)
       ], ephemeral: true
     })

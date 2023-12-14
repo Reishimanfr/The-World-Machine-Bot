@@ -86,6 +86,8 @@ const Button = async (interaction: ButtonInteraction) => {
       });
     }
 
+    await interaction.deferUpdate();
+
     try {
       await handler(args);
     } catch (error) {
