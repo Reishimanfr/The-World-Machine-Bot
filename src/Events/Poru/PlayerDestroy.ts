@@ -1,9 +1,9 @@
 import { EmbedBuilder } from "discord.js";
-import { botStats } from "../../Data/DatabaseSchema";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import { log } from "../../Helpers/Logger";
 import { MessageManager } from "../../Helpers/MessageManager";
 import { inactiveGifUrl } from "../../Helpers/Util";
+import { botStats } from "../../Models";
 import Event from "../../types/Event";
 
 const PlayerDestroy: Event = {

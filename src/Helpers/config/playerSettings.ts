@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
-import { playerOverrides } from "../../Data/DatabaseSchema";
+import { PlayerSettings as PlayerSettingsDb } from "../../Models";
 import { PlayerSettings, config as defaultConfig } from "../../config";
 import handlePlayerSettings from "./_handlePlayerSettings";
 import { playerOptionsData } from "./_playerOptionDescriptions";
@@ -10,9 +10,8 @@ import { playerOptionsData } from "./_playerOptionDescriptions";
  * one, if it wasn't it will be set to the default value.
  */
 export async function combineConfig(guildId: string): Promise<PlayerSettings> {
-  const [record] = await playerOverrides.findOrCreate({
-    where: { guildId: guildId },
-    defaults: defaultConfig.player
+  const [record] = await PlayerSettingsDb.findOrCreate({
+    where: { guildId: guildId }
   })
 
   if (!record) return defaultConfig.player
@@ -94,7 +93,7 @@ export default async function playerSettings(interaction: ChatInputCommandIntera
       updated[option] = await handlePlayerSettings(interaction, option)
     }
 
-    await playerOverrides.update(updated, { where: { guildId: interaction.guild!.id } })
+    await PlayerSettingsDb.update(updated, { where: { guildId: interaction.guildId } })
     const lastUpdateCon = await combineConfig(interaction.guild!.id)
 
     await interaction.editReply({

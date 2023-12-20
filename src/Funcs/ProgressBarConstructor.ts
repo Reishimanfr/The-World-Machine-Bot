@@ -45,9 +45,6 @@ function constructProgressBar(songLength: number, playerPosition: number) {
   let center: string;
   let end: string;
 
-  begin = BEGIN[10];
-  center = CENTER[1].repeat(8);
-
   if (songProgress <= 0) {
     return `${BEGIN['0.00']}${CENTER['0'].repeat(8)}${END['0']}`;
   }

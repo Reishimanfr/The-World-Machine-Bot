@@ -23,7 +23,7 @@ const QueueEnd: Event = {
     const buttons = builder.createPlayerButtons(true)
     const descriptionSplit = embed.data.description?.split("\n");
 
-    if (player.settings.leaveAfterQueueEnd) {
+    if (player.settings.queueEndDisconnect) {
       return await PlayerDestroy.execute(player, 'the queue ended.')
     }
 

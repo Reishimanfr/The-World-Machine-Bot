@@ -15,7 +15,7 @@ export const showQueue: ButtonFunc = async ({ interaction, player }) => {
   const queue: Track[] = player.queue;
 
   if (!queue.length) {
-    return interaction.followUp({
+    return interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription("[ The queue is empty. ]")
@@ -104,7 +104,7 @@ export const showQueue: ButtonFunc = async ({ interaction, player }) => {
         page = page + 1 < embeds.length ? ++page : 0;
       }
 
-      button.editReply({
+      button.reply({
         embeds: [
           embeds[page].setFooter({
             text: `Page ${page + 1}/${embeds.length
@@ -129,7 +129,7 @@ export const showQueue: ButtonFunc = async ({ interaction, player }) => {
       }
     });
   } else {
-    return interaction.editReply({
+    return interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setAuthor({ name: `There are ${queue.length} songs in the queue` })

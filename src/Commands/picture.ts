@@ -17,8 +17,7 @@ async function getImage(link: string) {
   return data.image || data.data.url; // Depending on which api we're using
 }
 
-const picture: Command = {
-  permissions: ['SendMessages'],
+export default <Command>{
   data: new SlashCommandBuilder()
     .setName('picture')
     .setDescription('Get a random picture of a selected animal')
@@ -131,6 +130,4 @@ const picture: Command = {
       } catch { }
     });
   },
-};
-
-export default picture;
+}

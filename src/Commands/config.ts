@@ -1,8 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
-import { embedColor } from "../Helpers/Util";
-import errorLogs from "../Helpers/config/errorLogs";
-import playerSettings from "../Helpers/config/playerSettings";
-import updateLogs from "../Helpers/config/updateLogs";
+import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../types/Command";
 
 type configType = {
@@ -13,12 +9,24 @@ type configType = {
   id: string,
 }
 
-const config: Command = {
-  permissions: ['SendMessages'],
+export default <Command>{
+  permissions: ['SendMessages', 'AttachFiles'],
+
   data: new SlashCommandBuilder()
     .setName('config')
     .setDescription('Configure certain aspects of the bot!')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .addStringOption(option => option
+      .setName('option')
+      .setDescription('Option to configure')
+      .setRequired(true)
+      .addChoices(
+        {
+          name: '🎶 Music player',
+          value: 'player_settings'
+        }
+      )
+    ),
 
   helpPage: new EmbedBuilder()
     .setDescription(`Allows you to configure multiple aspects of the bot.
@@ -34,88 +42,77 @@ Options that start with :cog: on the other hand require additional input to be c
     .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1174779866240004116/configcommand.png'),
 
   callback: async ({ interaction }) => {
-    const config: configType[] = [
-      {
-        name: 'Error logs',
-        description: 'Configures which channel should the bot send error messages to.',
-        function: errorLogs,
-        icon: '⚠️',
-        id: 'error_logs'
-      },
-      {
-        name: 'Update logs',
-        description: 'Configures where the bot should send new update messages.',
-        function: updateLogs,
-        icon: '📰',
-        id: 'update_logs'
-      },
-      {
-        name: 'Music player settings',
-        description: 'Configures the music player settings to your liking.',
-        function: playerSettings,
-        icon: '🎶',
-        id: 'player_settings'
-      }
-    ]
+    const option = interaction.options.getString('option', true)
 
-    let menuParts: StringSelectMenuOptionBuilder[] = []
 
-    for (let i = 0; i < config.length; i++) {
-      const configPart = config[i]
 
-      menuParts.push(
-        new StringSelectMenuOptionBuilder()
-          .setLabel(configPart.name)
-          .setDescription(configPart.description)
-          .setEmoji(configPart.icon)
-          .setValue(configPart.id)
-      )
-    }
 
-    const optionSelectRow = new ActionRowBuilder<StringSelectMenuBuilder>()
-      .addComponents(new StringSelectMenuBuilder()
-        .setCustomId('optionSelect')
-        .setMaxValues(1)
-        .setPlaceholder('Select a option to configure!')
-        .addOptions(menuParts))
+    // const config: configType[] = [
+    //   {
+    //     name: 'Music player settings',
+    //     description: 'Configures the music player settings to your liking.',
+    //     function: playerSettings,
+    //     icon: '🎶',
+    //     id: 'player_settings'
+    //   }
+    // ]
 
-    const initialResponse = await interaction.reply({
-      components: [optionSelectRow],
-      ephemeral: true
-    })
+    // let menuParts: StringSelectMenuOptionBuilder[] = []
 
-    const initialOption = await initialResponse.awaitMessageComponent({
-      componentType: ComponentType.StringSelect,
-      time: 60000
-    })
+    // for (let i = 0; i < config.length; i++) {
+    //   const configPart = config[i]
 
-    await initialOption.deferUpdate()
-    if (!initialOption) return
+    //   menuParts.push(
+    //     new StringSelectMenuOptionBuilder()
+    //       .setLabel(configPart.name)
+    //       .setDescription(configPart.description)
+    //       .setEmoji(configPart.icon)
+    //       .setValue(configPart.id)
+    //   )
+    // }
 
-    const option = initialOption.values[0]
-    const handler = config.find(part => part.id == option)?.function
+    // const optionSelectRow = new ActionRowBuilder<StringSelectMenuBuilder>()
+    //   .addComponents(new StringSelectMenuBuilder()
+    //     .setCustomId('optionSelect')
+    //     .setMaxValues(1)
+    //     .setPlaceholder('Select a option to configure!')
+    //     .addOptions(menuParts))
 
-    if (!handler) {
-      return interaction.editReply({
-        embeds: [new EmbedBuilder()
-          .setDescription('[ Something went wrong while processing this command. ]')
-          .setColor(embedColor)
-        ],
-        components: []
-      })
-    }
+    // const initialResponse = await interaction.reply({
+    //   components: [optionSelectRow],
+    //   ephemeral: true
+    // })
 
-    const status = await handler(interaction)
+    // const initialOption = await initialResponse.awaitMessageComponent({
+    //   componentType: ComponentType.StringSelect,
+    //   time: 60000
+    // })
 
-    if (status == 0) {
-      return interaction.editReply({
-        embeds: [new EmbedBuilder()
-          .setDescription('[ This interaction has timed out. ]')
-          .setColor(embedColor)
-        ]
-      })
-    }
+    // await initialOption.deferUpdate()
+    // if (!initialOption) return
+
+    // const option = initialOption.values[0]
+    // const handler = config.find(part => part.id == option)?.function
+
+    // if (!handler) {
+    //   return interaction.editReply({
+    //     embeds: [new EmbedBuilder()
+    //       .setDescription('[ Something went wrong while processing this command. ]')
+    //       .setColor(embedColor)
+    //     ],
+    //     components: []
+    //   })
+    // }
+
+    // const status = await handler(interaction)
+
+    // if (status == 0) {
+    //   return interaction.editReply({
+    //     embeds: [new EmbedBuilder()
+    //       .setDescription('[ This interaction has timed out. ]')
+    //       .setColor(embedColor)
+    //     ]
+    //   })
+    // }
   }
 }
-
-export default config

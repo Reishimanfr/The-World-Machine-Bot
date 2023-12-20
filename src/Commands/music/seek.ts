@@ -37,8 +37,16 @@ function convertToSeconds(timestamp: string): number {
 }
 
 
-const seek: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: ['Speak', 'Connect', 'SendMessages'],
+
+  musicOptions: {
+    requiresDjRole: true,
+    requiresPlayer: true,
+    requiresPlaying: true,
+    requiresVc: true
+  },
+
   data: new SlashCommandBuilder()
     .setName("seek")
     .setDescription("Seeks to a point in the playing song")
@@ -47,13 +55,6 @@ const seek: Command = {
       .setDescription("Timestamp to skip to (HH:MM:SS format)")
       .setRequired(true)
     ),
-
-  musicOptions: {
-    requiresPlayer: true,
-    requiresPlaying: true,
-    requiresVc: true,
-    requiresDjRole: true
-  },
 
   callback: ({ interaction, player }) => {
     if (!interaction.inCachedGuild()) return;
@@ -109,10 +110,8 @@ const seek: Command = {
     player.seekTo(pos);
 
     interaction.reply({
-      embeds: [{ description: `[ ${responseString}. ]`, color: 9109708 }],
+      content: responseString,
       ephemeral: true
     });
   },
-};
-
-export default seek;
+}

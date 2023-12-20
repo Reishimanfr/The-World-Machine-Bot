@@ -5,9 +5,8 @@ import Event from "../../types/Event";
 const NodeError: Event = {
   name: 'nodeError',
   once: false,
-  execute: (node, event) => {
-    log.error(`Node ${node.name} encountered a error. Attempting to reconnect in ${(poruOptions.reconnectTimeout ?? 0) / 1000}s`);
-    log.error(event);
+  execute: (node) => {
+    log.error(`Node ${node.name} failed to connect. Attempting to reconnect in ${(poruOptions.reconnectTimeout ?? 0) / 1000}s`);
   }
 }
 

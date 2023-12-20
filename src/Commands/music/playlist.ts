@@ -1,28 +1,36 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import crypto from "node:crypto";
-import { Track } from "poru";
-import { playlists as playlistsDB } from "../../Data/DatabaseSchema";
 import { fetchMember } from "../../Funcs/FetchMember";
 import { formatSeconds } from "../../Funcs/FormatSeconds";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
+import { log } from "../../Helpers/Logger";
 import { embedColor } from "../../Helpers/Util";
 import { combineConfig } from "../../Helpers/config/playerSettings";
+import { playlists as playlistsDB } from "../../Models";
 import Command from "../../types/Command";
 
-function createEmbed(tracks, interaction: ChatInputCommandInteraction, action: string) {
+function createEmbed(
+  tracks,
+  interaction: ChatInputCommandInteraction,
+  action: string
+) {
   const name = interaction.options.getString('name', true)
+
+  log.debug(tracks)
 
   let mapTracks: string[] = []
   let totalLength = 0
+  let idx = 0
 
-  for (let i = 0; i < tracks.length; i++) {
-    const track: Track = JSON.parse(tracks[i])
+  for (const track of tracks) {
     const info = track.info
+    idx++
 
     totalLength += info.length
 
-    if (i <= 5) {
-      mapTracks.push(`\`#${i + 1}\`: [${info.title} - ${info.author}](${info.uri}) (${formatSeconds(info.length / 1000)})`)
+    if (idx <= 5) {
+      // I don't think you can make this shorter
+      mapTracks.push(`\`#${idx}\`: [${info.title} - ${info.author}](${info.uri}) (${formatSeconds(info.length / 1000)})`)
     }
   }
 
@@ -45,8 +53,9 @@ Tip: You can edit your existing playlists using the \`/playlist edit\` command.`
     .setColor(embedColor)
 }
 
-const playlist: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: ['Speak', 'SendMessages', 'Connect'],
+
   data: new SlashCommandBuilder()
     .setName('playlist')
     .setDescription('Manage your saved playlists')
@@ -108,7 +117,7 @@ const playlist: Command = {
           })
         }
 
-        let playlists = currentPlaylists.map(t => t.getDataValue('name'))
+        const playlists = currentPlaylists.map(t => t.getDataValue('name'))
 
         if (playlists.length >= 25) {
           return interaction.reply({
@@ -119,7 +128,7 @@ const playlist: Command = {
 
         if (playlists.includes(name)) {
           return interaction.reply({
-            content: 'A playlist with this name already exists. Please choose something else.',
+            content: 'A playlist with this name already exists.',
             ephemeral: true
           })
         }
@@ -366,9 +375,7 @@ const playlist: Command = {
           content: 'Playlist added to the queue.'
         })
 
-        for (let i = 0; i < tracks.length; i++) {
-          let track: Track = JSON.parse(tracks[i])
-
+        for (const track of tracks) {
           track.info.requester = {
             username: member.user.username,
             id: member.user.id,
@@ -388,5 +395,3 @@ const playlist: Command = {
     }
   }
 }
-
-export default playlist

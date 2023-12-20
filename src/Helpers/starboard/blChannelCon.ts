@@ -7,14 +7,13 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { menu } from "../../Commands/starboard";
-import { starboardBlacklistedChannels } from "../../Data/DatabaseSchema";
 import { embedColor } from "../../Helpers/Util";
+import { starboardConfig } from "../../Models";
 import { confirmButtons, finalConButtons } from "./_buttons";
 
 export default async function blChannelCon(interaction: CommandInteraction) {
-  const blacklistedChannels = await starboardBlacklistedChannels.findAll({
-    where: { guildId: interaction.guildId },
-  });
+  const record = await starboardConfig.findOne({ where: { guildId: interaction.guildId } })
+  const blacklistedChannels = record?.getDataValue('bannedChannels')
 
   const embeds = [
     new EmbedBuilder()
@@ -122,17 +121,7 @@ export default async function blChannelCon(interaction: CommandInteraction) {
     components: [menu],
   });
 
-  let data: { guildId: string; channelId: string }[] = [];
-
-  for (const c of channels) {
-    data.push({
-      guildId: interaction.guild!.id,
-      channelId: c,
-    });
-  }
-
-  await starboardBlacklistedChannels.destroy({
-    where: { guildId: interaction.guildId },
-  });
-  await starboardBlacklistedChannels.bulkCreate(data);
+  await starboardConfig.update({
+    bannedChannels: channels
+  }, { where: { guildId: interaction.guildId } })
 }

@@ -8,8 +8,8 @@ import {
 } from "discord.js";
 import { Model } from "sequelize";
 import { menu } from "../../Commands/starboard";
-import { starboardConfig } from "../../Data/DatabaseSchema";
 import { embedColor } from "../../Helpers/Util";
+import { starboardConfig } from "../../Models";
 import { confirmButtons } from "./_buttons";
 
 export default async function channelCon(

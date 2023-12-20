@@ -5,7 +5,7 @@ import constructProgressBar from "../Funcs/ProgressBarConstructor";
 import { ExtPlayer } from "./ExtendedClasses";
 import { inactiveGifUrl, playerGifUrl } from "./Util";
 
-interface buttonOverrides {
+interface ButtonOverrides {
   queue?: boolean
   playback?: boolean
   skip?: boolean
@@ -77,7 +77,7 @@ class MessageManager {
   /**
    * Construct buttons for the music player embed
    */
-  public createPlayerButtons(disableAll = false, overrides?: buttonOverrides): ActionRowBuilder<ButtonBuilder> {
+  public createPlayerButtons(disableAll = false, overrides?: ButtonOverrides): ActionRowBuilder<ButtonBuilder> {
     const loopColor = {
       'NONE': ButtonStyle.Primary,
       'TRACK': ButtonStyle.Success,
@@ -90,13 +90,13 @@ class MessageManager {
           .setCustomId('songcontrol-showQueue')
           .setEmoji(this.icons.queue)
           .setStyle(ButtonStyle.Primary)
-          .setDisabled(overrides?.queue || disableAll),
+          .setDisabled(overrides?.queue ?? disableAll),
 
         new ButtonBuilder()
           .setCustomId('songcontrol-togglePlayback')
           .setEmoji(this.player.isPaused ? this.icons.play : this.icons.pause)
           .setStyle(ButtonStyle.Primary)
-          .setDisabled(overrides?.playback || disableAll),
+          .setDisabled(overrides?.playback ?? disableAll),
 
         new ButtonBuilder()
           .setCustomId('songcontrol-skip')
@@ -108,13 +108,13 @@ class MessageManager {
           .setCustomId('songcontrol-loop')
           .setEmoji(this.icons.loop)
           .setStyle(loopColor[this.player.loop])
-          .setDisabled(overrides?.loop || disableAll),
+          .setDisabled(overrides?.loop ?? disableAll),
 
         new ButtonBuilder()
           .setCustomId('songcontrol-save')
           .setEmoji(this.icons.save)
           .setStyle(ButtonStyle.Primary)
-          .setDisabled(overrides?.save || disableAll)
+          .setDisabled(overrides?.save ?? disableAll)
       );
   }
 

@@ -4,8 +4,7 @@ import { log } from "../Helpers/Logger";
 import { embedColor } from "../Helpers/Util";
 import Command from "../types/Command";
 
-const welcome: Command = {
-  permissions: [],
+export default <Command>{
   data: new SlashCommandBuilder()
     .setName('welcome')
     .setDescription('Re-send the bot welcome message.')
@@ -85,7 +84,7 @@ If you'd like to self-host the bot check out the [bot's wiki repository](https:/
     }
 
     try {
-      channel.send({
+      await channel.send({
         embeds: [embed]
       })
 
@@ -96,5 +95,3 @@ If you'd like to self-host the bot check out the [bot's wiki repository](https:/
     }
   }
 }
-
-export default welcome

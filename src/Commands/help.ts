@@ -8,8 +8,9 @@ const featurePages = {
   starboard: starboardHelpPages
 }
 
-const help: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: ['SendMessages', 'AttachFiles'],
+
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Shows help menus for selected features/commands.'),
@@ -28,9 +29,7 @@ If you still need help with something don't hesitate to DM me \`(@rei.shi)\` or 
 
     const commandOptions: StringSelectMenuOptionBuilder[] = [];
 
-    for (let i = 0; i < commandList.length; i++) {
-      const part = commandList[i]
-
+    for (const part of commandList) {
       if (part.helpPage) {
         commandOptions.push(
           new StringSelectMenuOptionBuilder()
@@ -119,7 +118,10 @@ If you still need help with something don't hesitate to DM me \`(@rei.shi)\` or 
 
         const response = await interaction.editReply({
           embeds: [embeds[page]
-            .setAuthor({ name: option.component.options.at(0)?.label! + ' help menu', iconURL: interaction.guild?.iconURL() || undefined })
+            .setAuthor({
+              name: option.component.options.at(0)?.label! + ' help menu',
+              iconURL: interaction.guild?.iconURL() ?? undefined
+            })
             .setFooter({ text: `Page 1/${embeds.length}` })
           ],
           components: [pagesRow]
@@ -150,5 +152,3 @@ If you still need help with something don't hesitate to DM me \`(@rei.shi)\` or 
     })
   }
 }
-
-export default help

@@ -142,8 +142,7 @@ function generateEmbed(tf2Data, playerClass, profileData, command) {
   return embed;
 }
 
-const tf2: Command = {
-  permissions: ['SendMessages'],
+export default <Command>{
   data: new SlashCommandBuilder()
     .setName('tf2')
     .setDescription('Get tf2 stats for a player')
@@ -205,6 +204,4 @@ const tf2: Command = {
       interaction.editReply({ components: [] }).catch(() => { }); // Ignore the error since we can't do anything about it
     });
   },
-};
-
-export default tf2;
+}

@@ -7,11 +7,11 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder
 } from "discord.js";
-import { starboardConfig } from "../Data/DatabaseSchema";
 import amountCon from "../Helpers/starboard/amountCon";
 import blChannelCon from "../Helpers/starboard/blChannelCon";
 import channelCon from "../Helpers/starboard/channelCon";
 import emojiCon from "../Helpers/starboard/emojiCon";
+import { starboardConfig } from "../Models";
 import Command from "../types/Command";
 
 const funcMap = {
@@ -50,7 +50,7 @@ export const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
   )
 
 
-const starboard: Command = {
+export default <Command>{
   permissions: ["EmbedLinks", "SendMessages", "ViewChannel"],
   data: new SlashCommandBuilder()
     .setName("starboard")
@@ -91,6 +91,4 @@ Everything noteworthy about the starboard feature was described in the starboard
       await handler(...args);
     })
   },
-};
-
-export default starboard;
+}

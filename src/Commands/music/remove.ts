@@ -1,10 +1,11 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { log } from "../../Helpers/Logger";
 import { embedColor } from "../../Helpers/Util";
 import Command from "../../types/Command";
 
-const remove: Command = {
+export default <Command>{
   permissions: [],
+  musicCommand: true,
+
   data: new SlashCommandBuilder()
     .setName("remove")
     .setDescription("Removes a song (or multiple songs) from the queue.")
@@ -14,14 +15,7 @@ const remove: Command = {
       .setRequired(true)
     ),
 
-  musicOptions: {
-    requiresPlayer: true,
-    requiresPlaying: true,
-    requiresVc: true,
-    requiresDjRole: true
-  },
-
-  callback: async ({ interaction, player, message }) => {
+  callback: async ({ interaction, player }) => {
     let queue = player.queue;
     let input = interaction.options.getString("songs", true);
 
@@ -66,16 +60,6 @@ const remove: Command = {
       ephemeral: true
     });
 
-    if (!player?.message) return;
-
-    const embed = await message.createPlayerEmbed();
-
-    player.message
-      .edit({
-        embeds: [embed],
-      })
-      .catch((error) => log.error(error));
+    await player.messageManger.updatePlayerMessage()
   },
-};
-
-export default remove;
+}

@@ -1,36 +1,48 @@
-import { EmbedBuilder, Message, SlashCommandBuilder } from "discord.js";
+import { ChannelType, Message, SlashCommandBuilder } from "discord.js";
 import { log } from "../../Helpers/Logger";
-import { embedColor } from "../../Helpers/Util";
 import Command from "../../types/Command";
 
-const nowplaying: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: null,
+  musicOptions: {
+    requiresVc: true,
+    requiresPlayer: true
+  },
 
   data: new SlashCommandBuilder()
     .setName("nowplaying")
     .setDescription("Re-sends the now playing message"),
 
-  musicOptions: {
-    requiresPlayer: true,
-    requiresPlaying: false,
-    requiresVc: true,
-    requiresDjRole: false
-  },
+  callback: async ({ interaction, client, player }) => {
+    const channel = interaction.channel
 
-  callback: async ({ interaction, client, message, player }) => {
-    if (!interaction.inCachedGuild()) return;
+    // Typeguard
+    if (!interaction.guild || !client.user || !channel) return
 
-    if (!interaction.channel?.permissionsFor(client.user!.id)?.has('SendMessages')) {
-      interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ I can\'t send messages in this channel. ]')
-            .setColor(embedColor)
-        ], ephemeral: true
+    if (channel.type !== ChannelType.GuildText) {
+      return interaction.reply({
+        content: 'You have to use this command in a text channel.',
+        ephemeral: true
       })
     }
 
-    interaction.deferReply({ ephemeral: true });
+    const permissions = channel.permissionsFor(client.user?.id)
+
+    if (permissions === null) {
+      return interaction.reply({
+        content: 'Something went wrong while checking bot permissions.',
+        ephemeral: true
+      })
+    }
+
+    if (!permissions.has('SendMessages')) {
+      interaction.reply({
+        content: 'I can\'t send messages in this channel.',
+        ephemeral: true
+      })
+    }
+
+    interaction.deferReply({ ephemeral: true })
 
     player.message?.delete()
       .catch(() => { })
@@ -38,13 +50,13 @@ const nowplaying: Command = {
     interaction.deleteReply()
       .catch(() => { })
 
-    const nowPlayingEmbed = await message.createPlayerEmbed();
-    const buttons = message.createPlayerButtons();
+    const nowPlayingEmbed = await player.messageManger.createPlayerEmbed();
+    const buttons = player.messageManger.createPlayerButtons();
 
     let res: Message<true> | undefined; // idk the type for it lol
 
     try {
-      res = await interaction.channel?.send({
+      res = await channel.send({
         embeds: [nowPlayingEmbed],
         components: [buttons],
       });
@@ -55,7 +67,6 @@ const nowplaying: Command = {
     if (!res) return;
 
     player.message = res;
+    player.textChannel = interaction.channelId
   },
-};
-
-export default nowplaying;
+}

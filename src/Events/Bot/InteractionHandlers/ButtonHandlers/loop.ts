@@ -9,13 +9,13 @@ export const loop: ButtonFunc = async ({ interaction, player, controller }) => {
     'QUEUE': 'Looping the queue'
   }
 
-  await interaction.followUp({
+  await controller.toggleLoop()
+
+  await interaction.reply({
     embeds: [
       new EmbedBuilder()
         .setDescription(`[ ${loopString[player.loop]}. ]`)
         .setColor(embedColor),
     ], ephemeral: true,
   });
-
-  await controller.toggleLoop()
 };

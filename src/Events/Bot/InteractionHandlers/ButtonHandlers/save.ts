@@ -16,7 +16,7 @@ export const save: ButtonFunc = async ({ interaction, player, controller }) => {
   const status = await controller.saveTrack(member, interaction.guild)
 
   if (status === SaveStatus.NotPlaying) {
-    return await interaction.followUp({
+    return await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription('[ Nothing is playing right now ]')
@@ -26,7 +26,7 @@ export const save: ButtonFunc = async ({ interaction, player, controller }) => {
   }
 
   if (status === SaveStatus.DmChannelFailure) {
-    return await interaction.followUp({
+    return await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription('[ I can\'t DM you. ]')
@@ -36,7 +36,7 @@ export const save: ButtonFunc = async ({ interaction, player, controller }) => {
   }
 
   if (status === SaveStatus.Success) {
-    return await interaction.followUp({
+    return await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription('[ Song saved to DMs! ]')

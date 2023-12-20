@@ -6,24 +6,25 @@ import {
   ChannelType,
   EmbedBuilder,
   EmbedField,
-  GuildBasedChannel,
   GuildEmoji,
   MessageReaction,
   PartialMessageReaction,
   ReactionEmoji
 } from "discord.js";
-import {
-  starboardBlacklistedChannels,
-  starboardConfig,
-  starboardEmojis,
-  starboardEntries,
-} from "../Data/DatabaseSchema";
 import { clipString } from "../Funcs/ClipString";
 import { fetchMember } from "../Funcs/FetchMember";
+import { starboardConfig, starboardEntries } from "../Models";
 import { config as botConfig } from "../config";
 import { log } from "./Logger";
 
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
+
+interface ConfigOptions {
+  boardId: string,
+  amount: number,
+  emojis: string[]
+  bannedChannels: string[]
+}
 
 const AcceptedImages = ["image/gif", "image/jpeg", "image/png", "image/webp"];
 const AcceptedLinkHeaders = [
@@ -103,27 +104,6 @@ class Starboard {
       log.error(`Error checking URL ${url}: ${error}`);
       return false;
     }
-  }
-
-  private async getServerConfig(serverId: string): Promise<any> {
-    const [guildEmojis, guildConfig, channelBlacklist] = await Promise.all([
-      // server emojis
-      starboardEmojis
-        .findAll({ where: { guildId: serverId } })
-        .then((part) => part.map((emoji) => emoji.getDataValue("emoji"))),
-
-      // server config
-      starboardConfig
-        .findOne({ where: { guildId: serverId } })
-        .then((part) => part?.dataValues),
-
-      // Blacklisted server channels
-      starboardBlacklistedChannels
-        .findAll({ where: { guildId: serverId } })
-        .then((part) => part.map((ch) => ch.getDataValue("channelId"))),
-    ]);
-
-    return [guildEmojis, guildConfig, channelBlacklist];
   }
 
   private async setFields(): Promise<EmbedField[]> {
@@ -211,18 +191,23 @@ class Starboard {
       ? await this.reaction.fetch()
       : this.reaction;
 
-    const [emoji, config, blacklist] = await this.getServerConfig(
-      reaction.message.guild!.id
-    );
+    const record = await starboardConfig.findOne({
+      where: { guildId: reaction.message.guildId }
+    })
+
+    // Something went wrong so we can't continue
+    if (!record) return
+
+    const config: ConfigOptions = record.dataValues
+
 
     if (!config || !config?.boardId) return; // There is no config or configured channel
-    if (blacklist.includes(reaction.message.channelId)) return; // The channel is blacklisted
-    // if (reaction.message.channelId === config.boardId) return; // The reaction channel is the same as starboard channel
-    // if (reaction.message.author!.id === this.user.id) return; // If the user reacting is the same as the message's author
+    if (config.bannedChannels.includes(reaction.message.channelId)) return; // The channel is blacklisted
+    if (reaction.message.channelId === config.boardId) return; // The reaction channel is the same as starboard channel
 
     const reactionEmoji = this.formatReactionString(reaction.emoji);
 
-    if (!emoji.includes(reactionEmoji)) return; // The emoji isn't accepted for the starboard
+    if (!config.emojis.includes(reactionEmoji)) return; // The emoji isn't accepted for the starboard
 
     const reactions: { emoji: string; count: number }[] = [];
 
@@ -234,7 +219,7 @@ class Starboard {
           }>`;
       }
 
-      if (emojiName && emoji.includes(emojiName)) {
+      if (emojiName && config.emojis.includes(emojiName)) {
         reactions.push({ emoji: emojiName, count: rect.count });
       }
     });
@@ -247,11 +232,7 @@ class Starboard {
     // Format the emojis: {emoji} * {emoji}...
     const reactionStrings: string[] = reactions.map(r => `${r.emoji}: ${r.count}`);
 
-    const boardChannel:
-      | GuildBasedChannel
-      | null
-      | void
-      = await reaction.message.guild?.channels.fetch(config.boardId)
+    const boardChannel = await reaction.message.guild?.channels.fetch(config.boardId)
 
     // Return if channel is not a TextChannel or it doesn't exist
     if (!boardChannel || boardChannel.type != ChannelType.GuildText) return

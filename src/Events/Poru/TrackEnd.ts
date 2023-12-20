@@ -1,5 +1,5 @@
-import { queueHistory } from "../../Data/DatabaseSchema";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
+import { queueHistory } from "../../Models";
 import Event from "../../types/Event";
 
 const TrackEnd: Event = {

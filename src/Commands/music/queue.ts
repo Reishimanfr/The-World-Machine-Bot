@@ -1,18 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-const queue: Command = {
+export default <Command>{
   permissions: [],
+  musicCommand: true,
+
   data: new SlashCommandBuilder()
     .setName("queue")
     .setDescription("Shows the queue"),
-
-  musicOptions: {
-    requiresPlayer: true,
-    requiresPlaying: false,
-    requiresVc: false,
-    requiresDjRole: false
-  },
 
   callback: async ({ interaction }) => {
     return interaction.reply({
@@ -105,6 +100,4 @@ const queue: Command = {
     //   }
     // });
   },
-};
-
-export default queue;
+}

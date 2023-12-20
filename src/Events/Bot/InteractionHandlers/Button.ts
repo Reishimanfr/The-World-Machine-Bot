@@ -9,13 +9,18 @@ import { embedColor } from '../../../Helpers/Util';
 import { buttonMap } from './ButtonHandlers/!buttonHandler';
 
 const Button = async (interaction: ButtonInteraction) => {
-  if (interaction.customId.startsWith('songcontrol')) {
-    const player = client.poru.players.get(interaction.guildId!) as ExtPlayer;
-    const member = await interaction.guild?.members.fetch(interaction.user.id);
-    const isExceptionButton = ['queueHelp', 'showQueue'].includes(interaction.customId);
+  const guild = interaction.guild
+  const id = interaction.customId
+
+  // Typeguard
+  if (!guild) return
+
+  if (id.startsWith('songcontrol')) {
+    const player = client.poru.players.get(guild.id) as ExtPlayer | undefined
+    const member = await guild.members.fetch(interaction.user.id)
 
     if (!player) {
-      return await interaction.reply({
+      return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription("[ This player isn't active anymore. ]")
@@ -25,7 +30,7 @@ const Button = async (interaction: ButtonInteraction) => {
       });
     }
 
-    if (!member?.voice.channel && !isExceptionButton) {
+    if (!member.voice.channel) {
       return await interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -36,21 +41,19 @@ const Button = async (interaction: ButtonInteraction) => {
       });
     }
 
-    if (
-      member?.voice.channelId !== interaction.guild?.members.me?.voice.channelId &&
-      !isExceptionButton
-    ) {
+    if (member.voice.channelId !== guild.members.me?.voice.channelId) {
       return await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ You must be in the same voice channel to use this. ]')
-            .setColor(embedColor),
-        ],
+        content: 'You must be in the same voice channel to use this.',
+        ephemeral: true
       });
     }
 
     const action = interaction.customId.split('-')[1];
     const handler = buttonMap[action];
+
+    // Managers
+    // May plug this in to the player class instead
+    // We'll see
     const controller = new PlayerController(player)
     const builder = new MessageManager(player)
     const queue = new QueueManager(player)
@@ -64,29 +67,13 @@ const Button = async (interaction: ButtonInteraction) => {
       queue
     };
 
-    if (!player?.isPlaying && !player.isPaused && !isExceptionButton) {
+    // Shouldn't happen
+    if (!player.isPlaying && !player.isPaused) {
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Nothing is playing right now. ]')
-            .setColor(embedColor),
-        ],
-        ephemeral: true,
-      });
+        content: 'Nothing is playing right now.',
+        ephemeral: true
+      })
     }
-
-    if (!handler) {
-      return await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Something broke while processing this button. ]')
-            .setColor(embedColor),
-        ],
-        ephemeral: true,
-      });
-    }
-
-    await interaction.deferUpdate();
 
     try {
       await handler(args);

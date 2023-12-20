@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { client } from '../../..';
 import commandList from '../../../Data/CommandExport';
-import { botStats } from '../../../Data/DatabaseSchema';
 import { fetchMember } from '../../../Funcs/FetchMember';
 import { ExtPlayer } from '../../../Helpers/ExtendedClasses';
 import { MessageManager } from '../../../Helpers/MessageManager';
@@ -9,9 +8,14 @@ import { PlayerController } from '../../../Helpers/PlayerController';
 import { QueueManager } from '../../../Helpers/QueueManager';
 import { embedColor } from '../../../Helpers/Util';
 import { combineConfig } from '../../../Helpers/config/playerSettings';
+import { botStats } from '../../../Models';
 
 const Command = async (interaction: ChatInputCommandInteraction) => {
-  const command = commandList.find(c => c.data.name == interaction.commandName);
+  const command = commandList.find(c => c?.data?.name == interaction.commandName)
+  const guild = interaction.guild
+
+  // Typeguard
+  if (!guild) return
 
   if (!command) {
     return interaction.reply({
@@ -25,26 +29,27 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
   }
 
   // Missing permissions check
-  if (command.permissions) {
-    const currentPerms = interaction.guild?.members.me?.permissions;
-    const missingPermissions = command.permissions.filter((perm) => !currentPerms?.has(perm));
+  // TODO: FIX THIS
+  // if (command.permissions) {
+  //   const currentPerms = interaction.guild?.members.me?.permissions;
+  //   const missingPermissions = command.permissions.filter((perm) => !currentPerms?.has(perm));
 
-    if (missingPermissions.length) {
-      return interaction.reply({
-        content: "I'm missing permissions required for this command. Please try again after giving me these permissions:\n" + missingPermissions.join(', '),
-        ephemeral: true
-      })
-    }
-  }
+  //   if (missingPermissions.length) {
+  //     return interaction.reply({
+  //       content: "I'm missing permissions required for this command. Please try again after giving me these permissions:\n" + missingPermissions.join(', '),
+  //       ephemeral: true
+  //     })
+  //   }
+  // }
 
-  let player = client.poru.players.get(interaction.guild!.id) as ExtPlayer
+  let player = client.poru.players.get(guild.id) as ExtPlayer
 
   // Case for music commands
   if (command.musicOptions) {
     const options = command.musicOptions
 
-    const config = await combineConfig(interaction.guild!.id)
-    const member = await fetchMember(interaction.guild!.id, interaction.user.id)
+    const config = await combineConfig(guild.id)
+    const member = await fetchMember(guild.id, interaction.user.id)
 
     // Member is not in voice channel
     if (options.requiresVc && !member?.voice.channel?.id) {
@@ -72,7 +77,7 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
 
     if (!player) {
       player = client.poru.createConnection({
-        guildId: interaction.guild!.id,
+        guildId: guild.id,
         voiceChannel: member!.voice.channel!.id,
         textChannel: interaction.channel!.id,
         deaf: true,
@@ -95,9 +100,9 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
   } finally {
     const [record] = await botStats.findOrCreate(
       {
-        where: { guildId: interaction.guild!.id },
+        where: { guildId: guild.id },
         defaults: {
-          guildId: interaction.guild!.id,
+          guildId: guild.id,
           commandsRan: 0
         }
       }

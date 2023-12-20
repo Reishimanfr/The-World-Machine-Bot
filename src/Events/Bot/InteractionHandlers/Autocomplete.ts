@@ -1,10 +1,9 @@
 import { ApplicationCommandOptionChoiceData, AutocompleteInteraction } from "discord.js";
 import { client } from "../../..";
-import { playlists } from "../../../Data/DatabaseSchema";
 import { clipString } from "../../../Funcs/ClipString";
 import { fetchMember } from "../../../Funcs/FetchMember";
 import { formatSeconds } from "../../../Funcs/FormatSeconds";
-import { log } from "../../../Helpers/Logger";
+import { playlists } from "../../../Models";
 
 type tracksType = {
   name: string,
@@ -14,8 +13,6 @@ type tracksType = {
 
 const Autocomplete = async (interaction: AutocompleteInteraction) => {
   const subcommand = interaction.options.getSubcommand(false)
-
-  log.debug(subcommand)
 
   if (subcommand && interaction.commandName === 'playlist') {
     switch (subcommand) {
@@ -85,8 +82,7 @@ const Autocomplete = async (interaction: AutocompleteInteraction) => {
         const resolve = await client.poru.resolve({ query: query, source: source });
         const resolveTracks = resolve.tracks.slice(0, 5);
 
-        for (let i = 0; i < resolveTracks.length; i++) {
-          const track = resolveTracks[i];
+        for (const track of resolveTracks) {
           let trackString = `${prefix}: `;
 
           trackString += `${track.info.title} - ${track.info.author}`;

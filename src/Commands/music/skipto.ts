@@ -4,8 +4,15 @@ import { embedColor } from "../../Helpers/Util";
 import { config as botConfig } from "../../config";
 import Command from "../../types/Command";
 
-const skipto: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: ['Speak', 'Connect', 'SendMessages'],
+  musicOptions: {
+    requiresDjRole: true,
+    requiresPlayer: true,
+    requiresPlaying: true,
+    requiresVc: true
+  },
+
   data: new SlashCommandBuilder()
     .setName("skipto")
     .setDescription("Skip to a specified song in the queue")
@@ -16,13 +23,6 @@ const skipto: Command = {
       .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
       .setMinValue(1)
     ),
-
-  musicOptions: {
-    requiresPlayer: true,
-    requiresPlaying: false,
-    requiresVc: true,
-    requiresDjRole: true
-  },
 
   callback: async ({ interaction, player }) => {
     const position = interaction.options.getNumber("position", true);
@@ -52,6 +52,4 @@ const skipto: Command = {
       ], ephemeral: true
     });
   },
-};
-
-export default skipto;
+}

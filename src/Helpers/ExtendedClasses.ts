@@ -1,9 +1,12 @@
 import { Client, Message } from "discord.js";
 import { Player, Poru } from "poru";
 import { PlayerSettings } from "../config";
+import { MessageManager } from "./MessageManager";
+import { PlayerController } from "./PlayerController";
+import { QueueManager } from "./QueueManager";
 
 export class ExtClient extends Client {
-  public poru: Poru;
+  public poru: Poru
 }
 
 export class ExtPlayer extends Player {
@@ -13,6 +16,11 @@ export class ExtPlayer extends Player {
   private $timeout: NodeJS.Timeout | null;
   private $settings: PlayerSettings;
   private $timeInVc: number = 0;
+
+  // Managers
+  public messageManger: MessageManager
+  public queueManager: QueueManager
+  public controller: PlayerController
 
   get message(): Message | undefined {
     return this.$message;

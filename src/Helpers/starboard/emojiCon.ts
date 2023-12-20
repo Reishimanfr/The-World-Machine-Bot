@@ -1,12 +1,15 @@
 import { CommandInteraction, ComponentType, EmbedBuilder } from "discord.js";
 import { menu } from "../../Commands/starboard";
-import { starboardEmojis } from "../../Data/DatabaseSchema";
 import { embedColor } from "../../Helpers/Util";
+import { starboardConfig } from "../../Models";
 import { confirmButtons, finalConButtons } from "./_buttons";
 
 export default async function emojiCon(interaction: CommandInteraction) {
-  const oldEmojis = await starboardEmojis.findAll({ where: { guildId: interaction.guildId } });
-  const emojis = oldEmojis.map((d) => d.dataValues.emoji);
+  const record = await starboardConfig.findOne({
+    where: { guildId: interaction.guildId }
+  })
+
+  const emojis = record?.getDataValue('emojis')
 
   const embeds = [
     new EmbedBuilder()
@@ -62,7 +65,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
   if (!content) return;
 
   const newEmojis = content
-    .split(", ")
+    .split(",")
     .map((emj) => emj.trim())
     .filter(emj => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu));
 
@@ -93,26 +96,13 @@ export default async function emojiCon(interaction: CommandInteraction) {
   interaction.editReply({
     embeds: [
       new EmbedBuilder()
-        .setDescription(
-          `[ Done! The new emojis have been set to **${newEmojis.join(
-            ", "
-          )}**. ]`
-        )
+        .setDescription(`[ Done! The new emojis have been set to **${newEmojis.join(", ")}**. ]`)
         .setColor(embedColor),
     ],
     components: [menu],
-  });
+  })
 
-  await starboardEmojis.destroy({ where: { guildId: interaction.guildId } });
-
-  let data: { guildId: string; emoji: string }[] = [];
-
-  for (const e of newEmojis) {
-    data.push({
-      guildId: interaction.guild!.id,
-      emoji: e,
-    });
-  }
-
-  await starboardEmojis.bulkCreate(data);
+  await starboardConfig.update({
+    emojis: newEmojis
+  }, { where: { guildId: interaction.guildId } })
 }

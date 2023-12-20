@@ -3,14 +3,15 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
-  EmbedBuilder,
   SlashCommandBuilder
 } from "discord.js";
 import crypto from "node:crypto";
 import { Response, Track } from "poru";
 import { fetchMember } from "../../Funcs/FetchMember";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { embedColor } from "../../Helpers/Util";
+import { MessageManager } from "../../Helpers/MessageManager";
+import { PlayerController } from "../../Helpers/PlayerController";
+import { QueueManager } from "../../Helpers/QueueManager";
 import { combineConfig } from "../../Helpers/config/playerSettings";
 import { config as botConfig } from "../../config";
 import Command from "../../types/Command";
@@ -21,8 +22,13 @@ const messages = {
   'TRACK_ADDED': '[ Track **{query}** added to the queue. ]'
 }
 
-const play: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: ['Speak', 'SendMessages', 'Connect'],
+  musicOptions: {
+    requiresVc: true,
+    requiresDjRole: true
+  },
+
   data: new SlashCommandBuilder()
     .setName("play")
     .setDescription("Plays or adds a song to the queue")
@@ -32,48 +38,58 @@ const play: Command = {
       .setRequired(true)
       .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
     ),
-  musicOptions: {
-    requiresPlayer: false,
-    requiresPlaying: false,
-    requiresVc: true,
-    requiresDjRole: true
-  },
 
-  callback: async ({ interaction, player, client, controller }) => {
+  callback: async ({ interaction, player, client }) => {
+    // typeguard
+    if (!interaction.guild || !interaction.channel) return
+    const member = await fetchMember(interaction.guild.id, interaction.user.id)
+
+    if (!member) {
+      return interaction.reply({
+        content: 'Cannot create connection: member fetch failed.',
+        ephemeral: true
+      })
+    }
+
+    if (!member.voice.channel) {
+      return interaction.reply({
+        content: 'You must be in a voice channel to use this.',
+        ephemeral: true
+      })
+    }
+
     let query = interaction.options.getString("url-or-search", true);
 
     if (query == 'autocomplete_no_user_input') {
       query = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     }
 
-    // Typeguard: Impossible(?) case
-    if (!interaction.guild) return
-
-    const member = await fetchMember(interaction.guild.id, interaction.user.id)
-
     if (!player) {
       player = client.poru.createConnection({
-        guildId: interaction.guild!.id,
-        voiceChannel: member!.voice.channel!.id,
-        textChannel: interaction.channel!.id,
+        guildId: interaction.guild.id,
+        voiceChannel: member.voice.channel.id,
+        textChannel: interaction.channel.id,
         deaf: true,
         mute: false,
       }) as ExtPlayer;
 
-      player.setVolume(75); // Set the volume to 75 to not make people's ears bleed
-      // They can just change it themselves if the need to lol
-      // Also makes audio clearer
+      // Audio quality is best on this setting
+      player.setVolume(75)
     }
 
-    const [loadType, data] = await controller.resolveQueryOrUrl(query, member || interaction.user)
+    // Initialize helper classes
+    player.controller = new PlayerController(player)
+    player.messageManger = new MessageManager(player)
+    player.queueManager = new QueueManager(player)
+
+    const [loadType, data] = await player.controller
+      .resolveQueryOrUrl(query, interaction.user)
 
     if (['LOAD_FAILED', 'NO_MATCHES'].includes(loadType)) {
+      // Select a message string depending on the loadType and replace 
+      // {query} with the actual query
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription(messages[loadType].replace('{query}', query))
-            .setColor(embedColor)
-        ],
+        content: messages[loadType].replace('{query}', query),
         ephemeral: true
       })
     }
@@ -83,11 +99,7 @@ const play: Command = {
       const track = data as Track
 
       await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription(`[ Track **${track.info.title}** added to the queue. ]`)
-            .setColor(embedColor)
-        ],
+        content: `Track **${track.info.title}** added to the queue.`,
         ephemeral: true
       })
     }
@@ -95,27 +107,23 @@ const play: Command = {
     if (loadType == 'PLAYLIST_LOADED') {
       const { tracks } = data as Response
 
-      const embed = new EmbedBuilder()
-        .setDescription(`[ A playlist consisting of **${tracks.length} tracks** was found. Do you want to load it? ]`)
-        .setColor(embedColor)
-
       const buttons = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
           new ButtonBuilder()
             .setCustomId('load')
-            .setLabel('Load them!')
+            .setLabel(`Load ${tracks.length} tracks`)
             .setEmoji('✅')
             .setStyle(ButtonStyle.Primary),
 
           new ButtonBuilder()
             .setCustomId('discard')
-            .setLabel('Discard them!')
+            .setLabel('Discard playlist')
             .setEmoji('❌')
             .setStyle(ButtonStyle.Secondary)
         )
 
       const response = await interaction.reply({
-        embeds: [embed],
+        content: `A playlist was found. Do you want to load it?`,
         components: [buttons],
         ephemeral: true
       })
@@ -131,23 +139,14 @@ const play: Command = {
       if (button.customId == 'load') {
         const response = data as Response
 
-        await controller.loadPlaylist(response)
-
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setDescription(`[ **${response.tracks.length}** tracks added to the queue. ]`)
-              .setColor(embedColor)
-          ],
-          components: []
+        interaction.editReply({
+          content: `**${response.tracks.length}** tracks added to the queue.`,
         })
+
+        await player.controller.loadPlaylist(response)
       } else {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setDescription('[ Playlist discarded. ]')
-              .setColor(embedColor)
-          ]
+        interaction.editReply({
+          content: 'Playlist discarded.'
         })
       }
     }
@@ -158,6 +157,4 @@ const play: Command = {
     player.sessionId ||= crypto.randomBytes(6).toString('hex')
     player.settings ||= await combineConfig(interaction.guild.id)
   },
-};
-
-export default play;
+}

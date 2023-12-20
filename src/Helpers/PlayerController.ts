@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, Guild, GuildMember, User } from "discord.js";
 import { LoadType, Response, Track } from "poru";
 import { setTimeout as timeout } from "timers/promises";
-import { botStats } from "../Data/DatabaseSchema";
 import { fetchMember } from "../Funcs/FetchMember";
 import { formatSeconds } from "../Funcs/FormatSeconds";
+import { botStats } from "../Models";
 import { config } from "../config";
 import { ExtPlayer } from "./ExtendedClasses";
 import { log } from "./Logger";
@@ -23,7 +23,8 @@ export enum VoteSkipStatus {
   "Success",
   "NotPlaying",
   "UnmetCondition",
-  "Failed"
+  "Failed",
+  "OwnSkip"
 }
 
 class PlayerController {
@@ -229,8 +230,12 @@ class PlayerController {
       return VoteSkipStatus.LoopingEnabled
     }
 
-    if (!player.settings.enableSkipvote) {
+    if (!player.settings.voteSkipToggle) {
       return VoteSkipStatus.Disabled
+    }
+
+    if (player.currentTrack.info.requester.id === interaction.user.id) {
+      return VoteSkipStatus.OwnSkip
     }
 
     const channel = await interaction.guild.channels.fetch(player.voiceChannel)
@@ -241,9 +246,9 @@ class PlayerController {
     }
 
     const notBotMembers = channel.members.filter(m => !m.user.bot).size
-    const requiredVotes = Math.round((notBotMembers * player.settings.skipvoteThreshold) / 100) + 1
+    const requiredVotes = Math.round((notBotMembers * player.settings.voteSkipThreshold) / 100) + 1
 
-    if (notBotMembers < player.settings.skipvoteMemberRequirement || requiredVotes <= 1) {
+    if (notBotMembers < player.settings.voteSkipMembers || requiredVotes <= 1) {
       return VoteSkipStatus.UnmetCondition
     }
 

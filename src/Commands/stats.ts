@@ -1,14 +1,15 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { botStats } from "../Data/DatabaseSchema";
 import FormatTime from "../Funcs/FormatTime";
+import { botStats } from "../Models";
 import Command from "../types/Command";
 
 function statElement(input: string): string {
   return `\`\`\`${input}\`\`\``
 }
 
-const stats: Command = {
-  permissions: [],
+export default <Command>{
+  permissions: ['SendMessages'],
+
   data: new SlashCommandBuilder()
     .setName('stats')
     .setDescription('View global(todo), per-user(todo) or per-server stats for the bot.'),
@@ -63,5 +64,3 @@ const stats: Command = {
     })
   }
 }
-
-export default stats

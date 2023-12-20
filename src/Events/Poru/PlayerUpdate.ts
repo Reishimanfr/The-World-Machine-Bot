@@ -8,7 +8,7 @@ const PlayerUpdate: Event = {
   name: "playerUpdate",
   once: false,
   execute: async (player: ExtPlayer) => {
-    if (!player.settings?.dynamicNowPlayingMessage) return
+    if (!player.settings?.dynamicNowPlaying) return
     if (player.pauseEditing) return;
     if (!player.isPlaying) return;
     if (player.isPaused) return;

@@ -27,17 +27,17 @@ const config = {
   /** Settings related to the bot's music player */
   player: {
     /** Toggles if the bot should leave the voice channel after the queue ends */
-    leaveAfterQueueEnd: configFile.player.leaveAfterQueueEnd as boolean ?? false,
+    queueEndDisconnect: configFile.player.leaveAfterQueueEnd as boolean ?? false,
     /** Toggles if the bot should resend the current track's embed if it's not the first message in the channel */
-    resendEmbedAfterSongEnd: configFile.player.resendEmbedAfterSongEnd as boolean ?? false,
+    resendMessageOnEnd: configFile.player.resendEmbedAfterSongEnd as boolean ?? false,
     /** Toggles if skipping should invoke a voting to skip or not */
-    enableSkipvote: configFile.player.enableSkipvote as boolean ?? true,
+    voteSkipToggle: configFile.player.enableSkipvote as boolean ?? true,
     /** Should the now playing message update itself every 15 seconds? */
-    dynamicNowPlayingMessage: configFile.player.dynamicNowPlayingMessage as boolean ?? true,
+    dynamicNowPlaying: configFile.player.dynamicNowPlayingMessage as boolean ?? true,
     /** Sets the threshold of users required to vote yes to skip the current track (in percents) */
-    skipvoteThreshold: configFile.player.skipvoteThreshold as number ?? 50,
+    voteSkipThreshold: configFile.player.skipvoteThreshold as number ?? 50,
     /** Sets the minimum amount of members in a voice channel to start a skipvote */
-    skipvoteMemberRequirement: configFile.player.skipvoteMemberRequirement as number ?? 3,
+    voteSkipMembers: configFile.player.skipvoteMemberRequirement as number ?? 3,
     /** Toggles if most music commands require the user to have a DJ role */
     requireDjRole: configFile.player.requireDjRole as boolean ?? false,
     /** Sets the DJ role (a member must have this role to use most music commands) */
@@ -76,8 +76,8 @@ const poruOptions: PoruOptions = {
   library: "discord.js",
   defaultPlatform: "ytsearch",
   autoResume: true,
-  reconnectTimeout: 5000,
-  reconnectTries: 10,
+  reconnectTimeout: 1000,
+  reconnectTries: 0,
 };
 
 const poruNodes: NodeGroup[] = [

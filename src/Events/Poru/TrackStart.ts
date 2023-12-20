@@ -34,7 +34,7 @@ const TrackStart: Event = {
       return;
     }
 
-    if (player.settings?.resendEmbedAfterSongEnd) {
+    if (player.settings?.resendMessageOnEnd) {
       const messages = await channel.messages.fetch({ limit: 1 })
       const firstMessage = messages.at(0)
 
