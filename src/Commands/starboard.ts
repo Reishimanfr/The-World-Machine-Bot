@@ -50,7 +50,7 @@ export const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
   )
 
 
-export default <Command>{
+const starboard: Command = {
   permissions: ["EmbedLinks", "SendMessages", "ViewChannel"],
   data: new SlashCommandBuilder()
     .setName("starboard")
@@ -92,3 +92,5 @@ Everything noteworthy about the starboard feature was described in the starboard
     })
   },
 }
+
+export default starboard

@@ -4,7 +4,7 @@ import { embedColor } from "../../Helpers/Util";
 import { config as botConfig } from "../../config";
 import Command from "../../types/Command";
 
-export default <Command>{
+const skipTo: Command = {
   permissions: ['Speak', 'Connect', 'SendMessages'],
   musicOptions: {
     requiresDjRole: true,
@@ -35,14 +35,14 @@ export default <Command>{
       return await interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(`[ There isn\'t a song in the position you specified. ]`)
+            .setDescription(`[ There isn't a song in the position you specified. ]`)
             .setColor(embedColor),
         ], ephemeral: true,
       });
     }
 
     player.queue = player.queue.slice(position - 1, player.queue.length) as Queue;
-    player.seekTo(player.currentTrack!.info.length);
+    player.seekTo(player.currentTrack.info.length);
 
     await interaction.reply({
       embeds: [
@@ -53,3 +53,5 @@ export default <Command>{
     });
   },
 }
+
+export default skipTo

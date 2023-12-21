@@ -53,7 +53,7 @@ Tip: You can edit your existing playlists using the \`/playlist edit\` command.`
     .setColor(embedColor)
 }
 
-export default <Command>{
+const playlist: Command = {
   permissions: ['Speak', 'SendMessages', 'Connect'],
 
   data: new SlashCommandBuilder()
@@ -302,8 +302,8 @@ export default <Command>{
 
         if (!player) {
           player = client.poru.createConnection({
-            guildId: interaction.guild!.id,
-            voiceChannel: member!.voice.channel!.id,
+            guildId: interaction.guild.id,
+            voiceChannel: member.voice.channel.id,
             textChannel: interaction.channel!.id,
             deaf: true,
             mute: false,
@@ -395,3 +395,5 @@ export default <Command>{
     }
   }
 }
+
+export default playlist

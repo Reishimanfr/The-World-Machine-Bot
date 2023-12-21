@@ -142,7 +142,8 @@ function generateEmbed(tf2Data, playerClass, profileData, command) {
   return embed;
 }
 
-export default <Command>{
+const tf2: Command = {
+  permissions: ['SendMessages', 'AttachFiles'],
   data: new SlashCommandBuilder()
     .setName('tf2')
     .setDescription('Get tf2 stats for a player')
@@ -197,7 +198,6 @@ export default <Command>{
       const embed = generateEmbed(tf2Data, playerClass, profileData, interaction);
 
       interaction.editReply({ embeds: [embed], components: [menu] });
-      return;
     });
 
     collector.on('end', (_) => {
@@ -205,3 +205,4 @@ export default <Command>{
     });
   },
 }
+export default tf2

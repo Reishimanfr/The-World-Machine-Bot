@@ -37,7 +37,7 @@ function convertToSeconds(timestamp: string): number {
 }
 
 
-export default <Command>{
+const seek: Command = {
   permissions: ['Speak', 'Connect', 'SendMessages'],
 
   musicOptions: {
@@ -90,7 +90,7 @@ export default <Command>{
       pos = convertToSeconds(seconds) * 1000;
       responseString = `Seeked to ${seconds}`;
     } else if (["+", "-"].includes(seconds.charAt(0))) {
-      const direction = seconds.charAt(0) === "-" ? -1 : 1;
+      const direction = seconds.startsWith("-") ? -1 : 1;
       const time = parseInt(seconds.slice(1)) * 1000;
 
       pos = player.position + direction * time;
@@ -115,3 +115,5 @@ export default <Command>{
     });
   },
 }
+
+export default seek

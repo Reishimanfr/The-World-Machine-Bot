@@ -73,6 +73,13 @@ export default async function amountCon(
     });
   }
 
+  if (parseAmount < 0) {
+    return interaction.editReply({
+      content: 'The value can\'t be less than 0!',
+      embeds: []
+    })
+  }
+
   interaction.editReply({
     embeds: [
       new EmbedBuilder()

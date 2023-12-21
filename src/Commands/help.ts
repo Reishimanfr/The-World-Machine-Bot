@@ -8,7 +8,7 @@ const featurePages = {
   starboard: starboardHelpPages
 }
 
-export default <Command>{
+const help: Command = {
   permissions: ['SendMessages', 'AttachFiles'],
 
   data: new SlashCommandBuilder()
@@ -152,3 +152,5 @@ If you still need help with something don't hesitate to DM me \`(@rei.shi)\` or 
     })
   }
 }
+
+export default help

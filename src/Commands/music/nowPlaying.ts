@@ -2,7 +2,7 @@ import { ChannelType, Message, SlashCommandBuilder } from "discord.js";
 import { log } from "../../Helpers/Logger";
 import Command from "../../types/Command";
 
-export default <Command>{
+const nowPlaying: Command = {
   permissions: null,
   musicOptions: {
     requiresVc: true,
@@ -70,3 +70,5 @@ export default <Command>{
     player.textChannel = interaction.channelId
   },
 }
+
+export default nowPlaying

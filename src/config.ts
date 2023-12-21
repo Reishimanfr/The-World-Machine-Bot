@@ -19,7 +19,6 @@ const configFile = yaml.load(configYAML);
 const config = {
   botToken: configFile.botToken as string ?? null,
   devBotToken: configFile.devBotToken as string ?? null,
-  maintenance: configFile.maintenance as boolean ?? false,
   apiKeys: {
     steam: configFile.apiKeys.steam as string ?? '',
     tenor: configFile.apiKeys.tenor as string ?? '',

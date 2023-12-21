@@ -1,9 +1,14 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-export default <Command>{
+const loop: Command = {
   permissions: [],
-  musicCommand: true,
+  musicOptions: {
+    requiresDjRole: true,
+    requiresPlayer: true,
+    requiresPlaying: true,
+    requiresVc: true
+  },
 
   data: new SlashCommandBuilder()
     .setName("loop")
@@ -24,3 +29,5 @@ export default <Command>{
     });
   },
 }
+
+export default loop

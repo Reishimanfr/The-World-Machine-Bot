@@ -1,9 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-export default <Command>{
+const clear: Command = {
   permissions: [],
-  musicCommand: true,
+  musicOptions: {
+    requiresVc: true,
+    requiresPlayer: true,
+    requiresDjRole: true
+  },
 
   data: new SlashCommandBuilder()
     .setName("clear")
@@ -25,3 +29,5 @@ export default <Command>{
     });
   },
 }
+
+export default clear

@@ -4,7 +4,7 @@ import {
 import { VoteSkipStatus } from "../../Helpers/PlayerController";
 import Command from "../../types/Command";
 
-export default <Command>{
+const skip: Command = {
   permissions: ['Speak', 'Connect', 'SendMessages'],
   musicOptions: {
     requiresPlayer: true,
@@ -45,3 +45,5 @@ export default <Command>{
     }
   },
 }
+
+export default skip

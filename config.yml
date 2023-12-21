@@ -1,14 +1,14 @@
-# This is a example configuration file for the bot. You can download it and fill out it's contents
-
 # Token for the bot to login with
-botToken: 'Insert your bot token here'
+# botToken: MTA3MzYwNzg0NDI2NTQ3NjE1OA.GcrkkM.-Q82o2_kE_oTaRYuj9Kdj-lJ6bPa5_6P0uwSqo
+
+devBotToken: "your token here"
 
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
-  steam: 'Your steam api key here'
+  steam: "your token here"
 
   # This is used in the starboard script to display tenor gifs correctly
-  tenor: 'Your tenor api key here'
+  tenor: "your token here"
 
 # Settings to control the bot's player behavior
 player:

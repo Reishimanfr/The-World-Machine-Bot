@@ -5,7 +5,7 @@ import Command from "../types/Command";
 
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold']
 
-export default <Command>{
+const music: Command = {
   permissions: ['SendMessages'],
   data: new SlashCommandBuilder()
     .setName('music')
@@ -228,7 +228,7 @@ async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
 async function showConfig(interaction: ChatInputCommandInteraction, record: Model<any, any>) {
   const data = record.dataValues
 
-  const mapBool = (bool: boolean) => bool ? '✅' : '❌'
+  const isEnabled = (bool: boolean) => bool ? '✅' : '❌'
 
   const configEmbed = new EmbedBuilder()
     .setAuthor({
@@ -236,18 +236,20 @@ async function showConfig(interaction: ChatInputCommandInteraction, record: Mode
       iconURL: interaction.guild?.iconURL() ?? undefined
     })
     .setDescription(`### DJ role
-Enabled: \`${mapBool(data.requireDjRole)}\`
+Enabled: \`${isEnabled(data.requireDjRole)}\`
 Role: ${roleMention(data.djRoleId)}
 ### Skipvote
-Enabled: \`${mapBool(data.voteSkipToggle)}\`
+Enabled: \`${isEnabled(data.voteSkipToggle)}\`
 Required members: \`${data.voteSkipMembers} members\`
 Voting threshold: \`${data.voteSkipThreshold}% members\`
 ### Other options
-Disconnect on queue end: \`${mapBool(data.queueEndDisconnect)}\`
-Resend message on new track: \`${mapBool(data.resendMessageOnEnd)}\`
-Update now playing message: \`${mapBool(data.dynamicNowPlaying)}\``)
+Disconnect on queue end: \`${isEnabled(data.queueEndDisconnect)}\`
+Resend message on new track: \`${isEnabled(data.resendMessageOnEnd)}\`
+Update now playing message: \`${isEnabled(data.dynamicNowPlaying)}\``)
 
   interaction.editReply({
     embeds: [configEmbed]
   })
 }
+
+export default music

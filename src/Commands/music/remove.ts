@@ -2,9 +2,14 @@ import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { embedColor } from "../../Helpers/Util";
 import Command from "../../types/Command";
 
-export default <Command>{
+const remove: Command = {
   permissions: [],
-  musicCommand: true,
+  musicOptions: {
+    requiresDjRole: true,
+    requiresPlayer: true,
+    requiresPlaying: true,
+    requiresVc: true
+  },
 
   data: new SlashCommandBuilder()
     .setName("remove")
@@ -41,7 +46,7 @@ export default <Command>{
       }
     }
 
-    const sortedPositions = positions.sort((a, b) => b - a);
+    const sortedPositions = positions.toSorted((a, b) => b - a)
 
     for (const position of sortedPositions) {
       if (position >= 1 && position <= queue.length) {
@@ -63,3 +68,5 @@ export default <Command>{
     await player.messageManger.updatePlayerMessage()
   },
 }
+
+export default remove

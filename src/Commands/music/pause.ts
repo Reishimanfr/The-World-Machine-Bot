@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-export default <Command>{
+const pause: Command = {
   permissions: [],
   musicOptions: {
     requiresDjRole: true,
@@ -22,3 +22,5 @@ export default <Command>{
     });
   },
 }
+
+export default pause

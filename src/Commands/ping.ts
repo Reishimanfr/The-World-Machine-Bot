@@ -1,7 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import Command from '../types/Command';
 
-export default <Command>{
+const ping: Command = {
   permissions: ['SendMessages'],
 
   data: new SlashCommandBuilder()
@@ -16,3 +16,5 @@ export default <Command>{
     interaction.reply(`🏓 Pong! My current ping is ${client.ws.ping}ms`);
   },
 }
+
+export default ping

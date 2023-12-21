@@ -2,7 +2,8 @@ import { EmbedBuilder, GuildMember, SlashCommandBuilder } from 'discord.js';
 import { embedColor } from '../Helpers/Util';
 import Command from '../types/Command';
 
-export default <Command>{
+const avatar: Command = {
+  permissions: ['SendMessages', 'AttachFiles'],
   data: new SlashCommandBuilder()
     .setName('avatar')
     .setDescription("Get a user's avatar")
@@ -42,3 +43,5 @@ export default <Command>{
     await interaction.reply({ embeds: [embed], ephemeral: secret });
   },
 }
+
+export default avatar

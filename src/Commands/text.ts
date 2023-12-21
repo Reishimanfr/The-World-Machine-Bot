@@ -14,7 +14,7 @@ interface ChainSettings {
   ignoredUsers: string[]
 }
 
-export default <Command>{
+const text: Command = {
   permissions: ['SendMessages'],
   data: new SlashCommandBuilder()
     .setName('text')
@@ -314,3 +314,5 @@ async function showConfig(interaction: ChatInputCommandInteraction, record: Mode
     components: []
   })
 }
+
+export default text

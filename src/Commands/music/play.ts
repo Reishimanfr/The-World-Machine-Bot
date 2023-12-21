@@ -22,7 +22,7 @@ const messages = {
   'TRACK_ADDED': '[ Track **{query}** added to the queue. ]'
 }
 
-export default <Command>{
+const play: Command = {
   permissions: ['Speak', 'SendMessages', 'Connect'],
   musicOptions: {
     requiresVc: true,
@@ -158,3 +158,5 @@ export default <Command>{
     player.settings ||= await combineConfig(interaction.guild.id)
   },
 }
+
+export default play

@@ -14,7 +14,6 @@ import {
 import { clipString } from "../Funcs/ClipString";
 import { fetchMember } from "../Funcs/FetchMember";
 import { starboardConfig, starboardEntries } from "../Models";
-import { config as botConfig } from "../config";
 import { log } from "./Logger";
 
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
@@ -184,8 +183,6 @@ class Starboard {
   }
 
   public async main(): Promise<unknown> {
-    if (botConfig.maintenance) return;
-
     // Fetch the reaction if it's partial
     const reaction = this.reaction.partial
       ? await this.reaction.fetch()

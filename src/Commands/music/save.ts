@@ -3,10 +3,8 @@ import { fetchMember } from "../../Funcs/FetchMember";
 import { SaveStatus } from "../../Helpers/PlayerController";
 import Command from "../../types/Command";
 
-export default <Command>{
+const save: Command = {
   permissions: [],
-  musicCommand: true,
-
   data: new SlashCommandBuilder()
     .setName("save")
     .setDescription("Saves the currently playing track to DMs"),
@@ -53,3 +51,5 @@ export default <Command>{
     }
   },
 }
+
+export default save

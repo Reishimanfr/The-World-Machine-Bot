@@ -7,7 +7,7 @@ function statElement(input: string): string {
   return `\`\`\`${input}\`\`\``
 }
 
-export default <Command>{
+const stats: Command = {
   permissions: ['SendMessages'],
 
   data: new SlashCommandBuilder()
@@ -64,3 +64,5 @@ export default <Command>{
     })
   }
 }
+
+export default stats
