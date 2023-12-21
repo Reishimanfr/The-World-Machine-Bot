@@ -1,7 +1,5 @@
 # Token for the bot to login with
-# botToken: MTA3MzYwNzg0NDI2NTQ3NjE1OA.GcrkkM.-Q82o2_kE_oTaRYuj9Kdj-lJ6bPa5_6P0uwSqo
-
-devBotToken: "your token here"
+botToken: "your token here"
 
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
