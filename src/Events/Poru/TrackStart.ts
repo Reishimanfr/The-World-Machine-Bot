@@ -18,7 +18,11 @@ const TrackStart: Event = {
     const guild = await client.guilds.fetch(player.guildId);
     const channel = await guild.channels?.fetch(player.textChannel);
 
-    if (!channel?.isTextBased()) return;
+    if (!channel?.isTextBased() || !client.user) return;
+
+    const permission = channel.permissionsFor(client.user.id)
+
+    if (!permission?.has('SendMessages')) return
 
     const buttons = builder.createPlayerButtons(false, { save: false });
     const embed = await builder.createPlayerEmbed();
@@ -39,14 +43,14 @@ const TrackStart: Event = {
       const firstMessage = messages.at(0)
 
       if (!firstMessage ||
-        firstMessage.author.id !== client.user!.id ||
+        firstMessage.author.id !== client.user.id ||
         !firstMessage.embeds.length ||
         !firstMessage.embeds.at(0)?.footer?.text.startsWith('Requested by')
       ) {
         const message = await player.message.fetch()
           .catch(() => null)
 
-        if (message && message.deletable) {
+        if (message?.deletable) {
           await message.delete()
         }
 

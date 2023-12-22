@@ -11,13 +11,11 @@ const QueueEnd: Event = {
   name: "queueEnd",
   once: false,
   execute: async (player: ExtPlayer) => {
-    const message = await player.message?.fetch()
-      .catch(() => null)
-
-    if (!message) return
-
     const builder = new MessageManager(player)
     const controller = new PlayerController(player)
+
+    // Set the player timeout
+    controller.setupPlayerTimeout()
 
     const embed = await builder.createPlayerEmbed()
     const buttons = builder.createPlayerButtons(true)
@@ -27,8 +25,10 @@ const QueueEnd: Event = {
       return await PlayerDestroy.execute(player, 'the queue ended.')
     }
 
-    // Set the player timeout
-    controller.setupPlayerTimeout()
+    const message = await player.message?.fetch()
+      .catch(() => null)
+
+    if (!message) return
 
     embed.setDescription(`${descriptionSplit?.[0] ?? ""}\n\n${constructProgressBar(1, 1)}\nSong ended.`);
     embed.setAuthor({
