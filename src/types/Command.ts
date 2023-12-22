@@ -1,4 +1,5 @@
 import {
+  AutocompleteInteraction,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionResolvable,
@@ -34,6 +35,7 @@ type Command = {
   }) => any;
   helpPage?: EmbedBuilder
   musicOptions?: MusicOptions
+  autocomplete?: (interaction: AutocompleteInteraction) => any
 };
 
 export default Command;

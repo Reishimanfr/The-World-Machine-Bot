@@ -14,6 +14,8 @@ const PlayerDestroy: Event = {
     const currentVcTime = record?.getDataValue('vcTime') ?? 0
     const currentSessions = record?.getDataValue('sessionCount') ?? 0
 
+    log.debug(player.timeInVc)
+
     if (!player.timeInVc) {
       player.timeInVc = 0
     }

@@ -1,5 +1,7 @@
-import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { ApplicationCommandOptionChoiceData, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import Queue from "poru/dist/src/guild/Queue";
+import { client } from "../..";
+import { fetchMember } from "../../Funcs/FetchMember";
 import { embedColor } from "../../Helpers/Util";
 import { config as botConfig } from "../../config";
 import Command from "../../types/Command";
@@ -52,6 +54,58 @@ const skipTo: Command = {
       ], ephemeral: true
     });
   },
+
+  autocomplete: async (interaction) => {
+    if (!interaction.guild) return
+
+    const player = client.poru.players.get(interaction.guild.id)
+    const queue = player?.queue
+
+    const member = await fetchMember(interaction.guild.id, interaction.user.id)
+
+    if (!member) return
+
+    if (!member.voice.channel?.id) {
+      return interaction.respond([
+        {
+          name: '❌ You must be in a voice channel to use this.',
+          value: -1
+        }
+      ])
+    }
+
+    if (member.voice.channel.id !== player?.voiceChannel) {
+      return interaction.respond([
+        {
+          name: '❌ You must be in the same voice channel to use this.',
+          value: -1
+        }
+      ])
+    }
+
+    if (!queue?.length) {
+      return interaction.respond([
+        {
+          name: '❌ There are no songs in the queue to skip to.',
+          value: -1
+        }
+      ])
+    }
+
+    let response: ApplicationCommandOptionChoiceData[] = []
+
+    for (let i = 0; i < queue.length; i++) {
+      if (i >= 25) break; // Discord limits autocomplete to 25 options
+      const part = queue[i]
+
+      response.push({
+        name: `${part.info.title} - ${part.info.author}`,
+        value: i + 1
+      })
+    }
+
+    return interaction.respond(response)
+  }
 }
 
 export default skipTo

@@ -3,10 +3,10 @@ import crypto from "node:crypto";
 import { fetchMember } from "../../Funcs/FetchMember";
 import { formatSeconds } from "../../Funcs/FormatSeconds";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { log } from "../../Helpers/Logger";
 import { embedColor } from "../../Helpers/Util";
 import { combineConfig } from "../../Helpers/config/playerSettings";
-import { playlists as playlistsDB } from "../../Models";
+import { playlists, playlists as playlistsDB } from "../../Models";
+import { config } from "../../config";
 import Command from "../../types/Command";
 
 function createEmbed(
@@ -15,8 +15,6 @@ function createEmbed(
   action: string
 ) {
   const name = interaction.options.getString('name', true)
-
-  log.debug(tracks)
 
   let mapTracks: string[] = []
   let totalLength = 0
@@ -80,7 +78,7 @@ const playlist: Command = {
         .setName('name')
         .setDescription('Name of the playlist to be removed')
         .setRequired(true)
-        .setAutocomplete(true)
+        .setAutocomplete(config.hostPlayerOptions.autocomplete)
       )
     )
     .addSubcommand(load => load
@@ -90,7 +88,7 @@ const playlist: Command = {
         .setName('name')
         .setDescription('Name of the playlist to be loaded')
         .setRequired(true)
-        .setAutocomplete(true)
+        .setAutocomplete(config.hostPlayerOptions.autocomplete)
       )
     ),
 
@@ -246,7 +244,7 @@ const playlist: Command = {
         await button.deferUpdate()
 
         if (button.customId === 'no') {
-          return interaction.reply({
+          return interaction.editReply({
             embeds: [],
             components: [],
             content: 'Keeping this playlist.'
@@ -393,6 +391,29 @@ const playlist: Command = {
         break
       }
     }
+  },
+
+  autocomplete: async (interaction) => {
+    const record = await playlists.findAll({
+      where: { userId: interaction.user.id }
+    })
+
+    const names = record.map(part => part.getDataValue('name'))
+
+    if (names.length < 1) {
+      return interaction.respond([{ name: '❌ You don\'t have any playlists saved.', value: 'nope' }])
+    }
+
+    let response: { name: string, value: string }[] = []
+    let idx = 0
+
+    for (const name of names) {
+      if (idx >= 25) break
+
+      response.push({ name, value: name })
+    }
+
+    interaction.respond(response)
   }
 }
 

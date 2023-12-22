@@ -7,7 +7,10 @@ import {
 } from "discord.js";
 import crypto from "node:crypto";
 import { Response, Track } from "poru";
+import { client } from "../..";
+import { clipString } from "../../Funcs/ClipString";
 import { fetchMember } from "../../Funcs/FetchMember";
+import { formatSeconds } from "../../Funcs/FormatSeconds";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import { MessageManager } from "../../Helpers/MessageManager";
 import { PlayerController } from "../../Helpers/PlayerController";
@@ -20,6 +23,12 @@ const messages = {
   'LOAD_FAILED': '[ Failed to load track **{query}**. ]',
   'NO_MATCHES': '[ No matches found for **{query}**. ]',
   'TRACK_ADDED': '[ Track **{query}** added to the queue. ]'
+}
+
+type TracksType = {
+  name: string,
+  value: string,
+  length?: number,
 }
 
 const play: Command = {
@@ -157,6 +166,65 @@ const play: Command = {
     player.sessionId ||= crypto.randomBytes(6).toString('hex')
     player.settings ||= await combineConfig(interaction.guild.id)
   },
+
+  autocomplete: async (interaction) => {
+    const query = interaction.options.getString('url-or-search', true)
+
+    if (!query.length) {
+      return interaction.respond([
+        {
+          name: '🔎 Start typing to show search options for spotify and youtube.',
+          value: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        }
+      ])
+    }
+
+    if (query.length >= 100) {
+      return interaction.respond([
+        {
+          name: '❌ This link is too large! (Discord limitation :<)',
+          value: 'autocomplete_no_user_input'
+        }
+      ])
+    }
+
+    if (query.startsWith('https://')) {
+      return interaction.respond([
+        {
+          name: `🔗 ${clipString({ string: query, maxLength: 90, sliceEnd: '...' })}`,
+          value: query
+        }
+      ])
+    }
+
+    const tracks: TracksType[] = [];
+
+    const resolveAndPush = async (source: string, prefix: string) => {
+      const resolve = await client.poru.resolve({ query: query, source: source });
+      const resolveTracks = resolve.tracks.slice(0, 5);
+
+      for (const track of resolveTracks) {
+        let trackString = `${prefix}: `;
+
+        trackString += `${track.info.title} - ${track.info.author}`;
+
+        if (trackString.length > 99) {
+          trackString = trackString.slice(0, 80) + '...'
+        }
+
+        trackString += ` - (${formatSeconds(track.info.length / 1000)})`;
+
+        tracks.push({ name: trackString.slice(0, 99), value: track.info.uri });
+      }
+    };
+
+    await Promise.all([
+      resolveAndPush("ytsearch", "🟥 Youtube"),
+      resolveAndPush("spsearch", "🟩 Spotify"),
+    ]);
+
+    return interaction.respond(tracks);
+  }
 }
 
 export default play
