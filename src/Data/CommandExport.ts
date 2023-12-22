@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Command from '../types/Command';
 
-const PATH = path.join(__dirname, '../commands');
+const PATH = path.join(__dirname, '../Commands');
 
 // Recursively find command files in a directory and its subdirectories
 const findCommands = (dir: string): Command[] => {
