@@ -189,7 +189,7 @@ const playlist: Command = {
 
       case 'remove': {
         const name = interaction.options.getString('name', true)
-        if (name === 'autocomplete_no_user_input') return
+        if (name === 'nope') return interaction.deferReply({ ephemeral: true }).then(_ => _.delete())
 
         const names: string[] = currentPlaylists.map(t => t.getDataValue('name'))
 
@@ -268,7 +268,7 @@ const playlist: Command = {
 
       case 'load': {
         const name = interaction.options.getString('name', true)
-        if (name === 'autocomplete_no_user_input') return
+        if (name === 'nope') return interaction.deferReply({ ephemeral: true }).then(_ => _.delete())
 
         const names: string[] = currentPlaylists.map(t => t.getDataValue('name'))
 
