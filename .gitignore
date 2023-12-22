@@ -1,12 +1,7 @@
 application.yml
 config.yml
-database.sqlite
 lavalink.jar
 node_modules
-yarn.lock
-yarn-error.log
-ignore
-.codiumai.local.toml
 jest.config.jest
 pnpm-lock.yaml
-token.env
+postgres.json

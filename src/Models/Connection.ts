@@ -1,18 +1,8 @@
 import { Sequelize } from "sequelize";
+import postgres from "../../postgres.json";
 
 const sequelize = new Sequelize({
-  host: 'localhost',
-  port: 5432,
-
-  username: 'postgres',
-  password: 'Basia2010',
-  database: 'twm-development-db',
-
-  dialect: 'postgres',
-  logging: false,
-  define: {
-    timestamps: false
-  }
+  ...postgres
 })
 
 sequelize.sync({ alter: true })
