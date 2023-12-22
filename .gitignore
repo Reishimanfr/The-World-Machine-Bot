@@ -9,3 +9,4 @@ ignore
 .codiumai.local.toml
 jest.config.jest
 pnpm-lock.yaml
+token.env

@@ -6,10 +6,10 @@ import {
   EmbedBuilder,
   SlashCommandBuilder
 } from "discord.js";
-import { queueHistory as queueHistoryDB } from "../../Data/DatabaseSchema";
 import { formatSeconds } from "../../Funcs/FormatSeconds";
 import { log } from "../../Helpers/Logger";
 import { embedColor } from "../../Helpers/Util";
+import { queueHistory as queueHistoryDB } from "../../Models";
 import Command from "../../types/Command";
 
 const queueHistory: Command = {
