@@ -22,8 +22,6 @@ My motivation behind it was that all the other music bots I used didn't really s
  <summary>Example config.yml file:</summary>
 
 ```yaml
-# This is a example configuration file for the bot. You can download it and fill out it's contents
-
 # Token for the bot to login with
 botToken: 'Insert your bot token here'
 
@@ -75,14 +73,14 @@ Message me on discord (@rei.shi) or [the support server](https://discord.gg/QGer
 
 Required:
 
-- [Lavalink](https://github.com/lavalink-devs/Lavalink) (I suggest ver. 3.7.8 since it worked best for me)
-- [Node.js](https://nodejs.org/en) (I suggest ver. 20.5.1)
-- A discord bot token, you can get one in the [Discord Developer Portal](https://discord.com/developers/applications)
+- A [Lavalink](https://github.com/lavalink-devs/Lavalink) server
+- [Node.js](https://nodejs.org/en)
+- A [discord bot token](https://discord.com/developers/applications)
 
 Optional:
 
 - [Tenor API token](https://tenor.com/developer/dashboard) (for the starboard to be able to embed tenor gifs)
-- [Spotify client & client secret](https://developer.spotify.com/documentation/web-api) (for playing songs from spotify using the music player)
+- [Spotify client & client secret](https://developer.spotify.com/documentation/web-api): [How to add spotify support](https://github.com/Reishimanfr/TWM-bot/wiki/%F0%9F%9F%A9-Adding-spotify-support) (Host only)
 - [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
 
 
