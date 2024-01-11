@@ -1,9 +1,9 @@
 ---
 name: Bug (Self-Hosting)
 about: 'Something happened while self-hosting this application '
-title: ''
-labels: ''
-assignees: ''
+title: 'Bug (Self-Host): '
+labels: Bus
+assignees: Reishimanfr
 
 ---
 
@@ -13,10 +13,15 @@ assignees: ''
 ## Steps to reproduce
 > "1. Click this... 2. Do that..."
 
-## What should happen instead?
+## What's your proposed solution?
 > " The command should notify users about the error"
 
 ## Screenshots (if applicable)
 > Provide additional context of what happens (if possible) 
 
-## Trace logs from your terminal
+## Provide logs from your terminal
+> If they're longer than 20 lines use a pasting service like [pastebin](https://pastebin.com/)
+
+
+## Additional context
+> Add any additional context you'd like
