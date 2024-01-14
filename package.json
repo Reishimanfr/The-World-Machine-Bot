@@ -11,7 +11,6 @@
     "axios": "^1.6.0",
     "discord.js": "^14.13.0",
     "js-yaml": "^4.1.0",
-    "markov-strings": "^3.0.1",
     "moment": "^2.29.4",
     "npm-run-all": "^4.1.5",
     "pg": "^8.11.3",
@@ -20,7 +19,6 @@
     "pino-pretty": "^10.2.3",
     "poru": "^4.2.2",
     "sequelize": "^6.33.0",
-    "sqlite3": "^5.1.7",
     "sucrase": "^3.34.0"
   },
   "devDependencies": {
