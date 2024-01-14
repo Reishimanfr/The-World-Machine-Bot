@@ -1,6 +1,6 @@
 import { ActivityType, Events } from "discord.js";
 import { ExtClient } from "../../Helpers/ExtendedClasses";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import Event from "../../types/Event";
 
 const Ready: Event = {
@@ -8,7 +8,7 @@ const Ready: Event = {
   once: true,
   execute: async (client: ExtClient) => {
     client.poru.init(client)
-    log.info(`${client.user?.username} is online.`);
+    logger.info(`${client.user?.username} is online.`);
 
     client.user?.setPresence({
       activities: [

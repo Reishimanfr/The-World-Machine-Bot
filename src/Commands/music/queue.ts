@@ -1,11 +1,14 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from "discord.js";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import Command from "../../types/Command";
 
-const queue: Command = {
-  permissions: [],
+const queue: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect'],
+    bot: ['Speak', 'Connect']
+  },
+
   musicOptions: {
-    requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true
   },
@@ -14,8 +17,8 @@ const queue: Command = {
     .setName("queue")
     .setDescription("Shows the queue"),
 
-  callback: async ({ interaction, queue }) => {
-    const embeds = queue.createQueueEmbed()
+  callback: async ({ interaction, player }) => {
+    const embeds = player.queueManager.createQueueEmbed()
 
     if (!embeds) {
       return interaction.reply({
@@ -27,6 +30,7 @@ const queue: Command = {
     if (embeds.length == 1) {
       return interaction.reply({
         embeds: [...embeds],
+        ephemeral: true
       });
     }
 
@@ -55,6 +59,7 @@ const queue: Command = {
         }),
       ],
       components: [components],
+      ephemeral: true
     });
 
     const collector = res.createMessageComponentCollector({
@@ -90,7 +95,7 @@ const queue: Command = {
       try {
         await interaction.editReply({ components: [newRow] });
       } catch (error) {
-        log.error(`Failed to remove buttons from player audit log message: ${error}`);
+        logger.error(`Failed to remove buttons from player audit log message: ${error}`);
       }
     });
   },

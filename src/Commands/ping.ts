@@ -2,7 +2,10 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import Command from '../types/Command';
 
 const ping: Command = {
-  permissions: ['SendMessages'],
+  permissions: {
+    user: ['SendMessages'],
+    bot: ['SendMessages']
+  },
 
   data: new SlashCommandBuilder()
     .setName('ping')

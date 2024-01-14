@@ -2,11 +2,13 @@ import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { embedColor } from "../../Helpers/Util";
 import Command from "../../types/Command";
 
-const remove: Command = {
-  permissions: [],
+const remove: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect'],
+    bot: ['Speak', 'Connect']
+  },
   musicOptions: {
     requiresDjRole: true,
-    requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true
   },
@@ -46,7 +48,7 @@ const remove: Command = {
       }
     }
 
-    const sortedPositions = positions.toSorted((a, b) => b - a)
+    const sortedPositions = positions.sort((a, b) => b - a)
 
     for (const position of sortedPositions) {
       if (position >= 1 && position <= queue.length) {

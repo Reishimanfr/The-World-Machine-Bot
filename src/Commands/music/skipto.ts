@@ -6,11 +6,14 @@ import { embedColor } from "../../Helpers/Util";
 import { config as botConfig } from "../../config";
 import Command from "../../types/Command";
 
-const skipTo: Command = {
-  permissions: ['Speak', 'Connect', 'SendMessages'],
+const skipTo: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect', 'SendMessages'],
+    bot: ['Speak', 'Connect', 'SendMessages']
+  },
+
   musicOptions: {
     requiresDjRole: true,
-    requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true
   },

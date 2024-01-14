@@ -3,6 +3,8 @@ import { Track } from "poru";
 import { formatSeconds } from "../Funcs/FormatSeconds";
 import { ExtPlayer } from "./ExtendedClasses";
 
+const ENTIRES_PER_PAGE = 6
+
 class QueueManager {
   private readonly player: ExtPlayer
 
@@ -18,7 +20,7 @@ class QueueManager {
 
     const linkedTitleAndAuthor = `\`${iteration}\`: **[${info.title} - ${info.author}](${info.uri})**`
 
-    return `${linkedTitleAndAuthor}\nAdded by <@${info.requester.id}> | Duration: \`${formatSeconds(info.length / 1000)}\``
+    return `${linkedTitleAndAuthor}\nAdded by <@${info.requester.id}> | Duration: \`${formatSeconds(info.length / 1000)}\`\n\n`
   }
 
   /**
@@ -38,14 +40,14 @@ class QueueManager {
     }
 
     // Split by 6 entries per page
-    if (queue.length > 6) {
-      for (let i = 0; i < entryStrings.length; i += 6) {
-        const slice = entryStrings.slice(i, i += 6)
+    if (queue.length > ENTIRES_PER_PAGE) {
+      for (let i = 0; i < entryStrings.length; i += ENTIRES_PER_PAGE) {
+        const slice = entryStrings.slice(i, i += ENTIRES_PER_PAGE)
 
         let description = ''
 
-        for (let j = 0; j < slice.length; j++) {
-          description += slice[j]
+        for (const part of slice) {
+          description += part
         }
 
         embeds.push(
@@ -60,8 +62,6 @@ class QueueManager {
 
     return embeds
   }
-
-
 }
 
 export { QueueManager };

@@ -1,11 +1,14 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-const loop: Command = {
-  permissions: [],
+const loop: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect'],
+    bot: ['Speak', 'Connect']  
+  },
+
   musicOptions: {
     requiresDjRole: true,
-    requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true
   },
@@ -21,12 +24,13 @@ const loop: Command = {
       'QUEUE': 'Looping the queue'
     }
 
-    await player.controller.toggleLoop()
+    player.controller.toggleLoop()
+    player.messageManger.updatePlayerMessage()
 
     interaction.reply({
       content: loopString[player.loop],
       ephemeral: true
-    });
+    })
   },
 }
 

@@ -8,7 +8,10 @@ function statElement(input: string): string {
 }
 
 const stats: Command = {
-  permissions: ['SendMessages'],
+  permissions: {
+    user: ['SendMessages'],
+    bot: ['SendMessages']
+  },
 
   data: new SlashCommandBuilder()
     .setName('stats')

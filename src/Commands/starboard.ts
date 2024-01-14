@@ -2,7 +2,6 @@ import {
   ActionRowBuilder,
   ComponentType,
   EmbedBuilder,
-  PermissionFlagsBits,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder
@@ -51,11 +50,14 @@ export const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
 
 
 const starboard: Command = {
-  permissions: ["EmbedLinks", "SendMessages", "ViewChannel"],
+  permissions: {
+    user: ['ManageGuild'],
+    bot: ['SendMessages', 'AttachFiles'],
+  },
+
   data: new SlashCommandBuilder()
-    .setName("starboard")
-    .setDescription("Configure the starboard to your liking")
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Make the commands visible only to admins
+    .setName("starboard-config")
+    .setDescription("Configure the starboard to your liking"),
 
   helpPage: new EmbedBuilder()
     .setDescription(`Configure the starboard feature.

@@ -3,7 +3,11 @@ import { embedColor } from '../Helpers/Util';
 import Command from '../types/Command';
 
 const avatar: Command = {
-  permissions: ['SendMessages', 'AttachFiles'],
+  permissions: {
+    user: ['SendMessages', 'AttachFiles'],
+    bot: ['SendMessages', 'AttachFiles']
+  },
+  
   data: new SlashCommandBuilder()
     .setName('avatar')
     .setDescription("Get a user's avatar")

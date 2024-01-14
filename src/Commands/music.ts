@@ -6,9 +6,13 @@ import Command from "../types/Command";
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold']
 
 const music: Command = {
-  permissions: ['SendMessages'],
+  permissions: {
+    user: ['ManageGuild'],
+    bot: ['SendMessages', 'AttachFiles']
+  },
+
   data: new SlashCommandBuilder()
-    .setName('music')
+    .setName('player-config')
     .setDescription('Configure music player options to your liking'),
 
   async callback({ interaction }) {

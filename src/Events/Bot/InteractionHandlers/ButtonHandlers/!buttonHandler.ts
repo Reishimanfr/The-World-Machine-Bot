@@ -10,11 +10,11 @@ import { skip } from './skip';
 import { togglePlayback } from './togglePlayback';
 
 export const buttonMap = {
-  showQueue: showQueue,
-  togglePlayback: togglePlayback,
-  skip: skip,
-  loop: loop,
-  save: save,
+  showQueue,
+  togglePlayback,
+  skip,
+  loop,
+  save,
 };
 
 export type ButtonFunc = (args: {

@@ -1,11 +1,15 @@
 import { ChannelType, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
 import { fetchMember } from "../Funcs/FetchMember";
-import { log } from "../Helpers/Logger";
+import { logger } from "../Helpers/Logger";
 import { embedColor } from "../Helpers/Util";
 import Command from "../types/Command";
 
 const welcome: Command = {
-  permissions: ['SendMessages', 'AttachFiles'],
+  permissions: {
+    user: ['SendMessages'],
+    bot: ['SendMessages']
+  },
+
   data: new SlashCommandBuilder()
     .setName('welcome')
     .setDescription('Re-send the bot welcome message.')
@@ -92,7 +96,7 @@ If you'd like to self-host the bot check out the [bot's wiki repository](https:/
       // terrible
       interaction.deferReply().then(_ => _.delete()).catch(() => { })
     } catch (error) {
-      log.error(`Failed to re-send welcome message: ${error.stack}`)
+      logger.error(`Failed to re-send welcome message: ${error.stack}`)
     }
   }
 }

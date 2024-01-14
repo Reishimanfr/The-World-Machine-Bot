@@ -37,12 +37,14 @@ function convertToSeconds(timestamp: string): number {
 }
 
 
-const seek: Command = {
-  permissions: ['Speak', 'Connect', 'SendMessages'],
+const seek: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect', 'SendMessages'],
+    bot: ['Speak', 'Connect', 'SendMessages'],
+  },
 
   musicOptions: {
     requiresDjRole: true,
-    requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true
   },

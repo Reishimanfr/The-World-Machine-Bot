@@ -7,13 +7,17 @@ import {
   SlashCommandBuilder
 } from "discord.js";
 import { formatSeconds } from "../../Funcs/FormatSeconds";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import { embedColor } from "../../Helpers/Util";
 import { queueHistory as queueHistoryDB } from "../../Models";
 import Command from "../../types/Command";
 
-const queueHistory: Command = {
-  permissions: [],
+const queueHistory: Command<true> = {
+  permissions: {
+    user: ['SendMessages'],
+    bot: ['SendMessages']
+  },
+
   data: new SlashCommandBuilder()
     .setName("queue-history")
     .setDescription("Shows the queue history of a session")
@@ -24,7 +28,6 @@ const queueHistory: Command = {
     ),
 
   musicOptions: {
-    requiresPlayer: false,
     requiresPlaying: false,
     requiresVc: false,
     requiresDjRole: false
@@ -169,7 +172,7 @@ const queueHistory: Command = {
       try {
         await interaction.editReply({ components: [newRow] });
       } catch (error) {
-        log.error(
+        logger.error(
           `Failed to remove buttons from player audit log message: ${error}`
         );
       }

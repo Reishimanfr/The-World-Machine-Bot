@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import { MessageManager } from "../../Helpers/MessageManager";
 import { inactiveGifUrl } from "../../Helpers/Util";
 import { botStats } from "../../Models";
@@ -14,7 +14,7 @@ const PlayerDestroy: Event = {
     const currentVcTime = record?.getDataValue('vcTime') ?? 0
     const currentSessions = record?.getDataValue('sessionCount') ?? 0
 
-    log.debug(player.timeInVc)
+    logger.debug(player.timeInVc)
 
     if (!player.timeInVc) {
       player.timeInVc = 0
@@ -58,7 +58,7 @@ const PlayerDestroy: Event = {
         components: [buttons]
       })
     } catch (error) {
-      log.error(`A error occurred while editing message after player destroy event: ${error.stack}`)
+      logger.error(`A error occurred while editing message after player destroy event: ${error.stack}`)
     }
   }
 }

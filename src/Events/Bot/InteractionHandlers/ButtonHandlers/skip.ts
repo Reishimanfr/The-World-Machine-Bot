@@ -27,6 +27,8 @@ export const skip: ButtonFunc = async ({ interaction, controller, player }) => {
   }
 
   if (status === VoteSkipStatus.OwnSkip) {
+    player.seekTo(99999999)
+
     return interaction.reply({
       content: 'Song skipped: Track requested by user that wants to skip.',
       ephemeral: true

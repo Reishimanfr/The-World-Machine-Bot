@@ -1,10 +1,10 @@
 import * as pino from "pino";
 
-const log = pino.default({
+const logger = pino.default({
   transport: {
     target: 'pino-pretty'
   },
   level: 'debug'
 })
 
-export { log };
+export { logger };

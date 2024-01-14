@@ -3,19 +3,19 @@ import fs from "fs";
 import path from "path";
 import { Poru } from "poru";
 import { ExtClient } from "./Helpers/ExtendedClasses";
-import { log } from "./Helpers/Logger";
+import { logger } from "./Helpers/Logger";
 import { config, poruNodes, poruOptions } from "./config";
 
-process.on("unhandledRejection", (reason, promise) => {
-  log.error(`An unhandled rejection occurred in the main process: Reason: ${reason}, Promise: ${promise}`);
+process.on("unhandledRejection", (reason) => {
+  logger.error(`An unhandled rejection occurred in the main process: Reason: ${reason}`);
 });
 
 process.on("uncaughtException", (error) => {
-  log.error(`An uncaught exception occurred in the main process: ${error}`);
+  logger.error(`An uncaught exception occurred in the main process: ${error}`);
 });
 
 process.on("uncaughtExceptionMonitor", (error) => {
-  log.error(`An uncaught exception monitor occurred in the main process: ${error}`);
+  logger.error(`An uncaught exception monitor occurred in the main process: ${error}`);
 });
 
 export const client = new ExtClient({
@@ -39,7 +39,7 @@ export const client = new ExtClient({
 try {
   client.poru = new Poru(client, poruNodes, poruOptions);
 } catch (error) {
-  log.error('Poru failed to collect to lavalink server.')
+  logger.error('Poru failed to collect to lavalink server.')
 }
 
 const poruEventPath = path.join(__dirname, "./Events/Poru");

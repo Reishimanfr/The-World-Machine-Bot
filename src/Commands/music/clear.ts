@@ -1,11 +1,14 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-const clear: Command = {
-  permissions: [],
+const clear: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect'],
+    bot: ['Speak', 'Connect']
+  },
+
   musicOptions: {
     requiresVc: true,
-    requiresPlayer: true,
     requiresDjRole: true
   },
 
@@ -21,7 +24,7 @@ const clear: Command = {
       });
     }
 
-    player.queue.length = 0;
+    player.queue.length = 0
 
     interaction.reply({
       content: 'Queue cleared.',

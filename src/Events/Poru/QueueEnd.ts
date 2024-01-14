@@ -1,6 +1,6 @@
 import constructProgressBar from "../../Funcs/ProgressBarConstructor";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import { MessageManager } from "../../Helpers/MessageManager";
 import { PlayerController } from "../../Helpers/PlayerController";
 import { inactiveGifUrl } from "../../Helpers/Util";
@@ -44,7 +44,7 @@ const QueueEnd: Event = {
         components: [buttons]
       });
     } catch (error) {
-      log.error(`Failed to update message on queue end: ${error}`);
+      logger.error(`Failed to update message on queue end: ${error}`);
     }
   },
 };

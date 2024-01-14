@@ -52,7 +52,10 @@ Tip: You can edit your existing playlists using the \`/playlist edit\` command.`
 }
 
 const playlist: Command = {
-  permissions: ['Speak', 'SendMessages', 'Connect'],
+  permissions: {
+    user: ['Speak', 'SendMessages', 'Connect'],
+    bot: ['Speak', 'SendMessages', 'Connect']
+  },
 
   data: new SlashCommandBuilder()
     .setName('playlist')
@@ -92,7 +95,7 @@ const playlist: Command = {
       )
     ),
 
-  callback: async ({ interaction, client, player }) => {
+  callback: async ({ interaction, client }) => {
     // Typeguard
     if (!interaction.guild) return
 
@@ -297,6 +300,8 @@ const playlist: Command = {
             ephemeral: true
           })
         }
+
+        let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
 
         if (!player) {
           player = client.poru.createConnection({

@@ -14,7 +14,7 @@ import {
 import { clipString } from "../Funcs/ClipString";
 import { fetchMember } from "../Funcs/FetchMember";
 import { starboardConfig, starboardEntries } from "../Models";
-import { log } from "./Logger";
+import { logger } from "./Logger";
 
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
 
@@ -46,8 +46,7 @@ class Starboard {
   ): string {
     return (
       (reactionEmoji.id
-        ? `<${reactionEmoji.animated ? "a" : ""}:${reactionEmoji.name}:${reactionEmoji.id
-        }>`
+        ? `<${reactionEmoji.animated ? "a" : ""}:${reactionEmoji.name}:${reactionEmoji.id}>`
         : this.reaction.emoji.name) ?? "Error!"
     );
   }
@@ -56,7 +55,7 @@ class Starboard {
     const content = reaction.message.content?.trim();
     const attachment = reaction.message.attachments?.at(0);
 
-    if (attachment && attachment.contentType !== null && AcceptedImages.includes(attachment.contentType)) {
+    if (attachment && AcceptedImages.includes(attachment.contentType ?? '')) {
       return attachment.url;
     }
 
@@ -100,7 +99,7 @@ class Starboard {
 
       return false;
     } catch (error) {
-      log.error(`Error checking URL ${url}: ${error}`);
+      logger.error(`Error checking URL ${url}: ${error}`);
       return false;
     }
   }
@@ -142,7 +141,7 @@ class Starboard {
 
       if (message.content) {
         contentString += message.content;
-      } else if (embed && embed.data.description) {
+      } else if (embed.data.description) {
         contentString += embed.data.description;
       } else if (message.attachments.size) {
         contentString = `=Message contains attachments (${message.attachments.size})=`;
@@ -164,7 +163,7 @@ class Starboard {
 
       if (reference.content) {
         referenceString += ` ${reference.content}`;
-      } else if (refEmbed && refEmbed.data.description) {
+      } else if (refEmbed.data.description) {
         referenceString += refEmbed.data.description;
       } else if (reference.attachments.size) {
         referenceString = ` =Message contains attachments (${reference.attachments.size})=`;
@@ -198,7 +197,7 @@ class Starboard {
     const config: ConfigOptions = record.dataValues
 
 
-    if (!config || !config?.boardId) return; // There is no config or configured channel
+    if (!config?.boardId) return; // There is no config or configured channel
     if (config.bannedChannels.includes(reaction.message.channelId)) return; // The channel is blacklisted
     if (reaction.message.channelId === config.boardId) return; // The reaction channel is the same as starboard channel
 
@@ -255,8 +254,8 @@ class Starboard {
           name: `Entry #${count == 0 ? 1 : count}`,
           iconURL: reaction.message.guild?.iconURL()!,
         })
-        .setColor(member?.roles.highest.color || null)
-        .setThumbnail(member?.displayAvatarURL({ extension: "png" }) || null)
+        .setColor(member?.roles.highest.color ?? null)
+        .setThumbnail(member?.displayAvatarURL({ extension: "png" }) ?? null)
         .setDescription(reactionStrings.join(" • "))
         .addFields(fields)
         .setImage(embedImage)
@@ -284,7 +283,7 @@ class Starboard {
         await starboardEntries.create(data);
 
       } catch (error) {
-        log.error(`Failed to send starboard message: ${error.stack}`);
+        logger.error(`Failed to send starboard message: ${error.stack}`);
       }
     } else if (entryMessage) {
       const embed = EmbedBuilder.from(entryMessage.embeds.at(0)!)
@@ -293,7 +292,7 @@ class Starboard {
       try {
         await entryMessage.edit({ embeds: [embed] });
       } catch (error) {
-        log.error(`Failed to update starboard message: ${error.stack}`);
+        logger.error(`Failed to update starboard message: ${error.stack}`);
       }
     }
   }

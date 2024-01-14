@@ -5,7 +5,7 @@
     "lavalink": "java -jar lavalink.jar",
     "start:parallel": "npm-run-all --parallel start lavalink",
     "deploy": "sucrase-node src/Data/DeployCommands.ts",
-    "test": "pnpm ts-jest"
+    "test:database": "sucrase-node src/Models/Connection.ts"
   },
   "dependencies": {
     "axios": "^1.6.0",
@@ -20,6 +20,7 @@
     "pino-pretty": "^10.2.3",
     "poru": "^4.2.2",
     "sequelize": "^6.33.0",
+    "sqlite3": "^5.1.7",
     "sucrase": "^3.34.0"
   },
   "devDependencies": {

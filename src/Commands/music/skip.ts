@@ -4,10 +4,13 @@ import {
 import { VoteSkipStatus } from "../../Helpers/PlayerController";
 import Command from "../../types/Command";
 
-const skip: Command = {
-  permissions: ['Speak', 'Connect', 'SendMessages'],
+const skip: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect', 'SendMessages'],
+    bot: ['Speak', 'Connect', 'SendMessages']
+  },
+
   musicOptions: {
-    requiresPlayer: true,
     requiresPlaying: true,
     requiresVc: true
   },

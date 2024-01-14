@@ -2,14 +2,14 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ChatInputCommandInteraction,
   ComponentType,
   SlashCommandBuilder
 } from "discord.js";
 import crypto from "node:crypto";
-import { Response, Track } from "poru";
+import { LavalinkResponse } from "poru";
 import { client } from "../..";
 import { clipString } from "../../Funcs/ClipString";
-import { fetchMember } from "../../Funcs/FetchMember";
 import { formatSeconds } from "../../Funcs/FormatSeconds";
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
 import { MessageManager } from "../../Helpers/MessageManager";
@@ -31,8 +31,56 @@ type TracksType = {
   length?: number,
 }
 
+async function loadPlaylist(interaction: ChatInputCommandInteraction, player: ExtPlayer, result: LavalinkResponse) {
+  const buttons = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId('load')
+        .setLabel(`Load ${result.tracks.length} tracks`)
+        .setEmoji('✅')
+        .setStyle(ButtonStyle.Primary),
+
+      new ButtonBuilder()
+        .setCustomId('discard')
+        .setLabel('Discard playlist')
+        .setEmoji('❌')
+        .setStyle(ButtonStyle.Secondary)
+    )
+
+  const response = await interaction.reply({
+    content: `A playlist was found. Do you want to load it?`,
+    components: [buttons],
+    ephemeral: true
+  })
+
+  const button = await response.awaitMessageComponent({
+    componentType: ComponentType.Button,
+  })
+
+  await button.deferUpdate()
+
+  if (button.customId == 'load') {
+    interaction.editReply({
+      content: `**${result.tracks.length}** tracks added to the queue.`,
+      components: []
+    })
+
+    player.controller.loadPlaylist(result)
+    return
+  }
+
+  interaction.editReply({
+    content: 'Playlist discarded.',
+    components: []
+  })
+}
+
 const play: Command = {
-  permissions: ['Speak', 'SendMessages', 'Connect'],
+  permissions: {
+    user: ['Speak', 'SendMessages', 'Connect'],
+    bot: ['Speak', 'SendMessages', 'Connect']
+  },
+
   musicOptions: {
     requiresVc: true,
     requiresDjRole: true
@@ -48,26 +96,14 @@ const play: Command = {
       .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
     ),
 
-  callback: async ({ interaction, player, client }) => {
-    // typeguard
+  callback: async ({ interaction, client }) => {
+    // Typeguard
     if (!interaction.guild || !interaction.channel) return
-    const member = await fetchMember(interaction.guild.id, interaction.user.id)
 
-    if (!member) {
-      return interaction.reply({
-        content: 'Cannot create connection: member fetch failed.',
-        ephemeral: true
-      })
-    }
-
-    if (!member.voice.channel) {
-      return interaction.reply({
-        content: 'You must be in a voice channel to use this.',
-        ephemeral: true
-      })
-    }
+    const member = await interaction.guild.members.fetch(interaction.user.id)
 
     let query = interaction.options.getString("url-or-search", true);
+    let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
 
     if (query == 'autocomplete_no_user_input') {
       query = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -76,88 +112,46 @@ const play: Command = {
     if (!player) {
       player = client.poru.createConnection({
         guildId: interaction.guild.id,
-        voiceChannel: member.voice.channel.id,
+        voiceChannel: member.voice.channel!.id, // This cannot be undefined since the user is in a voice channel (as per the requiresVc check)
         textChannel: interaction.channel.id,
         deaf: true,
         mute: false,
-      }) as ExtPlayer;
+      }) as ExtPlayer
 
       // Audio quality is best on this setting
       player.setVolume(75)
     }
 
     // Initialize helper classes
-    player.controller = new PlayerController(player)
-    player.messageManger = new MessageManager(player)
-    player.queueManager = new QueueManager(player)
+    player.controller ||= new PlayerController(player)
+    player.messageManger ||= new MessageManager(player)
+    player.queueManager ||= new QueueManager(player)
+
+    console.log(player.controller)
 
     const [loadType, data] = await player.controller
       .resolveQueryOrUrl(query, interaction.user)
 
-    if (['LOAD_FAILED', 'NO_MATCHES'].includes(loadType)) {
-      // Select a message string depending on the loadType and replace 
-      // {query} with the actual query
-      return interaction.reply({
-        content: messages[loadType].replace('{query}', query),
-        ephemeral: true
-      })
-    }
-
-    if (loadType == 'TRACK_LOADED') {
-      // Type assertion since the track was loaded and returned
-      const track = data as Track
-
-      await interaction.reply({
-        content: `Track **${track.info.title}** added to the queue.`,
-        ephemeral: true
-      })
-    }
-
-    if (loadType == 'PLAYLIST_LOADED') {
-      const { tracks } = data as Response
-
-      const buttons = new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(
-          new ButtonBuilder()
-            .setCustomId('load')
-            .setLabel(`Load ${tracks.length} tracks`)
-            .setEmoji('✅')
-            .setStyle(ButtonStyle.Primary),
-
-          new ButtonBuilder()
-            .setCustomId('discard')
-            .setLabel('Discard playlist')
-            .setEmoji('❌')
-            .setStyle(ButtonStyle.Secondary)
-        )
-
-      const response = await interaction.reply({
-        content: `A playlist was found. Do you want to load it?`,
-        components: [buttons],
-        ephemeral: true
-      })
-
-      const button = await response.awaitMessageComponent({
-        componentType: ComponentType.Button,
-        time: 60000
-      })
-
-      await button.deferUpdate()
-      if (!button) return
-
-      if (button.customId == 'load') {
-        const response = data as Response
-
-        interaction.editReply({
-          content: `**${response.tracks.length}** tracks added to the queue.`,
-        })
-
-        await player.controller.loadPlaylist(response)
-      } else {
-        interaction.editReply({
-          content: 'Playlist discarded.'
+    switch (loadType) {
+      case 'LOAD_FAILED':
+      case 'NO_MATCHES': {
+        return interaction.reply({
+          content: messages[loadType].replace('{query}', query),
+          ephemeral: true
         })
       }
+
+      case 'TRACK_LOADED': {
+        const track = data.tracks[0]
+
+        await interaction.reply({
+          content: `Track **${track.info.title}** added to the queue.`,
+          ephemeral: true
+        })
+        break
+      }
+
+      case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
     }
 
     if (player.isConnected && !player.isPlaying) player.play()
@@ -191,13 +185,13 @@ const play: Command = {
     if (query.startsWith('https://')) {
       return interaction.respond([
         {
-          name: `🔗 ${clipString({ string: query, maxLength: 90, sliceEnd: '...' })}`,
+          name: `🔗 Load url: ${clipString({ string: query, maxLength: 85, sliceEnd: '...' })}`,
           value: query
         }
       ])
     }
 
-    const tracks: TracksType[] = [];
+    const tracks: Array<TracksType> = [];
 
     const resolveAndPush = async (source: string, prefix: string) => {
       const resolve = await client.poru.resolve({ query: query, source: source });

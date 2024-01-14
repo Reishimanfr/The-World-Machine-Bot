@@ -9,7 +9,10 @@ const featurePages = {
 }
 
 const help: Command = {
-  permissions: ['SendMessages', 'AttachFiles'],
+  permissions: {
+    user: [],
+    bot: ['SendMessages', 'AttachFiles']
+  },
 
   data: new SlashCommandBuilder()
     .setName('help')

@@ -1,5 +1,5 @@
 import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import { MessageManager } from "../../Helpers/MessageManager";
 import Event from "../../types/Event";
 
@@ -28,7 +28,7 @@ const PlayerUpdate: Event = {
         components: [row],
       });
     } catch (error) {
-      log.error(`Failed to update player song state embed in guild ${player.message?.guildId}: ${error}`);
+      logger.error(`Failed to update player song state embed in guild ${player.message?.guildId}: ${error}`);
     }
   },
 };

@@ -1,9 +1,9 @@
 import { ButtonFunc } from './!buttonHandler';
 
-export const togglePlayback: ButtonFunc = async ({ controller, builder, interaction }) => {
+export const togglePlayback: ButtonFunc = async ({ interaction, player }) => {
   Promise.all([
     interaction.deferUpdate(),
-    controller.togglePlayback(),
-    builder.updatePlayerMessage()
+    player.controller.togglePlayback(),
+    player.messageManger.updatePlayerMessage()
   ])
 };

@@ -1,11 +1,14 @@
 import { SlashCommandBuilder } from "discord.js";
 import Command from "../../types/Command";
 
-const pause: Command = {
-  permissions: [],
+const pause: Command<true> = {
+  permissions: {
+    user: ['Speak', 'Connect'],
+    bot: ['Speak', 'Connect']
+  },
+
   musicOptions: {
     requiresDjRole: true,
-    requiresPlayer: true,
     requiresVc: true
   },
 
@@ -14,12 +17,13 @@ const pause: Command = {
     .setDescription("Toggles playback of the player"),
 
   callback: async ({ interaction, player }) => {
-    await player.controller.togglePlayback()
+    player.controller.togglePlayback()
+    player.messageManger.updatePlayerMessage()
 
     interaction.reply({
       content: player.isPaused ? "Paused" : "Resumed",
       ephemeral: true
-    });
+    })
   },
 }
 

@@ -11,30 +11,40 @@ import { MessageManager } from '../Helpers/MessageManager';
 import { PlayerController } from '../Helpers/PlayerController';
 import { QueueManager } from '../Helpers/QueueManager';
 
-export interface MusicOptions {
+interface MusicOptions {
   /** Must be in a voice channel to be used */
   requiresVc?: boolean;
   /** Must be playing music to use */
   requiresPlaying?: boolean;
-  /** Must be active player to use */
-  requiresPlayer?: boolean;
   /** Must have the DJ role to use */
   requiresDjRole?: boolean;
 }
 
-type Command = {
+interface Args<T> {
+  interaction: ChatInputCommandInteraction;
+  client: ExtClient;
+  player: T extends true ? ExtPlayer : null;
+  message: T extends true ? MessageManager : null;
+  controller: T extends true ? PlayerController : null;
+  queue: T extends true ? QueueManager : null;
+}
+
+type Command<requirePlayer = false> = {
+  // Command data
   data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder
-  permissions: PermissionResolvable[] | null
-  callback: (args: {
-    interaction: ChatInputCommandInteraction
-    client: ExtClient
-    player: ExtPlayer
-    message: MessageManager
-    controller: PlayerController
-    queue: QueueManager
-  }) => any;
+
   helpPage?: EmbedBuilder
+  
+  // Permissions
+  permissions: {
+    user?: Array<PermissionResolvable>
+    bot?: Array<PermissionResolvable>
+  }
+
   musicOptions?: MusicOptions
+
+  // Callback functions
+  callback: (args: Args<requirePlayer>) => any
   autocomplete?: (interaction: AutocompleteInteraction) => any
 };
 

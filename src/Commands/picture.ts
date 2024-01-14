@@ -18,7 +18,11 @@ async function getImage(link: string) {
 }
 
 const picture: Command = {
-  permissions: ['SendMessages', 'AttachFiles'],
+  permissions: {
+    user: ['SendMessages', 'AttachFiles'],
+    bot: ['SendMessages', 'AttachFiles']
+  },
+  
   data: new SlashCommandBuilder()
     .setName('picture')
     .setDescription('Get a random picture of a selected animal')

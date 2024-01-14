@@ -1,12 +1,12 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, Guild, GuildMember, User } from "discord.js";
-import { LoadType, Response, Track } from "poru";
+import { LavalinkResponse, LoadType, Response } from "poru";
 import { setTimeout as timeout } from "timers/promises";
 import { fetchMember } from "../Funcs/FetchMember";
 import { formatSeconds } from "../Funcs/FormatSeconds";
 import { botStats } from "../Models";
 import { config } from "../config";
 import { ExtPlayer } from "./ExtendedClasses";
-import { log } from "./Logger";
+import { logger } from "./Logger";
 import { MessageManager } from "./MessageManager";
 import { embedColor, inactiveGifUrl } from "./Util";
 
@@ -45,20 +45,18 @@ class PlayerController {
    * Toggles the player playback
    * @param override Set a override to ignore toggling and instead set the value to override 
    */
-  public async togglePlayback(override?: boolean) {
+  public togglePlayback(override?: boolean) {
     if (override !== undefined) {
       this.player.pause(override)
     } else {
       this.player.pause(!this.player.isPaused)
     }
-
-    await this.messageManager.updatePlayerMessage()
   }
 
   /**
    * Resolves a search query or url and appends the result if it's a track or search result
    */
-  public async resolveQueryOrUrl(query: string, requester: GuildMember | User): Promise<[LoadType, Track | Response]> {
+  public async resolveQueryOrUrl(query: string, requester: GuildMember | User): Promise<[LoadType, Response]> {
     const result = await this.player.poru.resolve({
       query: query,
       source: 'ytsearch',
@@ -75,7 +73,7 @@ class PlayerController {
       const track = result.tracks[0]
 
       this.player.queue.add(track)
-      return [loadType, track]
+      return [loadType, result]
     }
 
     // ['LOAD_FAILED', 'NO_MATCHES', 'PLAYLIST_LOADED']
@@ -85,7 +83,7 @@ class PlayerController {
   /**
    * Adds all songs from a playlist to the player queue
    */
-  public async loadPlaylist(result: Response) {
+  public async loadPlaylist(result: LavalinkResponse) {
     if (result.loadType !== 'PLAYLIST_LOADED') {
       throw new Error(`Expected PLAYLIST_LOADED load type, got ${result.loadType} instead.`)
     }
@@ -144,7 +142,7 @@ class PlayerController {
    * Toggles the current player loop 
    * @param override 
    */
-  public async toggleLoop(override?: 'NONE' | 'QUEUE' | 'TRACK') {
+  public toggleLoop(override?: 'NONE' | 'QUEUE' | 'TRACK') {
     const currentLoop = this.player.loop
 
     if (override) {
@@ -158,8 +156,6 @@ class PlayerController {
       // Type not exported from poru :( )
       this.player.setLoop(nextLoop as any)
     }
-
-    await this.messageManager.updatePlayerMessage()
   }
 
   /**
@@ -292,7 +288,7 @@ class PlayerController {
       components: [buttonsRow]
     })
 
-    log.debug(`Required votes: ${requiredVotes}`)
+    logger.debug(`Required votes: ${requiredVotes}`)
     const collector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
       time: 60000,
@@ -318,7 +314,7 @@ class PlayerController {
         return
       }
 
-      log.debug(`CustomId: ${collected.customId}`)
+      logger.debug(`CustomId: ${collected.customId}`)
       // Increment the votes by 1
       if (collected.customId === 'yes') votes += 1
 
@@ -340,9 +336,9 @@ Expires <t:${timestamp}:R> ]`)
     collector.on('end', async (_, reason) => {
       const success = (votes >= requiredVotes)
 
-      log.debug(`${votes}, ${requiredVotes}`)
-      log.debug(`Vote skip status: ${success}`)
-      log.debug(`Reason: ${reason}`)
+      logger.debug(`${votes}, ${requiredVotes}`)
+      logger.debug(`Vote skip status: ${success}`)
+      logger.debug(`Reason: ${reason}`)
 
       if (reason === 'limit') reason = 'Enough votes collected'
       if (reason === 'time') reason = 'Voting time over'
@@ -376,7 +372,7 @@ Expires <t:${timestamp}:R> ]`)
         await timeout(25000)
         await response.delete()
       } catch (error) {
-        log.error(error, 'A error occurred while finishing a vote skip')
+        logger.error(error, 'A error occurred while finishing a vote skip')
       }
     })
   }

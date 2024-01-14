@@ -1,7 +1,7 @@
 import { ButtonInteraction, EmbedBuilder } from 'discord.js';
 import { client } from '../../..';
 import { ExtPlayer } from '../../../Helpers/ExtendedClasses';
-import { log } from '../../../Helpers/Logger';
+import { logger } from '../../../Helpers/Logger';
 import { MessageManager } from '../../../Helpers/MessageManager';
 import { PlayerController } from '../../../Helpers/PlayerController';
 import { QueueManager } from '../../../Helpers/QueueManager';
@@ -78,7 +78,7 @@ const Button = async (interaction: ButtonInteraction) => {
     try {
       await handler(args);
     } catch (error) {
-      log.error(`Failed to process button ${interaction.customId}: ${error}`);
+      logger.error(`Failed to process button ${interaction.customId}: ${error}`);
     }
   }
 };

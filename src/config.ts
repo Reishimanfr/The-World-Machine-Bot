@@ -2,10 +2,10 @@ import fs from "fs";
 import yaml from "js-yaml";
 import path from "path";
 import { NodeGroup, PoruOptions } from "poru";
-import { log } from "./Helpers/Logger";
+import { logger } from "./Helpers/Logger";
 
 if (!fs.existsSync("config.yml")) {
-  log.error("Unable to find the config.yml file. Please copy the default configuration file from the github page and place it in the root directory.");
+  logger.error("Unable to find the config.yml file. Please copy the default configuration file from the github page and place it in the root directory.");
   process.exit(1);
 }
 
@@ -51,7 +51,7 @@ const config = {
     /** Should the bot disconnect from the voice channel after being inactive for {playerTimeout} minutes? */
     enablePlayerTimeout: configFile.player.enablePlayerTimeout as boolean ?? true,
     /** Time after which the bot will be automatically disconnected from the voice channel (in minutes). 0 - disable */
-    playerTimeout: configFile.player.playerTimeout as number ?? 10,
+    playerTimeout: configFile.player.playerTimeout as number ?? 5,
   }
 };
 
@@ -59,16 +59,16 @@ export type BotConfig = typeof config
 export type PlayerSettings = typeof config.player
 
 if (config.botToken === '' && config.devBotToken === '') {
-  log.error(`Provide a bot token in the config.yml file located in the root of the folder!`);
+  logger.error(`Provide a bot token in the config.yml file located in the root of the folder!`);
   process.exit(1);
 }
 
 if (!config.apiKeys.steam) {
-  log.warn("You haven't provided a steam API key. The /tf2 command will NOT work!");
+  logger.warn("You haven't provided a steam API key. The /tf2 command will NOT work!");
 }
 
 if (!config.apiKeys.tenor) {
-  log.warn("You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!");
+  logger.warn("You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!");
 }
 
 const poruOptions: PoruOptions = {

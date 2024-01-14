@@ -104,7 +104,7 @@ function createStatField(name: string, overall: number, max: number) {
   return {
     name: name,
     value: `> **Overall** ${overall ?? 0}\n> **Max** ${max ?? 0}`,
-    inline: name == 'Playtime' ? false : true,
+    inline: name === 'Playtime',
   };
 }
 
@@ -143,12 +143,18 @@ function generateEmbed(tf2Data, playerClass, profileData, command) {
 }
 
 const tf2: Command = {
-  permissions: ['SendMessages', 'AttachFiles'],
+  permissions: {
+    user: ['SendMessages'],
+    bot: ['SendMessages', 'AttachFiles'],
+  },
+
   data: new SlashCommandBuilder()
     .setName('tf2')
     .setDescription('Get tf2 stats for a player')
-    .addStringOption((id_option) =>
-      id_option.setName('steam-id-or-url').setDescription('Steam ID or profile url of user').setRequired(true),
+    .addStringOption((id_option) => id_option
+      .setName('steam-id-or-url')
+      .setDescription('Steam ID or profile url of user')
+      .setRequired(true),
     ),
 
   callback: async ({ interaction }) => {

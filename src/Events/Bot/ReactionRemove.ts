@@ -1,5 +1,5 @@
 import { Events } from "discord.js";
-import { log } from "../../Helpers/Logger";
+import { logger } from "../../Helpers/Logger";
 import Mutex from "../../Helpers/Mutex";
 import Starboard from "../../Helpers/StarboardHelpers";
 import Event from "../../types/Event";
@@ -15,7 +15,7 @@ const ReactionRemove: Event = {
     try {
       await new Starboard(reaction).main();
     } catch (error) {
-      log.error(error);
+      logger.error(error);
     } finally {
       mutex.unlock()
     }
