@@ -5,7 +5,7 @@
 
 # 
 > [!CAUTION]
-> This repo is still work in progress, most of the information is missing or outdated<br>
+> This repo is still work in progress, some stuff may be outdated (don't hesitate to ask me about it!)<br>
 
 ## ℹ️ General info
 
