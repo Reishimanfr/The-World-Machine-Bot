@@ -76,6 +76,7 @@ Required:
 - A [Lavalink](https://github.com/lavalink-devs/Lavalink) server
 - [Node.js](https://nodejs.org/en)
 - A [discord bot token](https://discord.com/developers/applications)
+- A [postgres](https://www.postgresql.org/) database (Soon to be optional
 
 Optional:
 
