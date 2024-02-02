@@ -16,6 +16,7 @@ export class ExtPlayer extends Player {
   private $timeout: NodeJS.Timeout | null;
   private $settings: PlayerSettings;
   private $timeInVc: number = 0;
+  private $voteSkipActive = false
 
   // Managers
   public messageManger: MessageManager
@@ -68,5 +69,13 @@ export class ExtPlayer extends Player {
 
   set timeInVc(time: number) {
     this.$timeInVc = time
+  }
+
+  get voteSkipActive() {
+    return this.$voteSkipActive
+  }
+
+  set voteSkipActive(bool: boolean) {
+    this.$voteSkipActive = bool
   }
 }

@@ -1,30 +1,30 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, Guild, GuildMember, User } from "discord.js";
-import { LavalinkResponse, LoadType, Response } from "poru";
-import { setTimeout as timeout } from "timers/promises";
-import { fetchMember } from "../Funcs/FetchMember";
-import { formatSeconds } from "../Funcs/FormatSeconds";
-import { botStats } from "../Models";
-import { config } from "../config";
-import { ExtPlayer } from "./ExtendedClasses";
-import { logger } from "./Logger";
-import { MessageManager } from "./MessageManager";
-import { embedColor, inactiveGifUrl } from "./Util";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, type ButtonInteraction, type ChatInputCommandInteraction, type Guild, type GuildMember, type User } from 'discord.js'
+import { type LavalinkResponse, type LoadType, type Response } from 'poru'
+import { setTimeout as timeout } from 'timers/promises'
+import { fetchMember } from '../Funcs/FetchMember'
+import { formatSeconds } from '../Funcs/FormatSeconds'
+import { botStats } from '../Models'
+import { config } from '../config'
+import { type ExtPlayer } from './ExtendedClasses'
+import { logger } from './Logger'
+import { MessageManager } from './MessageManager'
+import { embedColor, inactiveGifUrl } from './Util'
 
 export enum SaveStatus {
-  "DmChannelFailure",
-  "NotPlaying",
-  "Success"
+  'DmChannelFailure',
+  'NotPlaying',
+  'Success'
 }
 
 export enum VoteSkipStatus {
-  "Disabled",
-  "LoopingEnabled",
-  "Error",
-  "Success",
-  "NotPlaying",
-  "UnmetCondition",
-  "Failed",
-  "OwnSkip"
+  'Disabled',
+  'LoopingEnabled',
+  'Error',
+  'Success',
+  'NotPlaying',
+  'UnmetCondition',
+  'Failed',
+  'OwnSkip'
 }
 
 class PlayerController {
@@ -36,16 +36,16 @@ class PlayerController {
     soundcloud: '<:soundcloud:1171916943192752199>'
   }
 
-  constructor(player: ExtPlayer) {
+  constructor (player: ExtPlayer) {
     this.player = player
     this.messageManager = new MessageManager(player)
   }
 
   /**
    * Toggles the player playback
-   * @param override Set a override to ignore toggling and instead set the value to override 
+   * @param override Set a override to ignore toggling and instead set the value to override
    */
-  public togglePlayback(override?: boolean) {
+  public togglePlayback (override?: boolean) {
     if (override !== undefined) {
       this.player.pause(override)
     } else {
@@ -56,14 +56,14 @@ class PlayerController {
   /**
    * Resolves a search query or url and appends the result if it's a track or search result
    */
-  public async resolveQueryOrUrl(query: string, requester: GuildMember | User): Promise<[LoadType, Response]> {
+  public async resolveQueryOrUrl (query: string, requester: GuildMember | User): Promise<[LoadType, Response]> {
     const result = await this.player.poru.resolve({
-      query: query,
+      query,
       source: 'ytsearch',
       requester: {
         username: requester.displayName,
         id: requester.id,
-        avatar: requester.displayAvatarURL(),
+        avatar: requester.displayAvatarURL()
       }
     })
 
@@ -83,7 +83,7 @@ class PlayerController {
   /**
    * Adds all songs from a playlist to the player queue
    */
-  public async loadPlaylist(result: LavalinkResponse) {
+  public async loadPlaylist (result: LavalinkResponse) {
     if (result.loadType !== 'PLAYLIST_LOADED') {
       throw new Error(`Expected PLAYLIST_LOADED load type, got ${result.loadType} instead.`)
     }
@@ -108,12 +108,12 @@ class PlayerController {
   /**
    * Sets up a player timeout that destroys the player after 10 seconds unless cancelled
    */
-  public async setupPlayerTimeout() {
+  public async setupPlayerTimeout () {
     // Player timeout set in config.yml converted to minutes
     const playerTimeout = config.hostPlayerOptions.playerTimeout * 60 * 1000
 
     // Returns if the playerTimeout is set to 0 or less
-    if (playerTimeout <= 0) return;
+    if (playerTimeout <= 0) return
 
     // Creates a timeout and binds it to the player.timeout property
     this.player.timeout = setTimeout(async () => {
@@ -139,10 +139,10 @@ class PlayerController {
   }
 
   /**
-   * Toggles the current player loop 
-   * @param override 
+   * Toggles the current player loop
+   * @param override
    */
-  public toggleLoop(override?: 'NONE' | 'QUEUE' | 'TRACK') {
+  public toggleLoop (override?: 'NONE' | 'QUEUE' | 'TRACK') {
     const currentLoop = this.player.loop
 
     if (override) {
@@ -161,7 +161,7 @@ class PlayerController {
   /**
    * Cancels a pending player timeout
    */
-  public async cancelPlayerTimeout() {
+  public cancelPlayerTimeout (): void {
     if (!this.player.timeout) return
 
     clearTimeout(this.player.timeout)
@@ -172,7 +172,7 @@ class PlayerController {
   /**
    * Sends the currently playing track to user's dms
    */
-  public async saveTrack(user: GuildMember, guild: Guild): Promise<SaveStatus> {
+  public async saveTrack (user: GuildMember, guild: Guild): Promise<SaveStatus> {
     if (!this.player.isPlaying) return SaveStatus.NotPlaying
 
     const info = this.player.currentTrack.info
@@ -215,7 +215,7 @@ class PlayerController {
   /**
    * Invokes a vote to skip the currently playing song
    */
-  public async invokeVoteSkip(interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<VoteSkipStatus | undefined> {
+  public async invokeVoteSkip (interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<VoteSkipStatus | undefined> {
     // Typeguard
     if (!interaction.guild) return VoteSkipStatus.Error
 
@@ -251,16 +251,16 @@ class PlayerController {
     // Invoke the vote skip if all conditions are met
     const buttons: ButtonBuilder[] = [
       new ButtonBuilder()
-        .setCustomId("yes")
-        .setEmoji("✅")
-        .setLabel("Skip!")
+        .setCustomId('yes')
+        .setEmoji('✅')
+        .setLabel('Skip!')
         .setStyle(ButtonStyle.Primary),
 
       new ButtonBuilder()
-        .setCustomId("no")
-        .setEmoji("❌")
+        .setCustomId('no')
+        .setEmoji('❌')
         .setLabel("Don't skip!")
-        .setStyle(ButtonStyle.Primary),
+        .setStyle(ButtonStyle.Primary)
     ]
 
     const buttonsRow = new ActionRowBuilder<ButtonBuilder>()
@@ -270,13 +270,13 @@ class PlayerController {
     const timestamp = Math.trunc(Date.now() / 1000 + 65)
 
     // Including the person that initiated the voting
-    let votes = 1;
-    let votedUsers: string[] = [interaction.user.id]
+    let votes = 1
+    const votedUsers: string[] = [interaction.user.id]
 
     const embed = new EmbedBuilder()
       .setAuthor({
         name: `${interaction.user.username} wants to skip the current song`,
-        iconURL: interaction.user.displayAvatarURL(),
+        iconURL: interaction.user.displayAvatarURL()
       })
       .setDescription(
         `[ Current votes: :white_check_mark: **${votes}/${requiredVotes}**.\nExpires <t:${timestamp}:R> ]`
@@ -291,7 +291,7 @@ class PlayerController {
     logger.debug(`Required votes: ${requiredVotes}`)
     const collector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
-      time: 60000,
+      time: 60000
     })
 
     collector.on('collect', async (collected) => {
@@ -299,7 +299,7 @@ class PlayerController {
       const member = await fetchMember(collected.guild!.id, collected.user.id)
 
       if (!member?.voice.channel || member.voice.channel.id !== player.voiceChannel) {
-        collected.followUp({
+        await collected.followUp({
           content: 'You must be in the same voice channel as the bot to vote.',
           ephemeral: true
         })
@@ -307,7 +307,7 @@ class PlayerController {
       }
 
       if (votedUsers.includes(collected.user.id)) {
-        collected.followUp({
+        await collected.followUp({
           content: 'You have placed a vote already!',
           ephemeral: true
         })
@@ -322,7 +322,7 @@ class PlayerController {
       votedUsers.push(collected.user.id)
 
       if (votes >= requiredVotes) {
-        return collector.stop('limit')
+        collector.stop('limit'); return
       }
 
       await response.edit({
@@ -336,10 +336,6 @@ Expires <t:${timestamp}:R> ]`)
     collector.on('end', async (_, reason) => {
       const success = (votes >= requiredVotes)
 
-      logger.debug(`${votes}, ${requiredVotes}`)
-      logger.debug(`Vote skip status: ${success}`)
-      logger.debug(`Reason: ${reason}`)
-
       if (reason === 'limit') reason = 'Enough votes collected'
       if (reason === 'time') reason = 'Voting time over'
 
@@ -348,16 +344,16 @@ Expires <t:${timestamp}:R> ]`)
           new EmbedBuilder()
             .setAuthor({
               name: `Skipvote ended: ${reason}`,
-              iconURL: interaction.user.displayAvatarURL(),
+              iconURL: interaction.user.displayAvatarURL()
             })
-            .setDescription(`[ ${success ? ":white_check_mark:" : ":x:"} The song ${success ? "will" : "won't"} be skipped. ]`)
-            .setColor(embedColor),
+            .setDescription(`[ ${success ? ':white_check_mark:' : ':x:'} The song ${success ? 'will' : "won't"} be skipped. ]`)
+            .setColor(embedColor)
         ],
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             buttons.map((b) => b.setDisabled(true))
-          ),
-        ],
+          )
+        ]
       })
 
       try {
@@ -378,5 +374,5 @@ Expires <t:${timestamp}:R> ]`)
   }
 }
 
-export { PlayerController };
+export { PlayerController }
 

@@ -1,7 +1,7 @@
-import { SlashCommandBuilder } from "discord.js";
-import { fetchMember } from "../../Funcs/FetchMember";
-import { SaveStatus } from "../../Helpers/PlayerController";
-import Command from "../../types/Command";
+import { SlashCommandBuilder } from 'discord.js'
+import { fetchMember } from '../../Funcs/FetchMember'
+import { SaveStatus } from '../../Helpers/PlayerController'
+import type Command from '../../types/Command'
 
 const save: Command<true> = {
   permissions: {
@@ -10,13 +10,12 @@ const save: Command<true> = {
   },
 
   data: new SlashCommandBuilder()
-    .setName("save")
-    .setDescription("Saves the currently playing track to DMs"),
+    .setName('save')
+    .setDescription('Saves the currently playing track to DMs'),
 
   musicOptions: {
-    requiresPlaying: false,
-    requiresVc: false,
-    requiresDjRole: false
+    requiresPlaying: true,
+    requiresVc: true
   },
 
   callback: async ({ interaction, player }) => {
@@ -30,26 +29,26 @@ const save: Command<true> = {
     const status = await player.controller.saveTrack(member, interaction.guild)
 
     if (status === SaveStatus.NotPlaying) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'Nothing is playing right now.',
         ephemeral: true
       })
     }
 
     if (status === SaveStatus.DmChannelFailure) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'I can\'t send you a DM.',
         ephemeral: true
       })
     }
 
     if (status === SaveStatus.Success) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'Song saved to DMs!',
         ephemeral: true
       })
     }
-  },
+  }
 }
 
 export default save

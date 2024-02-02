@@ -3,12 +3,12 @@
     "watch": "nodemon --quiet --watch src/** --exec sucrase-node src/index.ts",
     "start": "sucrase-node src/index.ts",
     "lavalink": "java -jar lavalink.jar",
-    "start:parallel": "npm-run-all --parallel start lavalink",
-    "deploy": "sucrase-node src/Data/DeployCommands.ts",
-    "test:database": "sucrase-node src/Models/Connection.ts"
+    "deploy": "sucrase-node src/Data/DeployCommands.ts"
   },
   "dependencies": {
+    "@bochilteam/scraper": "^4.2.4",
     "axios": "^1.6.0",
+    "cheerio": "1.0.0-rc.12",
     "discord.js": "^14.13.0",
     "js-yaml": "^4.1.0",
     "moment": "^2.29.4",
@@ -23,9 +23,10 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.10",
+    "eslint-plugin-promise": "^6.0.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.3"
   }
 }

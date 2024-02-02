@@ -12,10 +12,6 @@ if (!fs.existsSync("config.yml")) {
 const configYAML = fs.readFileSync(path.join(__dirname, "../config.yml"));
 const configFile = yaml.load(configYAML);
 
-/**
- * If anything gets added to this object it will automatically be added to the playerOverrides table.
- * Same goes for removing keys from this object.
- */
 const config = {
   botToken: configFile.botToken as string ?? null,
   devBotToken: configFile.devBotToken as string ?? null,
@@ -82,12 +78,6 @@ const poruOptions: PoruOptions = {
 const poruNodes: NodeGroup[] = [
   {
     name: "local",
-    host: "localhost",
-    port: 2333,
-    password: "MyPassword",
-  },
-  {
-    name: 'local2',
     host: "localhost",
     port: 2333,
     password: "MyPassword",

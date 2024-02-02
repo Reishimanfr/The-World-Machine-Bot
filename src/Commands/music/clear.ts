@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
-import Command from "../../types/Command";
+import { SlashCommandBuilder } from 'discord.js'
+import type Command from '../../types/Command'
 
 const clear: Command<true> = {
   permissions: {
@@ -13,24 +13,24 @@ const clear: Command<true> = {
   },
 
   data: new SlashCommandBuilder()
-    .setName("clear")
-    .setDescription("Clears the queue"),
+    .setName('clear')
+    .setDescription('Clears the queue'),
 
-  callback: ({ interaction, player }) => {
+  callback: async ({ interaction, player }) => {
     if (player.queue.length <= 0) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'Nothing to clear.',
-        ephemeral: true,
-      });
+        ephemeral: true
+      })
     }
 
     player.queue.length = 0
 
-    interaction.reply({
+    await interaction.reply({
       content: 'Queue cleared.',
-      ephemeral: true,
-    });
-  },
+      ephemeral: true
+    })
+  }
 }
 
 export default clear

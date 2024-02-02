@@ -1,8 +1,8 @@
-import { DataTypes } from "sequelize"
-import { config } from "../config"
-import sequelize from "./Connection"
+import { DataTypes } from 'sequelize'
+import { config } from '../config'
+import sequelize from './Connection'
 
-export const PlayerSettings = sequelize.define("playerSettings", {
+export const PlayerSettings = sequelize.define('playerSettings', {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -10,7 +10,7 @@ export const PlayerSettings = sequelize.define("playerSettings", {
   },
   queueEndDisconnect: {
     type: DataTypes.BOOLEAN,
-    defaultValue: config.player.queueEndDisconnect,
+    defaultValue: config.player.queueEndDisconnect
   },
   voteSkipToggle: {
     type: DataTypes.BOOLEAN,

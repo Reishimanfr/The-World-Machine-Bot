@@ -1,10 +1,10 @@
-import { ApplicationCommandOptionChoiceData, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import Queue from "poru/dist/src/guild/Queue";
-import { client } from "../..";
-import { fetchMember } from "../../Funcs/FetchMember";
-import { embedColor } from "../../Helpers/Util";
-import { config as botConfig } from "../../config";
-import Command from "../../types/Command";
+import { EmbedBuilder, SlashCommandBuilder, type ApplicationCommandOptionChoiceData } from 'discord.js'
+import type Queue from 'poru/dist/src/guild/Queue'
+import { client } from '../..'
+import { fetchMember } from '../../Funcs/FetchMember'
+import { embedColor } from '../../Helpers/Util'
+import { config as botConfig } from '../../config'
+import type Command from '../../types/Command'
 
 const skipTo: Command<true> = {
   permissions: {
@@ -19,43 +19,45 @@ const skipTo: Command<true> = {
   },
 
   data: new SlashCommandBuilder()
-    .setName("skipto")
-    .setDescription("Skip to a specified song in the queue")
+    .setName('skipto')
+    .setDescription('Skip to a specified song in the queue')
     .addNumberOption(pos => pos
-      .setName("position")
-      .setDescription("Position in the queue to skip to")
+      .setName('position')
+      .setDescription('Position in the queue to skip to')
       .setRequired(true)
       .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
       .setMinValue(1)
     ),
 
   callback: async ({ interaction, player }) => {
-    const position = interaction.options.getNumber("position", true);
+    const position = interaction.options.getNumber('position', true)
 
     // This means autocomplete was used with a invalid value since pos can't be less than 1
     // If it's sent as a command (thanks discord!)
-    if (position == -1) return;
+    if (position === -1) return
 
     if (player.queue.length < position) {
       return await interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(`[ There isn't a song in the position you specified. ]`)
-            .setColor(embedColor),
-        ], ephemeral: true,
-      });
+            .setDescription('[ There isn\'t a song in the position you specified. ]')
+            .setColor(embedColor)
+        ],
+        ephemeral: true
+      })
     }
 
-    player.queue = player.queue.slice(position - 1, player.queue.length) as Queue;
-    player.seekTo(player.currentTrack.info.length);
+    player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
+    player.seekTo(player.currentTrack.info.length)
 
     await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription(`[ Skipped to song **${player.queue.at(0).info.title}**. ]`)
-          .setColor(embedColor),
-      ], ephemeral: true
-    });
+          .setColor(embedColor)
+      ],
+      ephemeral: true
+    })
   },
 
   autocomplete: async (interaction) => {
@@ -69,36 +71,36 @@ const skipTo: Command<true> = {
     if (!member) return
 
     if (!member.voice.channel?.id) {
-      return interaction.respond([
+      await interaction.respond([
         {
           name: '❌ You must be in a voice channel to use this.',
           value: -1
         }
-      ])
+      ]); return
     }
 
     if (member.voice.channel.id !== player?.voiceChannel) {
-      return interaction.respond([
+      await interaction.respond([
         {
           name: '❌ You must be in the same voice channel to use this.',
           value: -1
         }
-      ])
+      ]); return
     }
 
     if (!queue?.length) {
-      return interaction.respond([
+      await interaction.respond([
         {
           name: '❌ There are no songs in the queue to skip to.',
           value: -1
         }
-      ])
+      ]); return
     }
 
-    let response: ApplicationCommandOptionChoiceData[] = []
+    const response: ApplicationCommandOptionChoiceData[] = []
 
     for (let i = 0; i < queue.length; i++) {
-      if (i >= 25) break; // Discord limits autocomplete to 25 options
+      if (i >= 25) break // Discord limits autocomplete to 25 options
       const part = queue[i]
 
       response.push({
@@ -107,7 +109,7 @@ const skipTo: Command<true> = {
       })
     }
 
-    return interaction.respond(response)
+    await interaction.respond(response)
   }
 }
 

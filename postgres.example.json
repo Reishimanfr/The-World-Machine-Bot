@@ -2,6 +2,6 @@
   "database": "twm-database",
   "host": "url here",
   "port": "your port here as a number",
-  "user": "your user here",
+  "username": "your user here",
   "password": "your password here"
 }

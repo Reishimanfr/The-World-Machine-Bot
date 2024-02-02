@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
-import Command from "../../types/Command";
+import { SlashCommandBuilder } from 'discord.js'
+import type Command from '../../types/Command'
 
 const disconnect: Command<true> = {
   permissions: {
@@ -14,16 +14,16 @@ const disconnect: Command<true> = {
   },
 
   data: new SlashCommandBuilder()
-    .setName("disconnect")
-    .setDescription("Destroys the player and disconnects the bot."),
+    .setName('disconnect')
+    .setDescription('Destroys the player and disconnects the bot.'),
 
-  callback: ({ interaction, player }) => {
-    player.disconnect();
+  callback: async ({ interaction, player }) => {
+    player.disconnect()
 
-    interaction.reply({
+    await interaction.reply({
       content: 'The bot has been disconnected.'
-    });
-  },
+    })
+  }
 }
 
 export default disconnect

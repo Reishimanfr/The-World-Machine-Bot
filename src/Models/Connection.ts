@@ -6,6 +6,7 @@ const sequelize = new Sequelize({
   ...postgres as any,
   logging: false,
   dialect: 'postgres'
+
 });
 
 async function authenticate() {
@@ -20,7 +21,7 @@ async function authenticate() {
 authenticate();
 
 (async () => {
-  await sequelize.sync({ alter: true })
+  await sequelize.sync({ alter: true  })
 })();
 
 export default sequelize

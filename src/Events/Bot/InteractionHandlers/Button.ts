@@ -1,14 +1,14 @@
-import { ButtonInteraction, EmbedBuilder } from 'discord.js';
-import { client } from '../../..';
-import { ExtPlayer } from '../../../Helpers/ExtendedClasses';
-import { logger } from '../../../Helpers/Logger';
-import { MessageManager } from '../../../Helpers/MessageManager';
-import { PlayerController } from '../../../Helpers/PlayerController';
-import { QueueManager } from '../../../Helpers/QueueManager';
-import { embedColor } from '../../../Helpers/Util';
-import { buttonMap } from './ButtonHandlers/!buttonHandler';
+import { EmbedBuilder, type ButtonInteraction } from 'discord.js'
+import { client } from '../../..'
+import { type ExtPlayer } from '../../../Helpers/ExtendedClasses'
+import { logger } from '../../../Helpers/Logger'
+import { MessageManager } from '../../../Helpers/MessageManager'
+import { PlayerController } from '../../../Helpers/PlayerController'
+import { QueueManager } from '../../../Helpers/QueueManager'
+import { embedColor } from '../../../Helpers/Util'
+import { buttonMap } from './ButtonHandlers/_Buttons'
 
-const Button = async (interaction: ButtonInteraction) => {
+const Button = async (interaction: ButtonInteraction): Promise<any> => {
   const guild = interaction.guild
   const id = interaction.customId
 
@@ -20,14 +20,14 @@ const Button = async (interaction: ButtonInteraction) => {
     const member = await guild.members.fetch(interaction.user.id)
 
     if (!player) {
-      return interaction.reply({
+      return await interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription("[ This player isn't active anymore. ]")
-            .setColor(embedColor),
+            .setColor(embedColor)
         ],
-        ephemeral: true,
-      });
+        ephemeral: true
+      })
     }
 
     if (!member.voice.channel) {
@@ -35,21 +35,21 @@ const Button = async (interaction: ButtonInteraction) => {
         embeds: [
           new EmbedBuilder()
             .setDescription('[ You must be in a voice channel to use this. ]')
-            .setColor(embedColor),
+            .setColor(embedColor)
         ],
-        ephemeral: true,
-      });
+        ephemeral: true
+      })
     }
 
     if (member.voice.channelId !== guild.members.me?.voice.channelId) {
       return await interaction.reply({
         content: 'You must be in the same voice channel to use this.',
         ephemeral: true
-      });
+      })
     }
 
-    const action = interaction.customId.split('-')[1];
-    const handler = buttonMap[action];
+    const action = interaction.customId.split('-')[1]
+    const handler = buttonMap[action]
 
     // Managers
     // May plug this in to the player class instead
@@ -65,22 +65,22 @@ const Button = async (interaction: ButtonInteraction) => {
       controller,
       builder,
       queue
-    };
+    }
 
     // Shouldn't happen
     if (!player.isPlaying && !player.isPaused) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'Nothing is playing right now.',
         ephemeral: true
       })
     }
 
     try {
-      await handler(args);
+      await handler(args)
     } catch (error) {
-      logger.error(`Failed to process button ${interaction.customId}: ${error}`);
+      logger.error(`Failed to process button ${interaction.customId}: ${error}`)
     }
   }
-};
+}
 
-export default Button;
+export default Button

@@ -1,8 +1,8 @@
-import { EmbedBuilder } from "discord.js";
-import { fetchMember } from "../../../../Funcs/FetchMember";
-import { SaveStatus } from "../../../../Helpers/PlayerController";
-import { embedColor } from "../../../../Helpers/Util";
-import { ButtonFunc } from "./!buttonHandler";
+import { EmbedBuilder } from 'discord.js'
+import { fetchMember } from '../../../../Funcs/FetchMember'
+import { SaveStatus } from '../../../../Helpers/PlayerController'
+import { embedColor } from '../../../../Helpers/Util'
+import { type ButtonFunc } from './_Buttons'
 
 export const save: ButtonFunc = async ({ interaction, player, controller }) => {
   // Typeguard
@@ -21,7 +21,8 @@ export const save: ButtonFunc = async ({ interaction, player, controller }) => {
         new EmbedBuilder()
           .setDescription('[ Nothing is playing right now ]')
           .setColor(embedColor)
-      ], ephemeral: true
+      ],
+      ephemeral: true
     })
   }
 
@@ -31,7 +32,8 @@ export const save: ButtonFunc = async ({ interaction, player, controller }) => {
         new EmbedBuilder()
           .setDescription('[ I can\'t DM you. ]')
           .setColor(embedColor)
-      ], ephemeral: true
+      ],
+      ephemeral: true
     })
   }
 
@@ -41,7 +43,8 @@ export const save: ButtonFunc = async ({ interaction, player, controller }) => {
         new EmbedBuilder()
           .setDescription('[ Song saved to DMs! ]')
           .setColor(embedColor)
-      ], ephemeral: true
+      ],
+      ephemeral: true
     })
   }
 }

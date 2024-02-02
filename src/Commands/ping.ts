@@ -1,5 +1,5 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import Command from '../types/Command';
+import { SlashCommandBuilder } from 'discord.js'
+import type Command from '../types/Command'
 
 const ping: Command = {
   permissions: {
@@ -11,13 +11,17 @@ const ping: Command = {
     .setName('ping')
     .setDescription("Check the bot's ping and if it's online or not"),
 
-  helpPage: new EmbedBuilder()
-    .setDescription('Sends the bot\'s gateway ping\nThis command is mainly used for testing if the bot is online or not.')
-    .setImage("https://cdn.discordapp.com/attachments/1169390259411369994/1175083424692850829/image.png"),
+  helpData: {
+    description: 'Sends the bot\'s gateway ping\nThis command is mainly used for testing if the bot is online or not.',
+    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175083424692850829/image.png',
+    examples: [
+      '`/ping` -> Sends the bot\'s gateway ping.'
+    ]
+  },
 
   callback: async ({ interaction, client }) => {
-    interaction.reply(`🏓 Pong! My current ping is ${client.ws.ping}ms`);
-  },
+    await interaction.reply(`🏓 Pong! My current ping is ${client.ws.ping}ms`)
+  }
 }
 
 export default ping

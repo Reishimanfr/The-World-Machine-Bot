@@ -1,6 +1,6 @@
-import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { queueHistory } from "../../Models";
-import Event from "../../types/Event";
+import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { queueHistory } from '../../Models'
+import type Event from '../../types/Event'
 
 const TrackEnd: Event = {
   name: 'trackEnd',

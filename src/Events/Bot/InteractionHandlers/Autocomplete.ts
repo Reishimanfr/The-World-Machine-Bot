@@ -1,8 +1,8 @@
-import { AutocompleteInteraction } from "discord.js";
-import commandList from "../../../Data/CommandExport";
-import { logger } from "../../../Helpers/Logger";
+import { type AutocompleteInteraction } from 'discord.js'
+import commandList from '../../../Data/CommandExport'
+import { logger } from '../../../Helpers/Logger'
 
-const Autocomplete = async (interaction: AutocompleteInteraction) => {
+const Autocomplete = async (interaction: AutocompleteInteraction): Promise<void> => {
   const command = commandList.find(c => c.data.name === interaction.commandName)
 
   if (command?.autocomplete) {
@@ -12,6 +12,6 @@ const Autocomplete = async (interaction: AutocompleteInteraction) => {
       logger.error(`Autocomplete interaction for command "${interaction.commandName}" failed: ${error}`)
     }
   }
-};
+}
 
-export default Autocomplete;
+export default Autocomplete

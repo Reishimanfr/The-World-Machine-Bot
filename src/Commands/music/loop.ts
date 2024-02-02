@@ -1,10 +1,10 @@
-import { SlashCommandBuilder } from "discord.js";
-import Command from "../../types/Command";
+import { SlashCommandBuilder } from 'discord.js'
+import type Command from '../../types/Command'
 
 const loop: Command<true> = {
   permissions: {
     user: ['Speak', 'Connect'],
-    bot: ['Speak', 'Connect']  
+    bot: ['Speak', 'Connect']
   },
 
   musicOptions: {
@@ -14,24 +14,24 @@ const loop: Command<true> = {
   },
 
   data: new SlashCommandBuilder()
-    .setName("loop")
-    .setDescription("Toggles looping for the currently playing track"),
+    .setName('loop')
+    .setDescription('Toggles looping for the currently playing track'),
 
   callback: async ({ interaction, player }) => {
     const loopString = {
-      'NONE': 'Looping disabled',
-      'TRACK': 'Looping this track',
-      'QUEUE': 'Looping the queue'
+      NONE: 'Looping disabled',
+      TRACK: 'Looping this track',
+      QUEUE: 'Looping the queue'
     }
 
     player.controller.toggleLoop()
-    player.messageManger.updatePlayerMessage()
+    void player.messageManger.updatePlayerMessage()
 
-    interaction.reply({
+    await interaction.reply({
       content: loopString[player.loop],
       ephemeral: true
     })
-  },
+  }
 }
 
 export default loop

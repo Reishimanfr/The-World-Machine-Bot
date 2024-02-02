@@ -20,20 +20,14 @@ const welcome: Command = {
       .setRequired(false)
     ),
 
-  helpPage: new EmbedBuilder()
-    .setDescription('Send the bot welcome message.')
-    .addFields(
-      {
-        name: 'Options',
-        value: `* \`Channel\` -> Where to send the welcome message.`
-      },
-      {
-        name: 'Notes',
-        value: 'Only members with the `Administrator` permissions may use the channel option.\nIf the option isn\'t specified the bot will reply with a ephemeral message to the user that used the command'
-      }
-    )
-    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175113282730860684/image.png'),
-
+  helpData: {
+    description: 'Sends the bot welcome message.',
+    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175083424692850829/image.png',
+    examples: [
+      `\`/welcome\` -> Sends the bot welcome message.`
+    ]
+  },
+  
   callback: async ({ interaction }) => {
     const channel: TextChannel | null = interaction.options.getChannel('channel')
 

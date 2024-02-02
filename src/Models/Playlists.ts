@@ -11,7 +11,7 @@ export const playlists = sequelize.define('playlists', {
     allowNull: false,
   },
   tracks: {
-    type: DataTypes.JSON,
+    type: DataTypes.ARRAY(DataTypes.TEXT),
     allowNull: false,
   }
 })

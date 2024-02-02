@@ -50,24 +50,14 @@ const picture: Command = {
         .setDescription('Should you be the only one seeing the command reply?')
     ),
 
-  helpPage: new EmbedBuilder()
-    .setDescription('Sends cute pictures of a selected animal')
-    .addFields(
-      {
-        name: 'Options',
-        value: `* \`Animal\` -> A animal to show pictures of.
-* \`Secret\` -> Toggles if only you should see the reply`
-      },
-      {
-        name: 'Returns',
-        value: 'A picture of the selected animal in PNG format.'
-      },
-      {
-        name: 'Notes',
-        value: 'You can use the 🔄️ button to get another picture more quickly instead of sending the command again.'
-      }
-    )
-    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175081409497534534/image.png'),
+  helpData: {
+    description: 'Sends cute pictures of a selected animal',
+    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175081409497534534/image.png',
+    examples: [
+      `\`/picture animal: cat\` -> Sends a cute picture of a cat.`,
+      `\`/picture animal: cat secret: true\` -> Sends a cute picture of a cat, but only you can see the reply.`
+    ]
+  },
 
   callback: async ({ interaction }) => {
     if (!interaction.inCachedGuild()) return;

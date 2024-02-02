@@ -1,54 +1,66 @@
-import { EmbedBuilder } from "discord.js";
-import { VoteSkipStatus } from "../../../../Helpers/PlayerController";
-import { embedColor } from "../../../../Helpers/Util";
-import { ButtonFunc } from "./!buttonHandler";
+import { ChannelType, TextChannel } from 'discord.js'
+import { ButtonFunc } from './_Buttons'
+import CreateVote, { VoteStatus } from '../../../../Helpers/CreateVote'
 
-export const skip: ButtonFunc = async ({ interaction, controller, player }) => {
-  const status = await controller.invokeVoteSkip(interaction)
-
-  if (status === VoteSkipStatus.LoopingEnabled) {
-    return interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ Disable looping to skip this track. ]')
-          .setColor(embedColor)
-      ], ephemeral: true
-    })
-  }
-
-  if (status === VoteSkipStatus.Disabled) {
-    player.seekTo(99999999)
-
-    return interaction.reply({
-      content: 'Song skipped: Vote skipping is disabled on this server.',
-      ephemeral: true,
-
-    })
-  }
-
-  if (status === VoteSkipStatus.OwnSkip) {
-    player.seekTo(99999999)
-
-    return interaction.reply({
-      content: 'Song skipped: Track requested by user that wants to skip.',
+export const skip: ButtonFunc = async ({ interaction, player }) => {
+  if (interaction.channel?.type !== ChannelType.GuildText) {
+    return await interaction.reply({
+      content: 'This button must be used in a text channel so the bot can send a voting message.',
       ephemeral: true
     })
   }
 
-  if (status === VoteSkipStatus.UnmetCondition) {
-    player.seekTo(99999999)
+  const member = await interaction.guild?.members.fetch(interaction.user.id)
 
-    return interaction.reply({
-      content: 'Song skipped: Not enough members in voice channel.',
-      ephemeral: true,
-
+  if (!member?.voice.channel) {
+    return await interaction.reply({
+      content: 'You must be in a voice channel to use this command.',
+      ephemeral: true
     })
   }
 
-  if (status === VoteSkipStatus.Error) {
-    return interaction.reply({
-      content: 'Something went wrong.',
-      ephemeral: true,
+  if (player.voteSkipActive) {
+    return await interaction.reply({
+      content: 'There\'s a vote skip in progress already!',
+      ephemeral: true
     })
   }
-};
+
+  interaction.reply({
+    content: 'Waiting for members to place their votes...',
+    ephemeral: true
+  })
+
+  const nonBotMembers = member.voice.channel.members.filter(m => !m.user.bot).size
+  const requiredVotes = Math.round((nonBotMembers * (player.settings.voteSkipThreshold / 100)))
+
+  player.voteSkipActive = true
+
+  const [status, error] = await CreateVote({
+    interaction,
+    reason: 'Wants to skip the current song',
+    requiredVotes,
+    voiceText: interaction.channel as TextChannel,
+    voiceChannel: member.voice.channel,
+    time: 60000
+  })
+
+  switch (status) {
+    case VoteStatus.Success: {
+      interaction.editReply(`Song **${player.currentTrack.info.title}** skipped!`)
+      player.stop()
+      break
+    }
+    case VoteStatus.Failure: {
+      interaction.editReply(`The voting resulted in a failure!`)
+      break
+    }
+    case VoteStatus.Error: {
+      interaction.editReply(`Voting failed: \`\`\`${error?.message}\`\`\``)
+      break
+    }
+  }
+
+  player.voteSkipActive = false
+}
+

@@ -1,16 +1,15 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { client } from '../../..';
-import commandList from '../../../Data/CommandExport';
-import { fetchMember } from '../../../Funcs/FetchMember';
-import { ExtPlayer } from '../../../Helpers/ExtendedClasses';
-import { MessageManager } from '../../../Helpers/MessageManager';
-import { PlayerController } from '../../../Helpers/PlayerController';
-import { QueueManager } from '../../../Helpers/QueueManager';
-import { embedColor } from '../../../Helpers/Util';
-import { combineConfig } from '../../../Helpers/config/playerSettings';
-import { botStats } from '../../../Models';
+import { EmbedBuilder, type ChatInputCommandInteraction } from 'discord.js'
+import { client } from '../../..'
+import commandList from '../../../Data/CommandExport'
+import { fetchMember } from '../../../Funcs/FetchMember'
+import { type ExtPlayer } from '../../../Helpers/ExtendedClasses'
+import { MessageManager } from '../../../Helpers/MessageManager'
+import { PlayerController } from '../../../Helpers/PlayerController'
+import { QueueManager } from '../../../Helpers/QueueManager'
+import { embedColor } from '../../../Helpers/Util'
+import { combineConfig } from '../../../Helpers/config/playerSettings'
 
-const Command = async (interaction: ChatInputCommandInteraction) => {
+const CommandInteraction = async (interaction: ChatInputCommandInteraction) => {
   const command = commandList.find(c => c?.data?.name == interaction.commandName)
   const guild = interaction.guild
 
@@ -18,14 +17,14 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
   if (!guild) return
 
   if (!command) {
-    return interaction.reply({
+    return await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription("[ This command doesn't exist. ]")
-          .setColor(embedColor),
+          .setColor(embedColor)
       ],
-      ephemeral: true,
-    });
+      ephemeral: true
+    })
   }
 
   // Missing permissions check
@@ -44,6 +43,8 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
 
   let player = client.poru.players.get(guild.id) as ExtPlayer
 
+  console.log(command.musicOptions)
+
   // Case for music commands
   if (command.musicOptions) {
     const options = command.musicOptions
@@ -53,7 +54,7 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
 
     // Member is not in voice channel
     if (options.requiresVc && !member?.voice.channel?.id) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'You must be in a voice channel to use this command.',
         ephemeral: true
       })
@@ -61,15 +62,22 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
 
     // Member is not in the same voice channel as bot
     if (options.requiresVc && player && member?.voice.channel?.id !== player?.voiceChannel) {
-      return interaction.reply({
+      return await interaction.reply({
         content: 'You must be in the same voice channel as me to use this command.',
+        ephemeral: true
+      })
+    }
+
+    if (options.requiresPlaying && (!player?.isPlaying)) {
+      return await interaction.reply({
+        content: 'You can\'t use this command while nothing is playing.',
         ephemeral: true
       })
     }
 
     // Member doesn't have the DJ role
     if (options.requiresDjRole && config.requireDjRole && !member?.roles.cache.find(role => role.id === config.djRoleId)) {
-      return interaction.reply({
+      return await interaction.reply({
         content: `You must have the <@&${config.djRoleId}> role to use this command.`,
         ephemeral: true
       })
@@ -81,8 +89,8 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
         voiceChannel: member!.voice.channel!.id,
         textChannel: interaction.channel!.id,
         deaf: true,
-        mute: false,
-      }) as ExtPlayer;
+        mute: false
+      }) as ExtPlayer
     }
   }
 
@@ -95,21 +103,7 @@ const Command = async (interaction: ChatInputCommandInteraction) => {
     queue: new QueueManager(player)
   }
 
-  try {
-    await command.callback(args);
-  } finally {
-    const [record] = await botStats.findOrCreate(
-      {
-        where: { guildId: guild.id },
-        defaults: {
-          guildId: guild.id,
-          commandsRan: 0
-        }
-      }
-    )
+  await command.callback(args)
+}
 
-    await record?.increment('commandsRan', { by: 1 })
-  }
-};
-
-export default Command;
+export default CommandInteraction

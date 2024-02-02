@@ -1,41 +1,41 @@
-import { client } from "../..";
-import { ExtPlayer } from "../../Helpers/ExtendedClasses";
-import { MessageManager } from "../../Helpers/MessageManager";
-import { PlayerController } from "../../Helpers/PlayerController";
-import Event from "../../types/Event";
+import { client } from '../..'
+import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { MessageManager } from '../../Helpers/MessageManager'
+import { PlayerController } from '../../Helpers/PlayerController'
+import type Event from '../../types/Event'
 
 const TrackStart: Event = {
-  name: "trackStart",
+  name: 'trackStart',
   once: false,
   execute: async (player: ExtPlayer) => {
     const controller = new PlayerController(player)
     const builder = new MessageManager(player)
 
     if (player.timeout) {
-      controller.cancelPlayerTimeout()
+      void controller.cancelPlayerTimeout()
     }
 
-    const guild = await client.guilds.fetch(player.guildId);
-    const channel = await guild.channels?.fetch(player.textChannel);
+    const guild = await client.guilds.fetch(player.guildId)
+    const channel = await guild.channels?.fetch(player.textChannel)
 
-    if (!channel?.isTextBased() || !client.user) return;
+    if (!channel?.isTextBased() || !client.user) return
 
     const permission = channel.permissionsFor(client.user.id)
 
     if (!permission?.has('SendMessages')) return
 
-    const buttons = builder.createPlayerButtons(false, { save: false });
-    const embed = await builder.createPlayerEmbed();
+    const buttons = builder.createPlayerButtons(false, { save: false })
+    const embed = await builder.createPlayerEmbed()
 
     const options = {
       embeds: [embed],
-      components: [buttons],
-    };
+      components: [buttons]
+    }
 
     // Send initial message
     if (!player.message) {
-      player.message = await channel.send(options);
-      return;
+      player.message = await channel.send(options)
+      return
     }
 
     if (player.settings?.resendMessageOnEnd) {
@@ -67,8 +67,8 @@ const TrackStart: Event = {
       }
     }
 
-    player.pauseEditing = false;
-  },
-};
+    player.pauseEditing = false
+  }
+}
 
-export default TrackStart;
+export default TrackStart

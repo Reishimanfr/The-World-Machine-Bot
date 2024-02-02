@@ -1,81 +1,80 @@
 import {
   ActionRowBuilder,
   ComponentType,
-  EmbedBuilder,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder
-} from "discord.js";
-import amountCon from "../Helpers/starboard/amountCon";
-import blChannelCon from "../Helpers/starboard/blChannelCon";
-import channelCon from "../Helpers/starboard/channelCon";
-import emojiCon from "../Helpers/starboard/emojiCon";
-import { starboardConfig } from "../Models";
-import Command from "../types/Command";
+} from 'discord.js'
+import amountCon from '../Helpers/starboard/amountCon'
+import blChannelCon from '../Helpers/starboard/blChannelCon'
+import channelCon from '../Helpers/starboard/channelCon'
+import emojiCon from '../Helpers/starboard/emojiCon'
+import { starboardConfig } from '../Models'
+import type Command from '../types/Command'
 
 const funcMap = {
   emojiCon,
   channelCon,
   amountCon,
-  blChannelCon,
-};
+  blChannelCon
+}
 
 export const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
   .addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId("conSelect")
-      .setPlaceholder("Select a option to configure!")
+      .setCustomId('conSelect')
+      .setPlaceholder('Select a option to configure!')
       .setOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel("⭐ Emojis")
-          .setDescription("Configure which emojis are accepted for the starboard.")
-          .setValue("emojiCon"),
+          .setLabel('⭐ Emojis')
+          .setDescription('Configure which emojis are accepted for the starboard.')
+          .setValue('emojiCon'),
 
         new StringSelectMenuOptionBuilder()
-          .setLabel("🧵 Channel")
-          .setDescription("Set where the starboard channel should be.")
-          .setValue("channelCon"),
+          .setLabel('🧵 Channel')
+          .setDescription('Set where the starboard channel should be.')
+          .setValue('channelCon'),
 
         new StringSelectMenuOptionBuilder()
-          .setLabel("🔢 Amount")
-          .setDescription("Configure how many reaction are required to send a message.")
-          .setValue("amountCon"),
+          .setLabel('🔢 Amount')
+          .setDescription('Configure how many reaction are required to send a message.')
+          .setValue('amountCon'),
 
         new StringSelectMenuOptionBuilder()
-          .setLabel("❌ Blacklisted channels")
-          .setDescription("Configure which channels should be ignored.")
-          .setValue("blChannelCon")
+          .setLabel('❌ Blacklisted channels')
+          .setDescription('Configure which channels should be ignored.')
+          .setValue('blChannelCon')
       )
   )
-
 
 const starboard: Command = {
   permissions: {
     user: ['ManageGuild'],
-    bot: ['SendMessages', 'AttachFiles'],
+    bot: ['SendMessages', 'AttachFiles']
   },
 
   data: new SlashCommandBuilder()
-    .setName("starboard-config")
-    .setDescription("Configure the starboard to your liking"),
+    .setName('starboard-config')
+    .setDescription('Configure the starboard to your liking'),
 
-  helpPage: new EmbedBuilder()
-    .setDescription(`Configure the starboard feature.
-Running this command will show you a menu of possible configuration options for the starboard like how many reactions are required or what emojis are accepted.
-## Note
-Everything noteworthy about the starboard feature was described in the starboard feature page.`)
-    .setImage('https://cdn.discordapp.com/attachments/1169390259411369994/1175086512958873600/Discord_bx7OlzKNHT.png'),
+  helpData: {
+    description: 'Shows the current configuration of the starboard and allows you to change it.\n### Note:\nThe starboard feature was covered more in-depth in the [github repository](https://github.com/rei-shi/The-World-Machine).',
+    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175086512958873600/Discord_bx7OlzKNHT.png',
+    examples: [
+      '`/starboard-config` -> Shows the configuration menu.'
+    ]
+  },
 
   callback: async ({ interaction }) => {
     const res = await interaction.reply({
       components: [menu],
-      ephemeral: true,
-    });
+      ephemeral: true
+    })
 
     const collector = res.createMessageComponentCollector({
       componentType: ComponentType.StringSelect,
-      time: 60000,
-    });
+      time: 60000
+    })
 
     collector.on('collect', async (collected) => {
       await collected.deferUpdate()
@@ -84,15 +83,15 @@ Everything noteworthy about the starboard feature was described in the starboard
       const option = collected.values[0]
       const [record] = await starboardConfig.findOrCreate({
         where: { guildId: interaction.guildId },
-        defaults: { guildId: interaction.guildId, boardId: null, amount: 4 },
-      });
+        defaults: { guildId: interaction.guildId, boardId: null, amount: 4 }
+      })
 
-      const args = [interaction, record];
-      const handler = funcMap[option];
+      const args = [interaction, record]
+      const handler = funcMap[option]
 
-      await handler(...args);
+      await handler(...args)
     })
-  },
+  }
 }
 
 export default starboard

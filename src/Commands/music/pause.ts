@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
-import Command from "../../types/Command";
+import { SlashCommandBuilder } from 'discord.js'
+import type Command from '../../types/Command'
 
 const pause: Command<true> = {
   permissions: {
@@ -9,22 +9,23 @@ const pause: Command<true> = {
 
   musicOptions: {
     requiresDjRole: true,
-    requiresVc: true
+    requiresVc: true,
+    requiresPlaying: true
   },
 
   data: new SlashCommandBuilder()
-    .setName("pause")
-    .setDescription("Toggles playback of the player"),
+    .setName('pause')
+    .setDescription('Toggles playback of the player'),
 
   callback: async ({ interaction, player }) => {
     player.controller.togglePlayback()
-    player.messageManger.updatePlayerMessage()
+    void player.messageManger.updatePlayerMessage()
 
-    interaction.reply({
-      content: player.isPaused ? "Paused" : "Resumed",
+    await interaction.reply({
+      content: player.isPaused ? 'Paused' : 'Resumed',
       ephemeral: true
     })
-  },
+  }
 }
 
 export default pause
