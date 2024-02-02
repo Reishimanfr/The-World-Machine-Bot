@@ -17,6 +17,10 @@ My motivation behind it was that all the other music bots I used didn't really s
 - 🌟 [A starboard script]('fixme')
 - 👀 [Multiple fun-to-use commands](https://github.com/Reishimanfr/TWM-bot/wiki/Commands)
 
+## Want to self-host?
+
+Check [this page]() for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
+
 ## ⚙️ Configuration
 <details>
  <summary>Example config.yml file:</summary>
