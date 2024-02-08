@@ -19,7 +19,7 @@ My motivation behind it was that all the other music bots I used didn't really s
 
 ## Want to self-host?
 
-Check [this page]() for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
+Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self%E2%80%90hosting) for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
 
 ## ⚙️ Configuration
 <details>
