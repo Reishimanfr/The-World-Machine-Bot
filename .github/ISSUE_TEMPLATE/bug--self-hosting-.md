@@ -1,7 +1,7 @@
 ---
 name: Bug (Self-Hosting)
 about: 'Something happened while self-hosting this application '
-title: 'Bug (Self-Host): '
+title: '❌ Bug (Self-Host): '
 labels: Bus
 assignees: Reishimanfr
 

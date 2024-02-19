@@ -1,5 +1,5 @@
 <p align="center"><img width=200 height=200 src="https://github.com/Reishimanfr/TWM-bot/assets/92938606/de4f51a7-8499-4798-ad8c-dc78f5006cd0"</img></p>
-<h3 align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> | <a href="https://discord.gg/QGeraSWsan">Support Server</a> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> | <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
+<h3 align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> | <a href="https://discord.gg/9VyyCkMSFP">Support Server</a> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> | <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
 
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
@@ -19,7 +19,7 @@ My motivation behind it was that all the other music bots I used didn't really s
 
 ## Want to self-host?
 
-Check [this page]() for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
+Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self%E2%80%90hosting) for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
 
 ## ⚙️ Configuration
 <details>
