@@ -56,7 +56,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
 
   const sel = await interaction.channel?.awaitMessages({
     max: 1,
-    time: 60000,
+    time: 180000,
     filter: (u) => u.author.id === interaction.user.id, // Only accept messages from the command initiator
   });
 

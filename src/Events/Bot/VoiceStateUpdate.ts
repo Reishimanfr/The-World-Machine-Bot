@@ -1,6 +1,6 @@
 import { Events, type VoiceState } from 'discord.js'
 import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
-import { client } from '../../index'
+import { client  } from '../../index'
 import type Event from '../../types/Event'
 import PlayerDestroy from '../Poru/PlayerDestroy'
 
@@ -9,7 +9,7 @@ const UpdateVoiceState: Event = {
   once: false,
   execute: async (oldState: VoiceState, newState: VoiceState) => {
     const guildId = oldState?.guild?.id ?? newState?.guild?.id
-    const player = client.poru.players.get(guildId) as ExtPlayer
+    const player = client .poru.players.get(guildId) as ExtPlayer
 
     if (!player) return
 
@@ -17,7 +17,7 @@ const UpdateVoiceState: Event = {
 
     // Bot disconnect event
     if (!newChannel) {
-      return PlayerDestroy.execute(player, 'bot was disconnected.')
+      return PlayerDestroy.execute(player, 'Bot was disconnected from voice channel.')
     }
 
     const membersWithoutBots = newChannel.members
@@ -25,7 +25,7 @@ const UpdateVoiceState: Event = {
 
     // Everyone left voice
     if (membersWithoutBots.size === 0) {
-      return PlayerDestroy.execute(player, 'everyone left the channel.')
+      return PlayerDestroy.execute(player, 'Everyone left the voice channel.')
     }
   }
 }

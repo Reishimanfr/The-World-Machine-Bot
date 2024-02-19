@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
-import { logger } from '../../Helpers/Logger'
 import type Command from '../../types/Command'
+import { logger } from '../../config'
+import { P } from 'pino'
 
 const queue: Command<true> = {
   permissions: {
@@ -13,14 +14,27 @@ const queue: Command<true> = {
     requiresVc: true
   },
 
+  helpData: {
+    description: 'Shows the current queue',
+    examples: ['```/queue```']
+  },
+
   data: new SlashCommandBuilder()
     .setName('queue')
     .setDescription('Shows the queue'),
 
   callback: async ({ interaction, player }) => {
+    console.log(player.queue.length)
+    if (!player.queue.length) {
+      return interaction.reply({
+        content: 'The queue is empty.',
+        ephemeral: true
+      })
+    }
+
     const embeds = player.queueManager.createQueueEmbed()
 
-    if (!embeds) {
+    if (!embeds?.length) {
       return await interaction.reply({
         content: 'Something went wrong.',
         ephemeral: true
@@ -51,6 +65,15 @@ const queue: Command<true> = {
     )
 
     let page = 0
+
+    console.log(embeds)
+
+    if (!embeds[page]) {
+      return interaction.reply({
+        content: 'Something went wrong while running this command!',
+        ephemeral: true
+      })
+    }
 
     const res = await interaction.reply({
       embeds: [

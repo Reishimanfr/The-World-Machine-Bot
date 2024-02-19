@@ -4,11 +4,12 @@ import {
   ButtonStyle,
   ComponentType,
   SlashCommandBuilder,
+  TextChannel,
   type ChatInputCommandInteraction
 } from 'discord.js'
 import crypto from 'node:crypto'
 import { type LavalinkResponse } from 'poru'
-import { client } from '../..'
+import { client  } from '../..'
 import { clipString } from '../../Funcs/ClipString'
 import { formatSeconds } from '../../Funcs/FormatSeconds'
 import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
@@ -16,13 +17,14 @@ import { MessageManager } from '../../Helpers/MessageManager'
 import { PlayerController } from '../../Helpers/PlayerController'
 import { QueueManager } from '../../Helpers/QueueManager'
 import { combineConfig } from '../../Helpers/config/playerSettings'
-import { config as botConfig } from '../../config'
+import { config as botConfig, logger } from '../../config'
 import type Command from '../../types/Command'
+import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 
 const messages = {
-  LOAD_FAILED: '[ Failed to load track **{query}**. ]',
-  NO_MATCHES: '[ No matches found for **{query}**. ]',
-  TRACK_ADDED: '[ Track **{query}** added to the queue. ]'
+  LOAD_FAILED: 'Failed to load track **{query}**.',
+  NO_MATCHES: 'No matches found for **{query}**.',
+  TRACK_ADDED: 'Track **{query}** added to the queue.'
 }
 
 interface TracksType {
@@ -31,7 +33,7 @@ interface TracksType {
   length?: number
 }
 
-async function loadPlaylist (interaction: ChatInputCommandInteraction, player: ExtPlayer, result: LavalinkResponse): Promise<void> {
+async function loadPlaylist(interaction: ChatInputCommandInteraction, player: ExtPlayer, result: LavalinkResponse): Promise<void> {
   const buttons = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
       new ButtonBuilder()
@@ -86,6 +88,24 @@ const play: Command = {
     requiresDjRole: true
   },
 
+  helpData: {
+    description: 'Adds a song to the queue or plays is immiedetely if `bypass-queue` is set to true and other users vote "yes"',
+    examples: [
+      `> **Search for a song and play the first result**
+      \`\`\`/play
+      url-or-search: Do I wanna know - Arctic Monkeys \`\`\``,
+
+      `> **Play a song by URL**
+      \`\`\`/play
+      url-or-search:[URL here]\`\`\``,
+      
+      `> **Play a song bypassing the queue**
+      \`\`\`/play
+      url-or-search: A song
+      bypass-queue: True\`\`\``
+    ]
+  },
+
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('Plays or adds a song to the queue')
@@ -94,33 +114,34 @@ const play: Command = {
       .setDescription('Search query or URL to the song/playlist.')
       .setRequired(true)
       .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
+    )
+    .addBooleanOption(bypass => bypass
+      .setName('bypass-queue')
+      .setDescription('Forcefully plays a song skipping the queue (no songs get removed from the queue)')
     ),
 
   callback: async ({ interaction, client }) => {
-    // Typeguard
     if (!interaction.guild || !interaction.channel) return
+
+    await interaction.deferReply({ ephemeral: true })
 
     const member = await interaction.guild.members.fetch(interaction.user.id)
 
-    let query = interaction.options.getString('url-or-search', true)
-    let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
+    const bypassQueue = interaction.options.getBoolean('bypass-queue') ?? false
+    const query = interaction.options.getString('url-or-search', true)
 
-    if (query === 'autocomplete_no_user_input') {
-      query = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-    }
+    let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
 
     // Typeguard
     if (!member.voice.channel) {
-      return await interaction.reply({
-        content: 'You must be in a voice channel to use this.',
-        ephemeral: true
+      return await interaction.editReply({
+        content: 'You must be in a voice channel to use this.'
       })
     }
 
     if (!member.voice.channel.joinable) {
-      return await interaction.reply({
-        content: 'I can\'t join this voice channel!',
-        ephemeral: true
+      return await interaction.editReply({
+        content: 'I can\'t join this voice channel!'
       })
     }
 
@@ -142,29 +163,96 @@ const play: Command = {
     player.messageManger ||= new MessageManager(player)
     player.queueManager ||= new QueueManager(player)
 
-    const [loadType, data] = await player.controller
-      .resolveQueryOrUrl(query, interaction.user)
+    if (bypassQueue && player.currentTrack) {
+      const nonBotMembers = member.voice.channel.members.filter(m => !m.user.bot).size
+      const requiredVotes = Math.round((nonBotMembers * (player.settings.voteSkipThreshold / 100)))
 
-    switch (loadType) {
-      case 'LOAD_FAILED':
-      case 'NO_MATCHES': {
-        return await interaction.reply({
-          content: messages[loadType].replace('{query}', query),
-          ephemeral: true
-        })
+      await interaction.editReply({
+        content: 'Waiting for users to place their votes...'
+      })
+
+      const [status, error] = await CreateVote({
+        interaction: interaction,
+        reason: 'Wants to bypass the current song',
+        requiredVotes: requiredVotes,
+        time: 180000,
+        voiceChannel: member.voice.channel,
+        voiceText: interaction.channel as TextChannel
+      })
+
+      switch (status) {
+        case VoteStatus.Success: {
+          if (player.currentTrack) {
+            player.queue.splice(0, 0, player.currentTrack)
+          }
+
+          const [loadType, data] = await player.controller
+            .resolveQueryOrUrl(query, interaction.user)
+          
+          switch (loadType) {
+            case 'LOAD_FAILED':
+            case 'NO_MATCHES': {
+              return await interaction.followUp({
+                content: messages[loadType].replace('{query}', query),
+                ephemeral: true
+              })
+            }
+
+            case 'PLAYLIST_LOADED':
+            case 'TRACK_LOADED': {
+              const track = data.tracks[0]
+
+              await interaction.followUp({
+                content: `Track **${track.info.title}** will now play bypassing the queue.`,
+                ephemeral: true
+              })
+
+              player.queue.splice(0, 0, track)
+              player.stop() // Why is this not named skip like what
+              // I'm making my own library fuck this shit
+            }
+          }
+          break
+        }
+        case VoteStatus.Failure: {
+          interaction.editReply({
+            content: 'The voting resulted in a failure.'
+          })
+          return
+        }
+        case VoteStatus.Error: {
+          if (!error) return // Typeguard
+          interaction.editReply({
+            content: 'The voting resulted in a error.',
+          })
+          logger.error(`Voting failed with error: ${error.stack}`)
+          return
+        }
       }
+    } else {
+      const [loadType, data] = await player.controller
+        .resolveQueryOrUrl(query, interaction.user)
 
-      case 'TRACK_LOADED': {
-        const track = data.tracks[0]
+      switch (loadType) {
+        case 'LOAD_FAILED':
+        case 'NO_MATCHES': {
+          return await interaction.reply({
+            content: messages[loadType].replace('{query}', query),
+            ephemeral: true
+          })
+        }
 
-        await interaction.reply({
-          content: `Track **${track.info.title}** added to the queue.`,
-          ephemeral: true
-        })
-        break
+        case 'TRACK_LOADED': {
+          const track = data.tracks[0]
+
+          await interaction.editReply({
+            content: `Track **${track.info.title}** added to the queue.`
+          })
+          break
+        }
+
+        case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
       }
-
-      case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
     }
 
     if (player.isConnected && !player.isPlaying) player.play()
@@ -189,7 +277,7 @@ const play: Command = {
     if (query.length >= 100) {
       await interaction.respond([
         {
-          name: '❌ This link is too large! (Discord limitation :< - use the legacy command instead)',
+          name: '❌ This link is too large! (Discord limitation :<)',
           value: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         }
       ]); return
@@ -207,7 +295,7 @@ const play: Command = {
     const tracks: TracksType[] = []
 
     const resolveAndPush = async (source: string, prefix: string): Promise<void> => {
-      const resolve = await client.poru.resolve({ query, source })
+      const resolve = await client .poru.resolve({ query, source })
       const resolveTracks = resolve.tracks.slice(0, 5)
 
       for (const track of resolveTracks) {

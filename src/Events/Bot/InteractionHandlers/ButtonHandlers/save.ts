@@ -1,50 +1,28 @@
-import { EmbedBuilder } from 'discord.js'
-import { fetchMember } from '../../../../Funcs/FetchMember'
 import { SaveStatus } from '../../../../Helpers/PlayerController'
-import { embedColor } from '../../../../Helpers/Util'
 import { type ButtonFunc } from './_Buttons'
 
-export const save: ButtonFunc = async ({ interaction, player, controller }) => {
-  // Typeguard
+export const save: ButtonFunc = async ({ interaction, player }) => {
   if (!interaction.guild) return
+  await interaction.deferReply({ ephemeral: true })
 
-  const member = await fetchMember(interaction.guild.id, interaction.user.id)
-
-  // Typeguard
-  if (!member) return
-
-  const status = await controller.saveTrack(member, interaction.guild)
+  const member = await interaction.guild.members.fetch(interaction.user.id)
+  const status = await player.controller.saveTrack(member, interaction.guild)
 
   if (status === SaveStatus.NotPlaying) {
-    return await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ Nothing is playing right now ]')
-          .setColor(embedColor)
-      ],
-      ephemeral: true
+    return await interaction.editReply({
+      content: 'Nothing is playing right now.'
     })
   }
 
   if (status === SaveStatus.DmChannelFailure) {
-    return await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ I can\'t DM you. ]')
-          .setColor(embedColor)
-      ],
-      ephemeral: true
+    return await interaction.editReply({
+      content: 'I can\'t send you a DM.'
     })
   }
 
   if (status === SaveStatus.Success) {
-    return await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ Song saved to DMs! ]')
-          .setColor(embedColor)
-      ],
-      ephemeral: true
+    return await interaction.editReply({
+      content: 'Song saved to DMs.',
     })
   }
 }

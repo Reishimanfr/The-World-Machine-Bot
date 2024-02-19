@@ -17,6 +17,11 @@ const shuffle: Command<true> = {
     .setName('shuffle')
     .setDescription('Shuffles the queue'),
 
+  helpData: {
+    description: 'Shuffles the current queue',
+    examples: ['```/shuffle```']
+  },
+
   callback: async ({ interaction, player }) => {
     player.queue.shuffle()
     await interaction.reply({ content: 'Queue shuffled!', ephemeral: true })

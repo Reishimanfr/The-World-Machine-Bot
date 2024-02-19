@@ -53,7 +53,7 @@ export default async function channelCon(
   }
 
   const channelSelect = new ChannelSelectMenuBuilder()
-    .setChannelTypes(ChannelType.GuildText)
+    .setChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
     .setCustomId("chSelect")
     .setPlaceholder("Select a channel!");
 

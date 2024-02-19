@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ComponentType,
+  PermissionFlagsBits,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder
@@ -55,14 +56,13 @@ const starboard: Command = {
 
   data: new SlashCommandBuilder()
     .setName('starboard-config')
-    .setDescription('Configure the starboard to your liking'),
+    .setDescription('Configure the starboard to your liking')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
   helpData: {
     description: 'Shows the current configuration of the starboard and allows you to change it.\n### Note:\nThe starboard feature was covered more in-depth in the [github repository](https://github.com/rei-shi/The-World-Machine).',
     image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175086512958873600/Discord_bx7OlzKNHT.png',
-    examples: [
-      '`/starboard-config` -> Shows the configuration menu.'
-    ]
+    examples: ['```/starboard-config```']
   },
 
   callback: async ({ interaction }) => {

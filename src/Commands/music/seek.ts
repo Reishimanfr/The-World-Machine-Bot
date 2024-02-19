@@ -48,6 +48,23 @@ const seek: Command<true> = {
     requiresVc: true
   },
 
+  helpData: {
+    description: 'Seeks to a point in the currently playing song',
+    examples: [
+      `> **Seek to a specific timestamp (HH:MM:SS or MM:SS format)**
+      \`\`\`/seek
+      time: 2:30\`\`\``,
+
+      `> **Seek 15 seconds forward**
+      \`\`\`/seek
+      time: +15\`\`\``,
+
+      `> **Seek 15 seconds backward**
+      \`\`\`/seek
+      time: -15\`\`\``
+    ]
+  },
+
   data: new SlashCommandBuilder()
     .setName('seek')
     .setDescription('Seeks to a point in the playing song')

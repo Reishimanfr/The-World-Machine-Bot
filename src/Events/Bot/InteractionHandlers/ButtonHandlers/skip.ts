@@ -19,14 +19,14 @@ export const skip: ButtonFunc = async ({ interaction, player }) => {
     })
   }
 
-  if (player.voteSkipActive) {
+  if (player.votingActive) {
     return await interaction.reply({
       content: 'There\'s a vote skip in progress already!',
       ephemeral: true
     })
   }
 
-  interaction.reply({
+  await interaction.reply({
     content: 'Waiting for members to place their votes...',
     ephemeral: true
   })
@@ -34,7 +34,7 @@ export const skip: ButtonFunc = async ({ interaction, player }) => {
   const nonBotMembers = member.voice.channel.members.filter(m => !m.user.bot).size
   const requiredVotes = Math.round((nonBotMembers * (player.settings.voteSkipThreshold / 100)))
 
-  player.voteSkipActive = true
+  player.votingActive = true
 
   const [status, error] = await CreateVote({
     interaction,
@@ -61,6 +61,6 @@ export const skip: ButtonFunc = async ({ interaction, player }) => {
     }
   }
 
-  player.voteSkipActive = false
+  player.votingActive = false
 }
 

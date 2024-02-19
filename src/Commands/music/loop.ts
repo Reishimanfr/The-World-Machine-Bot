@@ -15,7 +15,22 @@ const loop: Command<true> = {
 
   data: new SlashCommandBuilder()
     .setName('loop')
-    .setDescription('Toggles looping for the currently playing track'),
+    .setDescription('Toggles looping.'),
+
+  helpData: {
+    description: 'Toggles looping.\nAvailable looping options are: `none`, `track` and `queue`\nIf the `mode` option isn\'t provided the next option in order will be selected.',
+    examples: [
+      `> **Toggle the current looping mode in order**\n\`\`\`/loop\`\`\``,
+
+      `> **Change the looping mode to** \`TRACK\`
+      \`\`\`/loop
+      mode: TRACK\`\`\``,
+
+      `> **Disable looping**
+      \`\`\`/loop 
+      mode: NONE\`\`\``
+    ]
+  },
 
   callback: async ({ interaction, player }) => {
     const loopString = {

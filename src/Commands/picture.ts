@@ -54,8 +54,14 @@ const picture: Command = {
     description: 'Sends cute pictures of a selected animal',
     image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175081409497534534/image.png',
     examples: [
-      `\`/picture animal: cat\` -> Sends a cute picture of a cat.`,
-      `\`/picture animal: cat secret: true\` -> Sends a cute picture of a cat, but only you can see the reply.`
+      `> **Send pictures of cats**
+      \`\`\`/picture
+      animal: cat\`\`\``,
+
+      `> **Send pictures of dogs, but make the reply hidden**
+      \`\`\`/picture
+      animal: dog
+      secret: true\`\`\``
     ]
   },
 

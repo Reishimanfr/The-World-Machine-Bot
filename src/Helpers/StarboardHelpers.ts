@@ -12,9 +12,9 @@ import {
   ReactionEmoji
 } from "discord.js";
 import { clipString } from "../Funcs/ClipString";
-import { fetchMember } from "../Funcs/FetchMember";
 import { starboardConfig, starboardEntries } from "../Models";
-import { logger } from "./Logger";
+import { logger } from "../config";
+import { client } from "..";
 
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
 
@@ -26,10 +26,8 @@ interface ConfigOptions {
 }
 
 const AcceptedImages = ["image/gif", "image/jpeg", "image/png", "image/webp"];
-const AcceptedLinkHeaders = [
-  "https://cdn.discordapp.com/attachments",
-  "https://media.discordapp.net/attachments",
-];
+const AcceptedLinkHeaders = ["https://cdn.discordapp.com/attachments", "https://media.discordapp.net/attachments"]
+const AllowedChannelTypes = [ChannelType.GuildText, ChannelType.GuildAnnouncement] as const
 
 class Starboard {
   private reaction: ReactionOrPart;
@@ -44,11 +42,15 @@ class Starboard {
   private formatReactionString(
     reactionEmoji: ReactionEmoji | GuildEmoji
   ): string {
-    return (
-      (reactionEmoji.id
-        ? `<${reactionEmoji.animated ? "a" : ""}:${reactionEmoji.name}:${reactionEmoji.id}>`
-        : this.reaction.emoji.name) ?? "Error!"
-    );
+    logger.debug(`[StarboardHelpers.ts/#formatReactionString]: Input: [${JSON.stringify(reactionEmoji, null, 2)}]`)
+    
+    const formattedEmoji = reactionEmoji.id
+      ? `<${reactionEmoji.animated ? "a" : ""}:${reactionEmoji.name}:${reactionEmoji.id}>`
+      : this.reaction.emoji.name ?? "Error!"
+
+    logger.debug(`[StarboardHelpers.ts/#formatReactionString]: Output: [${formattedEmoji}]`)
+
+    return formattedEmoji
   }
 
   private async setImage(reaction: MessageReaction): Promise<string | null> {
@@ -115,7 +117,7 @@ class Starboard {
       message.attachments.size
     ) {
       const embed = message.embeds[0] ?? null;
-      let contentString = `<@${message.author?.id}>: `;
+      let contentString = ''
 
       const hasValidHeader: boolean[] = [];
 
@@ -141,8 +143,8 @@ class Starboard {
 
       if (message.content) {
         contentString += message.content;
-      } else if (embed.data.description) {
-        contentString += embed.data.description;
+      } else if (embed?.data?.description) {
+        contentString += embed?.data?.description;
       } else if (message.attachments.size) {
         contentString = `=Message contains attachments (${message.attachments.size})=`;
       } else {
@@ -159,12 +161,12 @@ class Starboard {
     if (message.reference) {
       const reference = await message.fetchReference();
       const refEmbed = reference.embeds[0] ?? null;
-      let referenceString = `<@${reference.author.id}>:`;
+      let referenceString = '';
 
       if (reference.content) {
         referenceString += ` ${reference.content}`;
-      } else if (refEmbed.data.description) {
-        referenceString += refEmbed.data.description;
+      } else if (refEmbed?.data?.description) {
+        referenceString += refEmbed?.data?.description;
       } else if (reference.attachments.size) {
         referenceString = ` =Message contains attachments (${reference.attachments.size})=`;
       } else {
@@ -211,8 +213,7 @@ class Starboard {
       let emojiName = rect.emoji.name;
 
       if (rect.emoji.id) {
-        emojiName = `<${rect.emoji.animated ? "a" : ""}:${rect.emoji.name}:${rect.emoji.id
-          }>`;
+        emojiName = `<${rect.emoji.animated ? "a" : ""}:${rect.emoji.name}:${rect.emoji.id}>`;
       }
 
       if (emojiName && config.emojis.includes(emojiName)) {
@@ -230,8 +231,8 @@ class Starboard {
 
     const boardChannel = await reaction.message.guild?.channels.fetch(config.boardId)
 
-    // Return if channel is not a TextChannel or it doesn't exist
-    if (!boardChannel || boardChannel.type != ChannelType.GuildText) return
+    if (!boardChannel) return
+    if (boardChannel.type !== ChannelType.GuildAnnouncement && boardChannel.type !== ChannelType.GuildText) return
 
     const dbEntry = await starboardEntries.findOne({ where: { starredMessageUrl: reaction.message.url } });
 
@@ -241,7 +242,7 @@ class Starboard {
 
     if (!entryMessage) {
       const [member, count, fields, embedImage] = await Promise.all([
-        fetchMember(reaction.message.guildId!, reaction.message.author!.id),
+        reaction.message.guild?.members.fetch(reaction.message.author!.id),
         starboardEntries.count({
           where: { guildId: reaction.message.guildId },
         }),
@@ -254,25 +255,39 @@ class Starboard {
           name: `Entry #${count == 0 ? 1 : count}`,
           iconURL: reaction.message.guild?.iconURL()!,
         })
-        .setColor(member?.roles.highest.color ?? null)
+        .setColor(member?.displayHexColor ?? null)
         .setThumbnail(member?.displayAvatarURL({ extension: "png" }) ?? null)
         .setDescription(reactionStrings.join(" • "))
         .addFields(fields)
         .setImage(embedImage)
-        .setTimestamp();
+        .setTimestamp()
 
-      const refButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      const buttons: Array<ButtonBuilder> = [
         new ButtonBuilder()
           .setLabel("Jump to message")
           .setStyle(ButtonStyle.Link)
           .setURL(reaction.message.url)
-      );
+      ]
+
+      const refButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(buttons)
 
       try {
+        const permissions = boardChannel.permissionsFor(client.user!.id)
+
+        if (!permissions?.has('SendMessages')) {
+          reaction.message.reply(`⚠️ I can't send messages in <#${config.boardId}> TwT`)
+          return
+        }
+
         const res = await boardChannel.send({
           embeds: [embed],
           components: [refButton],
         });
+
+        if (boardChannel.type === ChannelType.GuildAnnouncement) {
+          await boardChannel.messages.crosspost(res)
+        }
 
         const data = {
           guildId: reaction.message.guild?.id,

@@ -9,12 +9,18 @@ const clear: Command<true> = {
 
   musicOptions: {
     requiresVc: true,
-    requiresDjRole: true
+    requiresDjRole: true,
+    requiresPlaying: true
   },
 
   data: new SlashCommandBuilder()
     .setName('clear')
     .setDescription('Clears the queue'),
+
+  helpData: {
+    description: 'Clears the player\'s queue',
+    examples: ['```/clear```']
+  },
 
   callback: async ({ interaction, player }) => {
     if (player.queue.length <= 0) {

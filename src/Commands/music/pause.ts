@@ -17,6 +17,11 @@ const pause: Command<true> = {
     .setName('pause')
     .setDescription('Toggles playback of the player'),
 
+  helpData: {
+    description: 'Toggles music playback',
+    examples: ['```/pause```']
+  },
+
   callback: async ({ interaction, player }) => {
     player.controller.togglePlayback()
     void player.messageManger.updatePlayerMessage()

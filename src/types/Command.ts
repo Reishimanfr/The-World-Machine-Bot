@@ -20,13 +20,6 @@ interface MusicOptions {
   requiresDjRole?: boolean
 }
 
-interface LegacyArgs<T> {
-  client: ExtClient
-  player: T extends true ? ExtPlayer : null
-  message: Message
-  args: ReadonlyArray<string>
-}
-
 export interface Args<T> {
   interaction: ChatInputCommandInteraction
   client: ExtClient
@@ -61,7 +54,6 @@ interface Command<requirePlayer = true> {
 
   // Callback functions
   callback: (args: Readonly<Args<requirePlayer>>) => any
-  legacy?: (args: Readonly<LegacyArgs<requirePlayer>>) => any
   autocomplete?: (interaction: AutocompleteInteraction) => any
 }
 

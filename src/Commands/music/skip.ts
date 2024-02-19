@@ -4,6 +4,7 @@ import {
 } from 'discord.js'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 import type Command from '../../types/Command'
+import { logger } from '../../config'
 
 const skip: Command<true> = {
   permissions: {
@@ -20,6 +21,11 @@ const skip: Command<true> = {
   data: new SlashCommandBuilder()
     .setName('skip')
     .setDescription('Skips the currently playing song.'),
+
+  helpData: {
+    description: 'Skips the currently playing song. If there\'s enough members **(configurable)** in the voice channel a voting will take place where users choose if they want to skip the song or not.',
+    examples: ['```/skip```']
+  },
 
   callback: async ({ interaction, player }) => {
     if (interaction.channel?.type !== ChannelType.GuildText) {
@@ -38,49 +44,60 @@ const skip: Command<true> = {
       })
     }
 
-    if (player.voteSkipActive) {
+    if (player.votingActive) {
       return await interaction.reply({
         content: 'There\'s a vote skip in progress already!',
         ephemeral: true
       })
     }
 
-    interaction.reply({
-      content: 'Waiting for members to place their votes...',
-      ephemeral: true
-    })
-
     const nonBotMembers = member.voice.channel.members.filter(m => !m.user.bot).size
     const requiredVotes = Math.round((nonBotMembers * (player.settings.voteSkipThreshold / 100)))
 
-    player.voteSkipActive = true
+    if (requiredVotes > 1) {
+      await interaction.reply({
+        content: 'Waiting for members to place their votes...',
+        ephemeral: true
+      })
+  
+      player.votingActive = true
+  
+      const [status, error] = await CreateVote({
+        interaction,
+        reason: 'Wants to skip the current song',
+        requiredVotes,
+        voiceText: interaction.channel,
+        voiceChannel: member.voice.channel,
+        time: 60000
+      })
 
-    const [status, error] = await CreateVote({
-      interaction,
-      reason: 'Wants to skip the current song',
-      requiredVotes,
-      voiceText: interaction.channel,
-      voiceChannel: member.voice.channel,
-      time: 60000
-    })
+      player.votingActive = false
+  
+      switch (status) {
+        case VoteStatus.Success: {
+          interaction.editReply(`Song **${player.currentTrack.info.title}** skipped.`)
+          player.stop()
+          break
+        }
 
-    switch (status) {
-      case VoteStatus.Success: {
-        interaction.editReply(`Song **${player.currentTrack.info.title}** skipped!`)
-        player.seekTo(999999999999999)
-        break
+        case VoteStatus.Failure: {
+          interaction.editReply(`Other members didn't agree to skip the current song.`)
+          break
+        }
+
+        case VoteStatus.Error: {
+          logger.error(`Failed to finish skip voting: ${error?.stack}`)
+          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+          break
+        }
       }
-      case VoteStatus.Failure: {
-        interaction.editReply(`The voting resulted in a failure!`)
-        break
-      }
-      case VoteStatus.Error: {
-        interaction.editReply(`Voting failed: \`\`\`${error?.message}\`\`\``)
-        break
-      }
+    } else {
+      interaction.reply({
+        content: `Song **${player.currentTrack.info.title}** skipped.`,
+        ephemeral: true
+      })
+      player.stop()
     }
-
-    player.voteSkipActive = false
   }
 }
 

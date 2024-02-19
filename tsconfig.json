@@ -1,15 +1,16 @@
 {
     "compilerOptions": {
-        "lib": ["ESNext"],
         "module": "CommonJS",
-        "moduleResolution": "node",
-        "target": "ESNext",
         "rootDir": "./src",
+        "outDir": "./dist",
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
         "esModuleInterop": true,
         "strictNullChecks": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "removeComments": true,
+        "checkJs": true,
+        "target": "ES2017",
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

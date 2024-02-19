@@ -1,6 +1,6 @@
 import constructProgressBar from '../../Funcs/ProgressBarConstructor'
 import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
-import { logger } from '../../Helpers/Logger'
+import { logger } from '../../config'
 import { MessageManager } from '../../Helpers/MessageManager'
 import { PlayerController } from '../../Helpers/PlayerController'
 import { inactiveGifUrl } from '../../Helpers/Util'
@@ -22,7 +22,7 @@ const QueueEnd: Event = {
     const descriptionSplit = embed.data.description?.split('\n')
 
     if (player.settings.queueEndDisconnect) {
-      return PlayerDestroy.execute(player, 'the queue ended.')
+      return PlayerDestroy.execute(player, 'Queue ended.')
     }
 
     const message = await player.message?.fetch()

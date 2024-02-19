@@ -6,9 +6,6 @@ const TrackEnd: Event = {
   name: 'trackEnd',
   once: false,
   execute: async (player: ExtPlayer) => {
-    const currentTime = player.timeInVc
-    player.timeInVc = currentTime + Math.trunc(player.previousTrack.info.length / 1000)
-
     const [record] = await queueHistory.findOrCreate({
       where: { UUID: player.sessionId },
       defaults: { UUID: player.sessionId, entries: '' }

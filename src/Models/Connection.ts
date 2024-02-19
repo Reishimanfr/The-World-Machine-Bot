@@ -1,12 +1,11 @@
 import { Sequelize } from "sequelize";
-import postgres from "../../postgres.json";
-import { logger } from "../Helpers/Logger";
+import options from "../../postgres.json"
+import { logger } from "../config";
 
 const sequelize = new Sequelize({
-  ...postgres as any,
+  ...options,
   logging: false,
   dialect: 'postgres'
-
 });
 
 async function authenticate() {

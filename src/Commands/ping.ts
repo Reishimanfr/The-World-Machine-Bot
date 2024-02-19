@@ -14,9 +14,7 @@ const ping: Command = {
   helpData: {
     description: 'Sends the bot\'s gateway ping\nThis command is mainly used for testing if the bot is online or not.',
     image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175083424692850829/image.png',
-    examples: [
-      '`/ping` -> Sends the bot\'s gateway ping.'
-    ]
+    examples: ['```/ping```']
   },
 
   callback: async ({ interaction, client }) => {

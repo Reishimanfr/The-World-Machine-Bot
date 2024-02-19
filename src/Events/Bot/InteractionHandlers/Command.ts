@@ -1,22 +1,25 @@
 import { EmbedBuilder, type ChatInputCommandInteraction } from 'discord.js'
-import { client } from '../../..'
+import { client  } from '../../..'
 import commandList from '../../../Data/CommandExport'
-import { fetchMember } from '../../../Funcs/FetchMember'
 import { type ExtPlayer } from '../../../Helpers/ExtendedClasses'
 import { MessageManager } from '../../../Helpers/MessageManager'
 import { PlayerController } from '../../../Helpers/PlayerController'
 import { QueueManager } from '../../../Helpers/QueueManager'
 import { embedColor } from '../../../Helpers/Util'
 import { combineConfig } from '../../../Helpers/config/playerSettings'
+import { logger } from '../../../config'
 
 const CommandInteraction = async (interaction: ChatInputCommandInteraction) => {
   const command = commandList.find(c => c?.data?.name == interaction.commandName)
   const guild = interaction.guild
 
+  logger.debug(`Recieved command: ${interaction.commandName} (${interaction.commandId})`)
+
   // Typeguard
   if (!guild) return
 
   if (!command) {
+    logger.warn(`File for command ${interaction.commandName} doesn\'t exist!`)
     return await interaction.reply({
       embeds: [
         new EmbedBuilder()
@@ -41,16 +44,14 @@ const CommandInteraction = async (interaction: ChatInputCommandInteraction) => {
   //   }
   // }
 
-  let player = client.poru.players.get(guild.id) as ExtPlayer
-
-  console.log(command.musicOptions)
+  let player = client .poru.players.get(guild.id) as ExtPlayer 
 
   // Case for music commands
   if (command.musicOptions) {
     const options = command.musicOptions
 
     const config = await combineConfig(guild.id)
-    const member = await fetchMember(guild.id, interaction.user.id)
+    const member = await guild.members.fetch(interaction.user.id)
 
     // Member is not in voice channel
     if (options.requiresVc && !member?.voice.channel?.id) {
@@ -84,7 +85,7 @@ const CommandInteraction = async (interaction: ChatInputCommandInteraction) => {
     }
 
     if (!player) {
-      player = client.poru.createConnection({
+      player = client .poru.createConnection({
         guildId: guild.id,
         voiceChannel: member!.voice.channel!.id,
         textChannel: interaction.channel!.id,
@@ -96,7 +97,7 @@ const CommandInteraction = async (interaction: ChatInputCommandInteraction) => {
 
   const args = {
     interaction,
-    client,
+    client: client ,
     player,
     controller: new PlayerController(player),
     message: new MessageManager(player),

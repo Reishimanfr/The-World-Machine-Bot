@@ -16,6 +16,11 @@ const nowPlaying: Command<true> = {
     .setName('nowplaying')
     .setDescription('Re-sends the now playing message'),
 
+  helpData: {
+    description: 'Re-sends the now playing message and deletes the old one.',
+    examples: ['```/nowplaying```']
+  },
+
   callback: async ({ interaction, client, player }) => {
     const channel = interaction.channel
 
@@ -48,6 +53,11 @@ const nowPlaying: Command<true> = {
     player.message?.delete()
       .catch(() => { })
 
+    interaction.reply({
+      content: 'The now playing message has been re-sent.',
+      ephemeral: true
+    })
+
     const nowPlayingEmbed = await player.messageManger.createPlayerEmbed()
     const buttons = player.messageManger.createPlayerButtons()
 
@@ -56,15 +66,8 @@ const nowPlaying: Command<true> = {
       components: [buttons]
     })
 
-    if (message) {
-      player.textChannel = interaction.channelId
-      player.message = message
-    }
-
-    await interaction.reply({
-      content: 'The now playing message has been re-sent.',
-      ephemeral: true
-    })
+    player.textChannel = interaction.channelId
+    player.message = message
   }
 }
 

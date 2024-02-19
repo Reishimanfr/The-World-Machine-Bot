@@ -1,6 +1,4 @@
-import { EmbedBuilder } from 'discord.js'
-import { embedColor } from '../../../../Helpers/Util'
-import { type ButtonFunc } from './_Buttons'
+import { ButtonFunc } from './_Buttons'
 
 export const loop: ButtonFunc = async ({ interaction, player }) => {
   const loopString = {
@@ -10,14 +8,10 @@ export const loop: ButtonFunc = async ({ interaction, player }) => {
   }
 
   player.controller.toggleLoop()
-  void player.messageManger.updatePlayerMessage()
+  player.messageManger.updatePlayerMessage()
 
   await interaction.reply({
-    embeds: [
-      new EmbedBuilder()
-        .setDescription(`[ ${loopString[player.loop]}. ]`)
-        .setColor(embedColor)
-    ],
+    content: loopString[player.loop],
     ephemeral: true
   })
 }

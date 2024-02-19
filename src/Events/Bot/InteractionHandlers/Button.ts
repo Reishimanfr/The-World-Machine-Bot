@@ -1,7 +1,7 @@
 import { EmbedBuilder, type ButtonInteraction } from 'discord.js'
-import { client } from '../../..'
+import { client  } from '../../..'
 import { type ExtPlayer } from '../../../Helpers/ExtendedClasses'
-import { logger } from '../../../Helpers/Logger'
+import { logger } from '../../../config'
 import { MessageManager } from '../../../Helpers/MessageManager'
 import { PlayerController } from '../../../Helpers/PlayerController'
 import { QueueManager } from '../../../Helpers/QueueManager'
@@ -16,7 +16,7 @@ const Button = async (interaction: ButtonInteraction): Promise<any> => {
   if (!guild) return
 
   if (id.startsWith('songcontrol')) {
-    const player = client.poru.players.get(guild.id) as ExtPlayer | undefined
+    const player = client .poru.players.get(guild.id) as ExtPlayer | undefined
     const member = await guild.members.fetch(interaction.user.id)
 
     if (!player) {
@@ -61,7 +61,7 @@ const Button = async (interaction: ButtonInteraction): Promise<any> => {
     const args = {
       interaction,
       player,
-      client,
+      client: client ,
       controller,
       builder,
       queue

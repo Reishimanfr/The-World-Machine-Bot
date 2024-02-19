@@ -1,28 +1,14 @@
 import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
-import { logger } from '../../Helpers/Logger'
+import { logger } from '../../config'
 import { MessageManager } from '../../Helpers/MessageManager'
 import { inactiveGifUrl } from '../../Helpers/Util'
-import { botStats } from '../../Models'
 import type Event from '../../types/Event'
 
 const PlayerDestroy: Event = {
   name: 'playerDestroy',
   once: false,
   execute: async (player: ExtPlayer, reason?: string) => {
-    const record = await botStats.findOne({ where: { guildId: player.guildId } })
-    const currentVcTime = record?.getDataValue('vcTime') ?? 0
-    const currentSessions = record?.getDataValue('sessionCount') ?? 0
-
-    if (!player.timeInVc) {
-      player.timeInVc = 0
-    }
-
-    await botStats.update({
-      vcTime: currentVcTime + player.timeInVc,
-      sessionCount: currentSessions + 1
-    }, { where: { guildId: player.guildId } })
-
-    const message = await player?.message?.fetch()
+    const message = await player.message?.fetch()
       .catch(() => null)
 
     const builder = new MessageManager(player)
@@ -40,7 +26,7 @@ const PlayerDestroy: Event = {
 
     if (reason) {
       embed.setAuthor({
-        name: `Player stop reason: ${reason}`,
+        name: `${reason}`,
         iconURL: inactiveGifUrl
       })
     }

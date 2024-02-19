@@ -1,12 +1,10 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, type ButtonInteraction, type ChatInputCommandInteraction, type Guild, type GuildMember, type User } from 'discord.js'
 import { type LavalinkResponse, type LoadType, type Response } from 'poru'
 import { setTimeout as timeout } from 'timers/promises'
-import { fetchMember } from '../Funcs/FetchMember'
 import { formatSeconds } from '../Funcs/FormatSeconds'
-import { botStats } from '../Models'
 import { config } from '../config'
 import { type ExtPlayer } from './ExtendedClasses'
-import { logger } from './Logger'
+import { logger } from '../config'
 import { MessageManager } from './MessageManager'
 import { embedColor, inactiveGifUrl } from './Util'
 
@@ -93,16 +91,6 @@ class PlayerController {
     tracks.forEach(track => {
       this.player.queue.add(track)
     })
-
-    const record = await botStats.findOne({ where: { guildId: this.player.guildId } })
-    const biggestPlaylist = record?.getDataValue('longestPlaylist') ?? 0
-
-    // Updated the "biggest playlist" database entry for guild
-    if (biggestPlaylist < tracks.length) {
-      await record?.update({
-        longestPlaylist: tracks.length
-      })
-    }
   }
 
   /**
@@ -210,167 +198,6 @@ class PlayerController {
     })
 
     return SaveStatus.Success
-  }
-
-  /**
-   * Invokes a vote to skip the currently playing song
-   */
-  public async invokeVoteSkip (interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<VoteSkipStatus | undefined> {
-    // Typeguard
-    if (!interaction.guild) return VoteSkipStatus.Error
-
-    // Just to get rid of "this"
-    const player = this.player
-
-    if (player.loop !== 'NONE') {
-      return VoteSkipStatus.LoopingEnabled
-    }
-
-    if (!player.settings.voteSkipToggle) {
-      return VoteSkipStatus.Disabled
-    }
-
-    if (player.currentTrack.info.requester.id === interaction.user.id) {
-      return VoteSkipStatus.OwnSkip
-    }
-
-    const channel = await interaction.guild.channels.fetch(player.voiceChannel)
-      .catch(() => null)
-
-    if (channel === null || !channel.isVoiceBased()) {
-      return VoteSkipStatus.Error
-    }
-
-    const notBotMembers = channel.members.filter(m => !m.user.bot).size
-    const requiredVotes = Math.round((notBotMembers * player.settings.voteSkipThreshold) / 100) + 1
-
-    if (notBotMembers < player.settings.voteSkipMembers || requiredVotes <= 1) {
-      return VoteSkipStatus.UnmetCondition
-    }
-
-    // Invoke the vote skip if all conditions are met
-    const buttons: ButtonBuilder[] = [
-      new ButtonBuilder()
-        .setCustomId('yes')
-        .setEmoji('✅')
-        .setLabel('Skip!')
-        .setStyle(ButtonStyle.Primary),
-
-      new ButtonBuilder()
-        .setCustomId('no')
-        .setEmoji('❌')
-        .setLabel("Don't skip!")
-        .setStyle(ButtonStyle.Primary)
-    ]
-
-    const buttonsRow = new ActionRowBuilder<ButtonBuilder>()
-      .addComponents(buttons)
-
-    // Current time + one minute (time before voting time passes)
-    const timestamp = Math.trunc(Date.now() / 1000 + 65)
-
-    // Including the person that initiated the voting
-    let votes = 1
-    const votedUsers: string[] = [interaction.user.id]
-
-    const embed = new EmbedBuilder()
-      .setAuthor({
-        name: `${interaction.user.username} wants to skip the current song`,
-        iconURL: interaction.user.displayAvatarURL()
-      })
-      .setDescription(
-        `[ Current votes: :white_check_mark: **${votes}/${requiredVotes}**.\nExpires <t:${timestamp}:R> ]`
-      )
-      .setColor(embedColor)
-
-    const response = await interaction.reply({
-      embeds: [embed],
-      components: [buttonsRow]
-    })
-
-    logger.debug(`Required votes: ${requiredVotes}`)
-    const collector = response.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      time: 60000
-    })
-
-    collector.on('collect', async (collected) => {
-      await collected.deferUpdate()
-      const member = await fetchMember(collected.guild!.id, collected.user.id)
-
-      if (!member?.voice.channel || member.voice.channel.id !== player.voiceChannel) {
-        await collected.followUp({
-          content: 'You must be in the same voice channel as the bot to vote.',
-          ephemeral: true
-        })
-        return
-      }
-
-      if (votedUsers.includes(collected.user.id)) {
-        await collected.followUp({
-          content: 'You have placed a vote already!',
-          ephemeral: true
-        })
-        return
-      }
-
-      logger.debug(`CustomId: ${collected.customId}`)
-      // Increment the votes by 1
-      if (collected.customId === 'yes') votes += 1
-
-      // Lock out the user from voting
-      votedUsers.push(collected.user.id)
-
-      if (votes >= requiredVotes) {
-        collector.stop('limit'); return
-      }
-
-      await response.edit({
-        embeds: [embed
-          .setDescription(`[ Current votes: :white_check_mark: **${votes}/${requiredVotes}**.
-Expires <t:${timestamp}:R> ]`)
-        ]
-      })
-    })
-
-    collector.on('end', async (_, reason) => {
-      const success = (votes >= requiredVotes)
-
-      if (reason === 'limit') reason = 'Enough votes collected'
-      if (reason === 'time') reason = 'Voting time over'
-
-      await response.edit({
-        embeds: [
-          new EmbedBuilder()
-            .setAuthor({
-              name: `Skipvote ended: ${reason}`,
-              iconURL: interaction.user.displayAvatarURL()
-            })
-            .setDescription(`[ ${success ? ':white_check_mark:' : ':x:'} The song ${success ? 'will' : "won't"} be skipped. ]`)
-            .setColor(embedColor)
-        ],
-        components: [
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            buttons.map((b) => b.setDisabled(true))
-          )
-        ]
-      })
-
-      try {
-        if (success) {
-          const positionBeforeSkip = Math.trunc(player.position / 1000)
-          const time = player.timeInVc ?? 0
-
-          player.timeInVc = time + positionBeforeSkip
-          player.seekTo(99999999999) // lol
-        }
-
-        await timeout(25000)
-        await response.delete()
-      } catch (error) {
-        logger.error(error, 'A error occurred while finishing a vote skip')
-      }
-    })
   }
 }
 

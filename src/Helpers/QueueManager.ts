@@ -29,6 +29,8 @@ class QueueManager {
   public createQueueEmbed(): EmbedBuilder[] | null {
     const queue = this.player.queue
 
+    console.log(`Queue length: ${queue.length} | ${queue.length < 1}`)
+
     if (queue.length < 1) return null
 
     const entryStrings: string[] = []
@@ -39,26 +41,29 @@ class QueueManager {
       entryStrings.push(this.formatQueueField(entry, i + 1))
     }
 
+    console.log(entryStrings)
+
     // Split by 6 entries per page
-    if (queue.length > ENTIRES_PER_PAGE) {
-      for (let i = 0; i < entryStrings.length; i += ENTIRES_PER_PAGE) {
-        const slice = entryStrings.slice(i, i += ENTIRES_PER_PAGE)
+    for (let i = 0; i < entryStrings.length; i += ENTIRES_PER_PAGE) {
+      const slice = entryStrings.slice(i, i += ENTIRES_PER_PAGE)
 
-        let description = ''
+      let description = ''
 
-        for (const part of slice) {
-          description += part
-        }
-
-        embeds.push(
-          new EmbedBuilder()
-            .setAuthor({
-              name: `[ There are ${entryStrings.length} songs in the queue. ]`,
-            })
-            .setDescription(description)
-        )
+      for (const part of slice) {
+        description += part
       }
+
+      embeds.push(
+        new EmbedBuilder()
+          .setAuthor({
+            name: `[ There are ${entryStrings.length} songs in the queue. ]`,
+          })
+          .setDescription(description)
+      )
     }
+
+
+    console.log(embeds)
 
     return embeds
   }

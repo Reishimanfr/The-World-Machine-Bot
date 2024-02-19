@@ -25,20 +25,14 @@ const avatar: Command = {
     description: 'Gets the avatar of a selected user.',
     image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1174770707578761276/image.png',
     examples: [
-      '`/avatar user: @rei.shi` -> Returns the avatar of user `@rei.shi`.',
-      '`/avatar user: @rei.shi secret: true` -> Returns the avatar of user `@rei.shi`, but only you can see the reply.'
-    ],
-    options: [
-      {
-        name: 'user',
-        description: 'The user whose avatar you want',
-        required: true
-      },
-      {
-        name: 'secret',
-        description: 'Should you be the only one seeing the command\'s reply?',
-        required: false
-      }
+      `> **Get the avatar of a server member**
+      \`\`\`/avatar
+      user: @rei.shi\`\`\``,
+
+      `> **Get the avatar of a server member and make the reply hidden**
+      \`\`\`/avatar
+      user: @rei.shi
+      secret: true\`\`\``
     ]
   },
 

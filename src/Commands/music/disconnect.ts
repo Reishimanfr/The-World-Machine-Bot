@@ -9,13 +9,18 @@ const disconnect: Command<true> = {
 
   musicOptions: {
     requiresDjRole: true,
-    requiresPlaying: true,
+    requiresPlaying: false,
     requiresVc: true
   },
 
   data: new SlashCommandBuilder()
     .setName('disconnect')
     .setDescription('Destroys the player and disconnects the bot.'),
+
+  helpData: {
+    description: 'Disconnects the bot from voice channel ending the session.',
+    examples: ['```/disconnect```']
+  },
 
   callback: async ({ interaction, player }) => {
     player.disconnect()

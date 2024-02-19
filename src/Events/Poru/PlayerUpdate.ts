@@ -1,5 +1,5 @@
 import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
-import { logger } from '../../Helpers/Logger'
+import { logger } from '../../config'
 import { MessageManager } from '../../Helpers/MessageManager'
 import type Event from '../../types/Event'
 

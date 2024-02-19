@@ -4,6 +4,7 @@ import { formatSeconds } from '../Funcs/FormatSeconds'
 import constructProgressBar from '../Funcs/ProgressBarConstructor'
 import { type ExtPlayer } from './ExtendedClasses'
 import { inactiveGifUrl, playerGifUrl } from './Util'
+import { logger } from '../config'
 
 interface ButtonOverrides {
   queue?: boolean
@@ -28,17 +29,22 @@ class MessageManager {
     this.player = player
   }
 
-  public async fetchSpotifyThumbnail (identifier: string): Promise<string> {
-    const request = await axios.get(`https://embed.spotify.com/oembed/?url=spotify:track:${identifier}`)
-    const image = request.data.thumbnail_url
+  public async fetchSpotifyThumbnail (identifier: string): Promise<string | null> {
+    try {
+      const request = await axios.get(`https://embed.spotify.com/oembed/?url=spotify:track:${identifier}`)
+      const image = request.data.thumbnail_url
 
-    return image
+      return image
+    } catch (error) {
+      logger.error(`Failed to fetch spotify thumbnail: ${error.stack}`)
+      return null
+    }
   }
 
   /**
    * Construct a music player state embed
    */
-  public async createPlayerEmbed (): Promise<EmbedBuilder> {
+  public async createPlayerEmbed(): Promise<EmbedBuilder> {
     const player = this.player
     const info = player.currentTrack.info
 
@@ -49,9 +55,14 @@ class MessageManager {
     const progressBar = constructProgressBar(info.length, player.position)
     // These are used for the user-readable progress notation under the progress bar
     const songLength = formatSeconds(info.length / 1000)
+    
     // Here we round the number to the nearest one divisible by 5 (for more consistency)
-    // For exmaple 14 -> 15, 12 -> 10
-    const playerPosition = formatSeconds(Math.round((player.position / 1000) / 5) * 5)
+    // unless the song finished playing. For exmaple 14 = 15 or 12 = 10
+    let playerPosition = formatSeconds(info.length)
+
+    if (player.position < info.length) {
+      playerPosition = formatSeconds(Math.round((player.position / 1000) / 5) * 5)
+    }
 
     const description = `By: **${info.author}**\n\n${progressBar}\n${playerPosition}/${songLength}\n\n:information_source: Check \`/help\` to get started!`
     const queueOrPlaying = (player.queue.length > 0)
@@ -121,7 +132,7 @@ class MessageManager {
   /**
    * Forcefully updates the music player embed message
    */
-  public async updatePlayerMessage (): Promise<void> {
+  public async updatePlayerMessage() {
     const message = await this.player.message?.fetch()
       .catch(() => undefined)
 

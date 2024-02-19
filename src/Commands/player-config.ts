@@ -19,9 +19,7 @@ const music: Command = {
   helpData: {
     description: 'Shows the current configuration of the player.',
     image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1174770707578761276/image.png',
-    examples: [
-      '`/player-config` -> Shows the configuration menu.'
-    ]
+    examples: ['```/player-config```']
   },
 
   async callback ({ interaction }) {
@@ -30,47 +28,47 @@ const music: Command = {
         new StringSelectMenuBuilder()
           .setCustomId('options-select')
           .setOptions(
-            {
+            { //
               label: '⚙️ View config',
               description: 'Shows the current configuration of the player.',
               value: 'showConfig'
             },
-            {
+            { //
               label: '👋 Leave on queue end',
               description: 'Toggles if the bot should leave after a queue ends.',
               value: 'queueEndDisconnect'
             },
-            {
+            { //
               label: '⏩ Vote skipping',
               description: 'Toggles if skipping a song requires users to vote to skip.',
               value: 'voteSkipToggle'
             },
-            {
+            { //
               label: '↪️ Resend message after song end',
               description: 'Toggles if the bot should resend the now playing message on new track.',
               value: 'resendMessageOnEnd'
             },
-            {
+            { //
               label: '🔄 Dynamic now playing message',
               description: 'Toggles if the bot should update the now playing message every 15s.',
               value: 'dynamicNowPlaying'
             },
-            {
-              label: '❗Require DJ role',
+            { //
+              label: '❗ Require DJ role',
               description: 'Toggles if members are required to have the DJ role to use commands.',
               value: 'requireDjRole'
             },
-            {
+            { // 
               label: '✨ DJ role',
               description: 'Sets the role to be considered the "DJ role".',
               value: 'djRoleId'
             },
-            {
+            { // 
               label: '🔢 Vote skipping member amount',
               description: 'Sets how many members must be in voice channel for voting to be enabled.',
               value: 'voteSkipMembers'
             },
-            {
+            { //
               label: '🔢 Vote skipping threshold (%)',
               description: 'Sets the % of members required to vote "yes" to skip a song.',
               value: 'setVoteSkipThreshold'
@@ -119,7 +117,6 @@ const music: Command = {
         case 'voteSkipMembers': await setVoteSkipMembers(interaction); break
         case 'setVoteSkipThreshold': await setVoteSkipThreshold(interaction); break
         case 'showConfig': await showConfig(interaction, record); break
-        // TODO: finish adding all options
       }
     })
 
@@ -263,11 +260,11 @@ async function showConfig (interaction: ChatInputCommandInteraction, record: Mod
     })
     .setDescription(`### DJ role
 Enabled: \`${isEnabled(data.requireDjRole)}\`
-Role: ${roleMention(data.djRoleId)}
+Role: ${data.djRoleId ? roleMention(data.djRoleId) : `Not set`}
 ### Skipvote
 Enabled: \`${isEnabled(data.voteSkipToggle)}\`
-Required members: \`${data.voteSkipMembers} members\`
-Voting threshold: \`${data.voteSkipThreshold}% members\`
+Required members: \`${data.voteSkipMembers} member(s)\`
+Voting threshold: \`${data.voteSkipThreshold}%\`
 ### Other options
 Disconnect on queue end: \`${isEnabled(data.queueEndDisconnect)}\`
 Resend message on new track: \`${isEnabled(data.resendMessageOnEnd)}\`

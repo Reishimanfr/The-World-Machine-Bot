@@ -7,10 +7,28 @@ const remove: Command<true> = {
     user: ['Speak', 'Connect'],
     bot: ['Speak', 'Connect']
   },
+
   musicOptions: {
     requiresDjRole: true,
     requiresPlaying: true,
     requiresVc: true
+  },
+
+  helpData: {
+    description: 'Removes a song or multiple songs from the queue',
+    examples: [
+      `> **Remove a specific song**
+      \`\`\`/remove
+      songs: 1\`\`\``,
+
+      `> **Remove multiple songs at once**
+      \`\`\`/remove
+      songs: 1, 3, 7\`\`\``,
+
+      `> **Remove a range of songs**
+      \`\`\`/remove
+      songs: 1-5\`\`\``
+    ]
   },
 
   data: new SlashCommandBuilder()

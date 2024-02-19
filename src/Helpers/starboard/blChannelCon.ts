@@ -58,9 +58,8 @@ export default async function blChannelCon(interaction: CommandInteraction) {
   }
 
   const channelSelect = new ChannelSelectMenuBuilder()
-    .setChannelTypes(ChannelType.GuildText)
     .setCustomId("chSelect")
-    .setPlaceholder("Select channels to be blacklisted!")
+    .setPlaceholder("Select channels to be blacklisted")
     .setMaxValues(interaction.guild?.channels.cache.size!);
 
   const row = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(

@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, ButtonInteraction, ChatInputCommandInteraction, TextChannel, VoiceBasedChannel, VoiceChannel, VoiceBasedChannelTypes, ChannelType } from 'discord.js'
 import { setTimeout } from 'timers/promises'
-import { client } from '..'
+import { client  } from '..'
 
 export enum VoteStatus {
   'Failure',
@@ -14,11 +14,11 @@ async function CreateVote (args: {
   voiceText: TextChannel | VoiceChannel
   voiceChannel: VoiceChannel | VoiceBasedChannel
   requiredVotes: number
-  time: 60000
+  time: number
 }): Promise<[VoteStatus, Error?]> {
   const { reason, voiceText, voiceChannel, requiredVotes, interaction, time } = args
 
-  if (!voiceText.permissionsFor(client.user!.id)?.has('SendMessages')) {
+  if (!voiceText.permissionsFor(client .user!.id)?.has('SendMessages')) {
     return [VoteStatus.Error, new Error('Insufficient permissions in channel: SendMessages permission missing')]
   }
 
@@ -45,8 +45,6 @@ async function CreateVote (args: {
 
   const now = new Date()
   now.setSeconds(now.getSeconds() + (time / 1000))
-
-  console.log(Math.trunc(now.getTime()))
 
   const votingTime = Math.trunc(now.getTime() / 1000)
 

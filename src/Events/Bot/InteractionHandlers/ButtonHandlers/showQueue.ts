@@ -1,31 +1,31 @@
-import { logger } from '../../../../Helpers/Logger'
 import { type ButtonFunc } from './_Buttons'
 
-export const showQueue: ButtonFunc = async ({ interaction, queue }) => {
+export const showQueue: ButtonFunc = async ({ interaction, player, queue }) => {
+  await interaction.deferReply({ ephemeral: true })
+
+  if (!player.queue.length) {
+    return interaction.editReply({
+      content: 'The queue is empty.'
+    })
+  }
+  
   const embeds = queue.createQueueEmbed()
 
-  if (!embeds) {
-    return await interaction.reply({
-      content: 'Something went wrong.',
-      ephemeral: true
+  if (!embeds?.length) {
+    return await interaction.editReply({
+      content: 'Failed to create a queue message.'
     })
   }
 
-  logger.info(`Embeds: ${embeds.length}`)
-
   if (embeds.length === 1) {
-    return await interaction.reply({
-      embeds: [...embeds],
-      ephemeral: true
+    return await interaction.editReply({
+      embeds: [...embeds]
     })
   }
 
   const description = embeds[0].data.description += '### :warning: For full list of songs, use the `/queue` command!'
 
-  await interaction.reply({
-    embeds: [
-      embeds[0].setDescription(description)
-    ],
-    ephemeral: true
+  await interaction.editReply({
+    embeds: [embeds[0].setDescription(description)]
   })
 }
