@@ -3,6 +3,8 @@
 
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
+<a href="https://wakatime.com/badge/github/Reishimanfr/The-World-Machine-Bot"><img src="https://wakatime.com/badge/github/Reishimanfr/The-World-Machine-Bot.svg" alt="wakatime"></a>
+
 # 
 > [!CAUTION]
 > This repo is still work in progress, some stuff may be outdated (don't hesitate to ask me about it!)<br>
