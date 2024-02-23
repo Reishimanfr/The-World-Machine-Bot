@@ -90,5 +90,5 @@ Optional:
 - [Spotify client & client secret](https://developer.spotify.com/documentation/web-api): [How to add spotify support](https://github.com/Reishimanfr/TWM-bot/wiki/%F0%9F%9F%A9-Adding-spotify-support) (Host only)
 - [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
 
-
- [![HitCount](https://hits.dwyl.com/Reishimanfr/TWM-bot.svg?style=flat&show=unique)](http://hits.dwyl.com/Reishimanfr/TWM-bot)
+## ✨ Some project stats
+![Alt](https://repobeats.axiom.co/api/embed/1a10163858d87c76196a1510e496f5c5cfb6990e.svg "Repobeats analytics image")
