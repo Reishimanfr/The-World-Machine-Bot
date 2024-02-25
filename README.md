@@ -7,12 +7,12 @@
 
 # 
 > [!CAUTION]
-> This repo is still work in progress, some stuff may be outdated (don't hesitate to ask me about it!)<br>
+> This repo is still a work in progress, some stuff may be outdated (don't hesitate to ask me about it!)<br>
 
 ## ℹ️ General info
 
-The world machine (or TWM for short) is a open source discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
-My motivation behind it was that all the other music bots I used didn't really suit me, so I decided to write my own!
+The world machine (or TWM for short) is an open-source discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
+My motivation was that all the other music bots I used didn't suit me, so I wrote my own!
 
 ## ⭐ Features
 - 🎵 [A very advanced music player]('fixme')
@@ -28,15 +28,15 @@ Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self
  <summary>Example config.yml file:</summary>
 
 ```yaml
-# Token for the bot to login with
+# Token for the bot to log in with
 botToken: 'Insert your bot token here'
 
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
-  steam: 'Your steam api key here'
+  steam: 'Your steam API key here'
 
   # This is used in the starboard script to display tenor gifs correctly
-  tenor: 'Your tenor api key here'
+  tenor: 'Your tenor API key here'
 
 # Settings to control the bot's player behavior
 player:
@@ -55,14 +55,14 @@ player:
   # Instead of making all responses to commands like /music play ephemeral, make them public
   announcePlayerActions: false # TODO
 
-  # Re-sends the now playing embed after a song ends
+  # Re-sends the now-playing embed after a song ends
   resendEmbedAfterSongEnd: true
 
   # Enables vote to skip song
   enableSkipvote: true
 
   # Sets the percentage of voice chat users required to vote "Yes" for the song to be skipped
-  # Values between 0 - 100 (percents). This will be ignored if enableSkipvote is set to false
+  # Values between 0 - 100 (percent). This will be ignored if enableSkipvote is set to false
   skipvoteThreshold: 50
 
   # Sets how many people should be in vc for skipvotes to be enabled
@@ -73,7 +73,7 @@ player:
 
 ## ❓ Support
 
-Message me on discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also be sure to check the wiki for most common topics!
+Please message me on discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also, be sure to check the wiki for the most common topics!
 
 ## 📦 Dependencies
 
