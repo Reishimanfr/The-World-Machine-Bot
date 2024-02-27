@@ -15,9 +15,12 @@ The world machine (or TWM for short) is an open-source discord bot written in ty
 My motivation was that all the other music bots I used didn't suit me, so I wrote my own!
 
 ## ⭐ Features
-- 🎵 [A very advanced music player]('fixme')
-- 🌟 [A starboard script]('fixme')
-- 👀 [Multiple fun-to-use commands](https://github.com/Reishimanfr/TWM-bot/wiki/Commands)
+- YouTube, Spotify, and Soundcloud playback support
+- [Sponsorblock](https://sponsor.ajay.app/) integration
+- Lots of QoL features to make the experience as nice as possible
+- Amazing support from the bot's developer
+- Amazing, customizable starboard
+- A lot of other fun to use commands
 
 ## Want to self-host?
 
@@ -87,7 +90,7 @@ Required:
 Optional:
 
 - [Tenor API token](https://tenor.com/developer/dashboard) (for the starboard to be able to embed tenor gifs)
-- [Spotify client & client secret](https://developer.spotify.com/documentation/web-api): [How to add spotify support](https://github.com/Reishimanfr/TWM-bot/wiki/%F0%9F%9F%A9-Adding-spotify-support) (Host only)
+- [Spotify client & client secret](https://developer.spotify.com/documentation/web-api): [How to add Spotify support](https://github.com/Reishimanfr/TWM-bot/wiki/%F0%9F%9F%A9-Adding-spotify-support) (Host only)
 - [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
 
 ## ✨ Some project stats
