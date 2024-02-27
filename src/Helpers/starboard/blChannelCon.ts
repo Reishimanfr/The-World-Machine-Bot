@@ -13,7 +13,7 @@ import { confirmButtons, finalConButtons } from "./_buttons";
 
 export default async function blChannelCon(interaction: CommandInteraction) {
   const record = await starboardConfig.findOne({ where: { guildId: interaction.guildId } })
-  const blacklistedChannels = record?.getDataValue('bannedChannels')
+  const blacklistedChannels = record?.getDataValue('bannedChannels').split(' ')
 
   const embeds = [
     new EmbedBuilder()
@@ -121,6 +121,6 @@ export default async function blChannelCon(interaction: CommandInteraction) {
   });
 
   await starboardConfig.update({
-    bannedChannels: channels
+    bannedChannels: channels.join(' ')
   }, { where: { guildId: interaction.guildId } })
 }

@@ -11,6 +11,9 @@
         "removeComments": true,
         "checkJs": true,
         "target": "ES2017",
+        "lib": [
+          "es5", "es6", "dom", "dom.iterable"
+        ]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

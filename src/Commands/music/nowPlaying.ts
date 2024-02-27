@@ -62,7 +62,7 @@ const nowPlaying: Command<true> = {
     const buttons = player.messageManger.createPlayerButtons()
 
     const message = await channel.send({
-      embeds: [nowPlayingEmbed],
+      embeds: [...nowPlayingEmbed],
       components: [buttons]
     })
 

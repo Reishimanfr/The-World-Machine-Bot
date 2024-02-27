@@ -1,9 +1,11 @@
+import { Category, Segment, SponsorBlock } from 'sponsorblock-api'
 import { client  } from '../..'
-import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { ExtPlayer } from '../../Helpers/ExtendedClasses'
 import { MessageManager } from '../../Helpers/MessageManager'
 import { PlayerController } from '../../Helpers/PlayerController'
 import { logger } from '../../config'
-import type Event from '../../types/Event'
+import Event from '../../types/Event'
+import { SponsorBlockDb } from '../../Models'
 
 const TrackStart: Event = {
   name: 'trackStart',
@@ -17,20 +19,37 @@ const TrackStart: Event = {
       void controller.cancelPlayerTimeout()
     }
 
-    const guild = await client .guilds.fetch(player.guildId)
+    const [record] = await SponsorBlockDb.findOrCreate({
+      where: {
+        guildId: player.guildId
+      }
+    })
+
+    const sponsorBlockConfig = record.dataValues
+    const segments: Array<string> = []
+
+    for (const [key, value] of Object.entries(sponsorBlockConfig)) {
+      const bool = (value === '0' || value === '1') ? Boolean(parseInt(value)) : Boolean(value) 
+      if (bool && !['id', 'guildId', 'createdAt', 'updatedAt'].includes(key)) segments.push(key)
+    }
+
+    player.currentSponsoredSegments = segments.length ? await new SponsorBlock(player.sessionId)
+      .getSegments(player.currentTrack.info.identifier, segments as Category[])
+      .catch(_ => {
+        return [] as Segment[]
+      })
+      : []
+
+    const guild = await client.guilds.fetch(player.guildId)
     const channel = await guild.channels?.fetch(player.textChannel)
 
-    if (!channel?.isTextBased() || !client .user) return
-
-    const permission = channel.permissionsFor(client .user.id)
-
-    if (!permission?.has('SendMessages')) return
+    if (!channel?.isTextBased() || !client.user || !channel.permissionsFor(client.user.id)?.has('SendMessages')) return
 
     const buttons = builder.createPlayerButtons(false, { save: false })
     const embed = await builder.createPlayerEmbed()
 
     const options = {
-      embeds: [embed],
+      embeds: [...embed],
       components: [buttons]
     }
 

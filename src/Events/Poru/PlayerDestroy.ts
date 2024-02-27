@@ -21,7 +21,7 @@ const PlayerDestroy: Event = {
 
     if (!message) return
 
-    const embed = await builder.createPlayerEmbed()
+    const embed = await builder.createPlayerEmbed()[0]
     const buttons = builder.createPlayerButtons(true)
 
     if (reason) {

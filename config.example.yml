@@ -3,6 +3,12 @@
 # Token for the bot to login with
 botToken: "Insert your bot token here"
 
+# Sets which type of database the bot should use. If you have a postgres database setup, it's recommended
+# to use it as it's faster than sqlite. If you don't want to setup a postgres database you can just set this
+# to "sqlite" and call it a day. The performance difference won't matter much for smaller bots.
+# Allowed values: "postgres" | "sqlite"
+database: "postgres"
+
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
   steam: "Your steam api key here"
@@ -23,9 +29,6 @@ player:
   # You must run the command deployment script after enabling/disabling this!
   # Deployment script: <npm> run deploy
   autocomplete: true
-
-  # Instead of making all responses to commands like /music play ephemeral, make them public
-  announcePlayerActions: false # TODO
 
   # Re-sends the now playing embed after a song ends
   resendEmbedAfterSongEnd: true

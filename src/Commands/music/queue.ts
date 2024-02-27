@@ -1,7 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
 import type Command from '../../types/Command'
 import { logger } from '../../config'
-import { P } from 'pino'
 
 const queue: Command<true> = {
   permissions: {
@@ -24,7 +23,6 @@ const queue: Command<true> = {
     .setDescription('Shows the queue'),
 
   callback: async ({ interaction, player }) => {
-    console.log(player.queue.length)
     if (!player.queue.length) {
       return interaction.reply({
         content: 'The queue is empty.',
@@ -65,8 +63,6 @@ const queue: Command<true> = {
     )
 
     let page = 0
-
-    console.log(embeds)
 
     if (!embeds[page]) {
       return interaction.reply({

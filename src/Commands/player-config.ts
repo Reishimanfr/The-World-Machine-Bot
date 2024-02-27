@@ -1,9 +1,44 @@
-import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
+import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits, StringSelectMenuComponent, StringSelectMenuOptionBuilder } from 'discord.js'
 import { type Model } from 'sequelize'
-import { PlayerSettings as PlayerSettingsDb } from '../Models'
+import { PlayerSettings as PlayerSettingsDb, SponsorBlockDb } from '../Models'
 import type Command from '../types/Command'
+import { config } from '../config'
 
-const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold']
+const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold', 'sponsorBlockConfig']
+
+interface PlayerSettings {
+  guildId: string
+  requireDjRole: boolean
+  djRoleId: string
+  voteSkipToggle: boolean
+  dynamicNowPlaying: boolean
+  resendMessageOnEnd: boolean
+  queueEndDisconnect: boolean
+  voteSkipThreshold: number
+  voteSkipMembers: boolean
+}
+
+interface SponsorBlockSettings {
+  filler: boolean
+  interaction: boolean
+  intro: boolean
+  music_offtopic: boolean
+  outro: boolean
+  preview: boolean
+  selfpromo: boolean
+  sponsor: boolean
+}
+
+export const TranslateSponsorBlockNames = {
+  filler: 'Filler',
+  interaction: 'Interaction',
+  intro: 'Intro',
+  music_offtopic: 'Non-music part',
+  outro: 'Outro',
+  preview: 'Preview',
+  selfpromo: 'Self-promotion',
+  sponsor: 'Sponsored portion'
+} as const
 
 const music: Command = {
   permissions: {
@@ -22,7 +57,7 @@ const music: Command = {
     examples: ['```/player-config```']
   },
 
-  async callback ({ interaction }) {
+  async callback({ interaction }) {
     const optionsMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
       .addComponents(
         new StringSelectMenuBuilder()
@@ -32,6 +67,11 @@ const music: Command = {
               label: '⚙️ View config',
               description: 'Shows the current configuration of the player.',
               value: 'showConfig'
+            },
+            {
+              label: '⏭ Sponsorblock auto skipping',
+              description: 'Configures skipping sponsored segments automatically with sponsorblock.',
+              value: 'sponsorBlockConfig'
             },
             { //
               label: '👋 Leave on queue end',
@@ -88,6 +128,7 @@ const music: Command = {
     })
 
     collector.on('collect', async (collected) => {
+      if (collected.customId !== 'options-select') return
       await collected.deferUpdate()
       collector.resetTimer()
 
@@ -117,6 +158,7 @@ const music: Command = {
         case 'voteSkipMembers': await setVoteSkipMembers(interaction); break
         case 'setVoteSkipThreshold': await setVoteSkipThreshold(interaction); break
         case 'showConfig': await showConfig(interaction, record); break
+        case 'sponsorBlockConfig': await sponsorBlockConfig(interaction); break
       }
     })
 
@@ -129,7 +171,7 @@ const music: Command = {
   }
 }
 
-async function setDjRole (interaction: ChatInputCommandInteraction): Promise<void> {
+async function setDjRole(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({
     content: 'Mention the role you\'d like to set as the DJ role.'
   })
@@ -172,7 +214,7 @@ async function setDjRole (interaction: ChatInputCommandInteraction): Promise<voi
   })
 }
 
-async function setVoteSkipMembers (interaction: ChatInputCommandInteraction): Promise<void> {
+async function setVoteSkipMembers(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({
     content: 'Input a new member requirement for vote skips to occur.'
   })
@@ -204,7 +246,7 @@ async function setVoteSkipMembers (interaction: ChatInputCommandInteraction): Pr
   })
 }
 
-async function setVoteSkipThreshold (interaction: ChatInputCommandInteraction): Promise<void> {
+async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({
     content: 'Input a new voting threshold for vote skips to be accepted.'
   })
@@ -236,19 +278,7 @@ async function setVoteSkipThreshold (interaction: ChatInputCommandInteraction): 
   })
 }
 
-interface PlayerSettings {
-  guildId: string
-  requireDjRole: boolean
-  djRoleId: string
-  voteSkipToggle: boolean
-  dynamicNowPlaying: boolean
-  resendMessageOnEnd: boolean
-  queueEndDisconnect: boolean
-  voteSkipThreshold: number
-  voteSkipMembers: boolean
-}
-
-async function showConfig (interaction: ChatInputCommandInteraction, record: Model<any, any>): Promise<void> {
+async function showConfig(interaction: ChatInputCommandInteraction, record: Model<any, any>) {
   const data = record.dataValues as PlayerSettings
 
   const isEnabled = (bool: boolean): string => { return bool ? '✅' : '❌' }
@@ -272,6 +302,97 @@ Update now playing message: \`${isEnabled(data.dynamicNowPlaying)}\``)
 
   await interaction.editReply({
     embeds: [configEmbed]
+  })
+}
+
+async function sponsorBlockConfig(interaction: ChatInputCommandInteraction) {
+  const [record] = await SponsorBlockDb.findOrCreate({
+    where: {
+      guildId: interaction.guildId
+    },
+    defaults: {
+      filler: false,
+      interaction: false,
+      intro: false,
+      music_offtopic: false,
+      outro: false,
+      preview: false,
+      selfpromo: false,
+      sponsor: false
+    }
+  })
+
+  const sponsorSettingsMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
+    .addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('menu')
+        .setOptions([
+          { label: 'Filler', value: 'filler' },
+          { label: 'Interaction', value: 'interaction' },
+          { label: 'Intro', value: 'intro' },
+          { label: 'Non-music part', value: 'music_offtopic' },
+          { label: 'Outro', value: 'outro' },
+          { label: 'Preview', value: 'preview' },
+          { label: 'Self-promotion', value: 'selfpromo' },
+          { label: 'Sponsored portion', value: 'sponsor' },
+        ])
+    )
+
+  const getSettings = async () => {
+    return (await record.reload()).dataValues
+  }
+
+  const formatSettings = (settings: SponsorBlockSettings) => {
+    const parts: Array<string> = []
+
+    for (const [key, value] of Object.entries(settings)) {
+      if (['id', 'createdAt', 'updatedAt', 'guildId'].includes(key)) continue
+      parts.push(`**${TranslateSponsorBlockNames[key]}**: \`${(value === 'true' || value === '1') ? '✅' : '❌'}\``)
+    }
+
+    return parts.join('\n')
+  }
+
+  const constructSettingsEmbed = (settings: SponsorBlockSettings) => {
+    return new EmbedBuilder()
+      .setAuthor({
+        name: `Sponsorblock config • ${interaction.guild?.name}`,
+        iconURL: interaction.guild?.iconURL() ?? undefined
+      })
+      .setDescription(`### Select a option to toggle in the menu below\n${formatSettings(settings)}`)
+  }
+
+  const response = await interaction.editReply({
+    embeds: [constructSettingsEmbed(await getSettings())],
+    content: '',
+    components: [sponsorSettingsMenu]
+  })
+
+  const collector = response.createMessageComponentCollector({
+    componentType: ComponentType.StringSelect,
+    time: 60000
+  })
+
+  collector.on('collect', async (int) => {
+    await int.deferUpdate()
+    collector.resetTimer()
+
+    let updatedSettings = await getSettings()
+    let changedValue = updatedSettings[int.values[0]]
+
+    if (config.databaseType === 'sqlite') {
+      updatedSettings[int.values[0]] = changedValue === '0' ? '1' : '0'
+    } else {
+      updatedSettings[int.values[0]] = changedValue === 'true' ? 'false' : 'true'
+    }
+
+    await SponsorBlockDb.update(updatedSettings, {
+      where: { guildId: int.guildId }
+    })
+
+    await interaction.editReply({
+      embeds: [constructSettingsEmbed(await getSettings())]
+    })
   })
 }
 

@@ -29,6 +29,7 @@ export interface BotConfigI {
     enablePlayerTimeout: boolean
     playerTimeout: number
   }
+  databaseType: 'postgres' | 'sqlite'
 }
 
 if (!fs.existsSync("config.yml")) {
@@ -77,7 +78,8 @@ const config: BotConfigI = {
     enablePlayerTimeout: configFile.player.enablePlayerTimeout ?? true,
     /** Time after which the bot will be automatically disconnected from the voice channel (in minutes). 0 - disable */
     playerTimeout: configFile.player.playerTimeout ?? 5,
-  }
+  },
+  databaseType: configFile.database ?? 'sqlite'
 };
 
 export const logger = pino.default({
@@ -97,6 +99,23 @@ if (!token) {
   process.exit(1);
 }
 
+if (config.databaseType === 'postgres') {
+  try {
+    require('pg')
+    require('pg-hstore')
+  } catch (error) {
+    logger.fatal(`Please install the pg and pg-hstore packages to use the postgres database. (npm install pg pg-hstore)`)
+    process.exit(1)
+  }
+} else {
+  try {
+    require('sqlite3')
+  } catch (error) {
+    logger.fatal(`Please install the sqlite3 package to use the sqlite database. (npm install sqlite3)`)
+    process.exit(1)
+  }
+} 
+
 if (!config.apiKeys.steam) {
   logger.warn("You haven't provided a steam API key. The /tf2 command will NOT work!");
 }
@@ -112,8 +131,6 @@ const poruOptions: PoruOptions = {
   reconnectTimeout: 1000,
   reconnectTries: 5,
 }; 
-
-logger.debug(`Poru options: ${JSON.stringify(poruOptions, null, 2)}`)
 
 const poruNodes: NodeGroup[] = [
   {

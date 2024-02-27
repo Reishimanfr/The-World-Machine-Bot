@@ -17,12 +17,12 @@ export const starboardConfig = sequelize.define("starboardConfig", {
     defaultValue: 4
   },
   emojis: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: ['⭐']
+    defaultValue: '⭐'
   },
   bannedChannels: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
-    defaultValue: []
+    type: DataTypes.STRING,
+    defaultValue: ''
   }
 });

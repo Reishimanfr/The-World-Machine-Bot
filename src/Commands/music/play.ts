@@ -8,8 +8,8 @@ import {
   type ChatInputCommandInteraction
 } from 'discord.js'
 import crypto from 'node:crypto'
-import { type LavalinkResponse } from 'poru'
-import { client  } from '../..'
+import { Track, type LavalinkResponse } from 'poru'
+import { client } from '../..'
 import { clipString } from '../../Funcs/ClipString'
 import { formatSeconds } from '../../Funcs/FormatSeconds'
 import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
@@ -20,6 +20,7 @@ import { combineConfig } from '../../Helpers/config/playerSettings'
 import { config as botConfig, logger } from '../../config'
 import type Command from '../../types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
+import { SponsorBlock } from "sponsorblock-api"
 
 const messages = {
   LOAD_FAILED: 'Failed to load track **{query}**.',
@@ -89,7 +90,7 @@ const play: Command = {
   },
 
   helpData: {
-    description: 'Adds a song to the queue or plays is immiedetely if `bypass-queue` is set to true and other users vote "yes"',
+    description: 'Adds a song to the queue or plays is immediately if `bypass-queue` is set to true and other users vote "yes"',
     examples: [
       `> **Search for a song and play the first result**
       \`\`\`/play
@@ -98,7 +99,7 @@ const play: Command = {
       `> **Play a song by URL**
       \`\`\`/play
       url-or-search:[URL here]\`\`\``,
-      
+
       `> **Play a song bypassing the queue**
       \`\`\`/play
       url-or-search: A song
@@ -126,11 +127,13 @@ const play: Command = {
     await interaction.deferReply({ ephemeral: true })
 
     const member = await interaction.guild.members.fetch(interaction.user.id)
-
     const bypassQueue = interaction.options.getBoolean('bypass-queue') ?? false
     const query = interaction.options.getString('url-or-search', true)
-
+    
     let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
+    
+    const sessionId = player?.sessionId ?? crypto.randomBytes(6).toString('hex')
+    const sponsorBlock = new SponsorBlock(sessionId)
 
     // Typeguard
     if (!member.voice.channel) {
@@ -163,6 +166,8 @@ const play: Command = {
     player.messageManger ||= new MessageManager(player)
     player.queueManager ||= new QueueManager(player)
 
+    let track: Track
+
     if (bypassQueue && player.currentTrack) {
       const nonBotMembers = member.voice.channel.members.filter(m => !m.user.bot).size
       const requiredVotes = Math.round((nonBotMembers * (player.settings.voteSkipThreshold / 100)))
@@ -188,7 +193,7 @@ const play: Command = {
 
           const [loadType, data] = await player.controller
             .resolveQueryOrUrl(query, interaction.user)
-          
+
           switch (loadType) {
             case 'LOAD_FAILED':
             case 'NO_MATCHES': {
@@ -200,7 +205,7 @@ const play: Command = {
 
             case 'PLAYLIST_LOADED':
             case 'TRACK_LOADED': {
-              const track = data.tracks[0]
+              track = data.tracks[0]
 
               await interaction.followUp({
                 content: `Track **${track.info.title}** will now play bypassing the queue.`,
@@ -243,7 +248,7 @@ const play: Command = {
         }
 
         case 'TRACK_LOADED': {
-          const track = data.tracks[0]
+          track = data.tracks[0]
 
           await interaction.editReply({
             content: `Track **${track.info.title}** added to the queue.`
@@ -258,7 +263,7 @@ const play: Command = {
     if (player.isConnected && !player.isPlaying) player.play()
 
     player.guildId ||= interaction.guild.id
-    player.sessionId ||= crypto.randomBytes(6).toString('hex')
+    player.sessionId ||= sessionId
     player.settings ||= await combineConfig(interaction.guild.id)
   },
 
@@ -295,7 +300,7 @@ const play: Command = {
     const tracks: TracksType[] = []
 
     const resolveAndPush = async (source: string, prefix: string): Promise<void> => {
-      const resolve = await client .poru.resolve({ query, source })
+      const resolve = await client.poru.resolve({ query, source })
       const resolveTracks = resolve.tracks.slice(0, 5)
 
       for (const track of resolveTracks) {

@@ -1,7 +1,7 @@
-import { ActivityType, Events } from 'discord.js'
-import { type ExtClient } from '../../Helpers/ExtendedClasses'
+import { Events } from 'discord.js'
+import { ExtClient } from '../../Helpers/ExtendedClasses'
 import { logger } from '../../config'
-import type Event from '../../types/Event'
+import Event from '../../types/Event'
 import pjson from "../../../package.json"
 import axios from 'axios'
 import semver from 'semver'
@@ -9,8 +9,7 @@ import semver from 'semver'
 async function checkIfNewVersionAvailable() {
   const REPOSITORY_URL = "https://api.github.com/repos/Reishimanfr/The-World-Machine-Bot/tags"
 
-  logger.info('Checking for any TWM updates...')
-  logger.info('You\'re running TWM v' + pjson.version)
+  logger.info(`Checking for any TWM updates... (currently running version v${pjson.version})`)
 
   try {
     const response = await axios.get(REPOSITORY_URL)
@@ -19,14 +18,12 @@ async function checkIfNewVersionAvailable() {
     const currentVer = pjson.version
 
     if (semver.gt(latestTag, currentVer)) {
-      logger.warn(`A new version of TWM is available (v${latestTag}). Run the git pull command or download the new version from here: https://github.com/Reishimanfr/The-World-Machine-Bot/`)
-      return
+      logger.warn(`A new version of TWM is available (v${latestTag}). Run git pull or download the new version here: https://github.com/Reishimanfr/The-World-Machine-Bot/`)
     } else {
-      logger.info(`You're running the lastest version of TWM!`)
+      logger.info(`No updates available.`)
     }
   } catch (error) {
     logger.error(`Failed to perform version checking. I can\'t determine if you're running the newest version of TWM!\n${error.stack}`)
-    return null
   }
 }
 

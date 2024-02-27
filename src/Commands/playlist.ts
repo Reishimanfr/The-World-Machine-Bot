@@ -109,7 +109,7 @@ const playlist: Command = {
     switch (subcommand) {
       case 'create': createPlaylist(interaction); break;
       case 'import': importSongs(interaction, client); break;
-      case 'load': loadPlaylist(interaction, client); break;
+      case 'load': loadPlaylist(interaction, client, interaction.options.getString('playlist', true)); break;
       case 'manage': managePlaylist(interaction, client); break;
       case 'delete': deletePlaylist(interaction); break;
     }
@@ -133,10 +133,10 @@ const playlist: Command = {
       }
       
       const mapNames = currentPlaylists.map(pl => {
-        const songs = playlistData.find(p => p.name === pl).tracks.length
+        const songs = playlistData.find(p => p.name === pl).tracks?.split(' ')?.length ?? 0
 
         return {
-          name: `${pl} -> 🎶 ${songs === 0 ? "Empty playlist" : `${songs} songs`}`,
+          name: `${pl} -> 🎶 ${songs === 0 ? "Empty playlist" : `${songs} song${songs === 1 ? '' : 's'}`}`,
           value: pl
         }
       })
@@ -246,7 +246,7 @@ async function createPlaylist(interaction: ChatInputCommandInteraction) {
   await playlists.create({
     userId: interaction.user.id,
     name: playlistName,
-    tracks: []
+    tracks: null
   })
 
   interaction.reply({
@@ -382,7 +382,7 @@ async function importSongs(interaction: ChatInputCommandInteraction, client: Ext
     await playlists.create({
       userId: interaction.user.id,
       name: playlistName,
-      tracks: tracks.map(track => track.track)
+      tracks: tracks.map(track => track.track).join(' ')
     })
   } else {
     interaction.editReply({
@@ -393,8 +393,7 @@ async function importSongs(interaction: ChatInputCommandInteraction, client: Ext
   }
 }
 
-async function loadPlaylist(interaction: ChatInputCommandInteraction, client: ExtClient) {
-  const playlistName = interaction.options.getString('playlist', true)
+export async function loadPlaylist(interaction: ChatInputCommandInteraction, client: ExtClient, playlistName: string) {
   const member = await interaction.guild!.members.fetch(interaction.user.id)
 
   const record = await playlists.findOne({
@@ -554,7 +553,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
     }
   })
 
-  let tracks: Array<string> = record?.getDataValue('tracks')
+  let tracks: Array<string> = record?.getDataValue('tracks')?.split(' ') ?? [] // trust
   let embeds = await formatPlaylistEntires(client, tracks, interaction)
   let page = 0
 
@@ -592,7 +591,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
     await btn.deferUpdate()
     let toDelete: Array<string> = []
 
-    // Dont disable buttons for navigation bar
+    // Don't disable buttons for navigation bar
     if (!['previous', 'next'].includes(btn.customId)) {
       await response.edit({
         components: toggleButtons(true)
@@ -609,7 +608,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
       case 'add': {
         const res = await btn.followUp({
           content: 'Please send the URL of the song you\'d like to add followed by the position at which the song should be placed.'
-            + '\nExample: `[url], 5` -> Adds song by url at position 5'
+            + '\nExample: `url, 5` -> Adds song by url at position 5'
         })
 
         toDelete.push(res.id)
@@ -635,7 +634,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
 
         if (parts.length !== 2) {
           res.edit({
-            content: 'This doesn\'t look right. Did you follow the schema? (`[url], position`)'
+            content: 'This doesn\'t look right. Did you follow the schema? (`url, position`)'
           })
           break
         }
@@ -734,7 +733,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
       case 'replace': {
         const res = await btn.followUp({
           content: 'Please send the URL of the song you\'d like to replace with followed by the position at which the song should be placed.'
-            + '\nExample: `[url], 5` -> Replaces song at position 5 with song by url'
+            + '\nExample: `url, 5` -> Replaces song at position 5 with song by url'
         })
 
         toDelete.push(res.id)
@@ -760,7 +759,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
 
         if (parts.length !== 2) {
           res.edit({
-            content: 'This doesn\'t look right. Did you follow the schema? (`[url], position`)'
+            content: 'This doesn\'t look right. Did you follow the schema? (`url, position`)'
           })
           break
         }
@@ -923,7 +922,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
       })
 
       await record.update({
-        tracks: tracks
+        tracks: tracks.join(' ')
       })
 
       response.edit({

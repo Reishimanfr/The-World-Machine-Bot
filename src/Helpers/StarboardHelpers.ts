@@ -21,8 +21,8 @@ type ReactionOrPart = MessageReaction | PartialMessageReaction;
 interface ConfigOptions {
   boardId: string,
   amount: number,
-  emojis: string[]
-  bannedChannels: string[]
+  emojis: string
+  bannedChannels: string
 }
 
 const AcceptedImages = ["image/gif", "image/jpeg", "image/png", "image/webp"];
@@ -198,14 +198,13 @@ class Starboard {
 
     const config: ConfigOptions = record.dataValues
 
-
     if (!config?.boardId) return; // There is no config or configured channel
-    if (config.bannedChannels.includes(reaction.message.channelId)) return; // The channel is blacklisted
+    if (config.bannedChannels.split(' ').includes(reaction.message.channelId)) return; // The channel is blacklisted
     if (reaction.message.channelId === config.boardId) return; // The reaction channel is the same as starboard channel
 
     const reactionEmoji = this.formatReactionString(reaction.emoji);
 
-    if (!config.emojis.includes(reactionEmoji)) return; // The emoji isn't accepted for the starboard
+    if (!config.emojis.split(' ').includes(reactionEmoji)) return; // The emoji isn't accepted for the starboard
 
     const reactions: { emoji: string; count: number }[] = [];
 
@@ -216,7 +215,7 @@ class Starboard {
         emojiName = `<${rect.emoji.animated ? "a" : ""}:${rect.emoji.name}:${rect.emoji.id}>`;
       }
 
-      if (emojiName && config.emojis.includes(emojiName)) {
+      if (emojiName && config.emojis.split(' ').includes(emojiName)) {
         reactions.push({ emoji: emojiName, count: rect.count });
       }
     });

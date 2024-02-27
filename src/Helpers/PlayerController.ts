@@ -1,10 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, type ButtonInteraction, type ChatInputCommandInteraction, type Guild, type GuildMember, type User } from 'discord.js'
-import { type LavalinkResponse, type LoadType, type Response } from 'poru'
-import { setTimeout as timeout } from 'timers/promises'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, GuildMember,  User } from 'discord.js'
+import { LavalinkResponse, LoadType, Response } from 'poru'
 import { formatSeconds } from '../Funcs/FormatSeconds'
 import { config } from '../config'
-import { type ExtPlayer } from './ExtendedClasses'
-import { logger } from '../config'
+import { ExtPlayer } from './ExtendedClasses'
 import { MessageManager } from './MessageManager'
 import { embedColor, inactiveGifUrl } from './Util'
 
@@ -114,13 +112,13 @@ class PlayerController {
 
       const embed = await this.messageManager.createPlayerEmbed()
 
-      embed.setAuthor({
+      embed[0].setAuthor({
         name: 'The player has timed out.',
         iconURL: inactiveGifUrl
       })
 
       await message.edit({
-        embeds: [embed],
+        embeds: [...embed],
         components: [this.messageManager.createPlayerButtons(true)]
       })
     }, playerTimeout)

@@ -5,7 +5,7 @@
     "lavalink": "java -jar lavalink.jar",
     "deploy": "sucrase-node src/Data/DeployCommands.ts"
   },
-  "version": "1.6.0",
+  "version": "1.5.0",
   "dependencies": {
     "axios": "^1.6.0",
     "discord.js": "^14.13.0",
@@ -18,7 +18,9 @@
     "pino-pretty": "^10.2.3",
     "poru": "^4.2.2",
     "semver": "^7.6.0",
-    "sequelize": "^6.33.0",
+    "sequelize": "^6.37.1",
+    "sponsorblock-api": "^0.2.4",
+    "sqlite3": "^5.1.7",
     "sucrase": "^3.34.0"
   },
   "devDependencies": {

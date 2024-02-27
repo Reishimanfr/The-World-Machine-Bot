@@ -5,6 +5,7 @@ import constructProgressBar from '../Funcs/ProgressBarConstructor'
 import { type ExtPlayer } from './ExtendedClasses'
 import { inactiveGifUrl, playerGifUrl } from './Util'
 import { logger } from '../config'
+import { TranslateSponsorBlockNames } from '../Commands/player-config'
 
 interface ButtonOverrides {
   queue?: boolean
@@ -25,11 +26,11 @@ class MessageManager {
     save: '<:save:1175222724143091713>'
   }
 
-  constructor (player: ExtPlayer) {
+  constructor(player: ExtPlayer) {
     this.player = player
   }
 
-  public async fetchSpotifyThumbnail (identifier: string): Promise<string | null> {
+  public async fetchSpotifyThumbnail(identifier: string): Promise<string | null> {
     try {
       const request = await axios.get(`https://embed.spotify.com/oembed/?url=spotify:track:${identifier}`)
       const image = request.data.thumbnail_url
@@ -44,7 +45,7 @@ class MessageManager {
   /**
    * Construct a music player state embed
    */
-  public async createPlayerEmbed(): Promise<EmbedBuilder> {
+  public async createPlayerEmbed(): Promise<Array<EmbedBuilder>> {
     const player = this.player
     const info = player.currentTrack.info
 
@@ -55,7 +56,7 @@ class MessageManager {
     const progressBar = constructProgressBar(info.length, player.position)
     // These are used for the user-readable progress notation under the progress bar
     const songLength = formatSeconds(info.length / 1000)
-    
+
     // Here we round the number to the nearest one divisible by 5 (for more consistency)
     // unless the song finished playing. For exmaple 14 = 15 or 12 = 10
     let playerPosition = formatSeconds(info.length)
@@ -69,26 +70,51 @@ class MessageManager {
       ? `There ${player.queue.length === 1 ? 'is one song' : `are ${player.queue.length} songs`} in the queue`
       : player.isPaused ? 'Paused' : 'Now Playing' + '...'
 
-    return new EmbedBuilder()
-      .setAuthor({
-        name: queueOrPlaying,
-        iconURL: this.player.isPlaying ? playerGifUrl : inactiveGifUrl
-      })
-      .setTitle(`${info.title}`)
-      .setURL(info.uri)
-      .setDescription(description)
-      .setThumbnail(image ?? null)
-      .setFooter({
-        text: `Requested by ${info.requester.username ?? ''}`,
-        iconURL: info.requester.avatar ?? undefined
-      })
-      .setColor('#2b2d31')
+    const returnArray: Array<EmbedBuilder> = []
+
+    returnArray.push(
+      new EmbedBuilder()
+        .setAuthor({
+          name: queueOrPlaying,
+          iconURL: this.player.isPlaying ? playerGifUrl : inactiveGifUrl
+        })
+        .setTitle(info.title)
+        .setURL(info.uri)
+        .setDescription(description)
+        .setThumbnail(image ?? null)
+        .setFooter({
+          text: `Requested by ${info.requester.username ?? ''}`,
+          iconURL: info.requester.avatar ?? undefined
+        })
+        .setColor('#2b2d31')
+    )
+
+    const sponsoredSegments = player?.currentSponsoredSegments ?? [] // just to be safe
+
+    let sponsoredPartsStrings: Array<string> = []
+
+    for (const part of sponsoredSegments) {
+      sponsoredPartsStrings.push(`**${TranslateSponsorBlockNames[part.category]}** from \`${formatSeconds(Math.trunc(part.startTime))}\` to \`${formatSeconds(Math.trunc(part.endTime))}\``)
+    }
+
+    if (sponsoredPartsStrings) {
+      returnArray.push(
+        new EmbedBuilder()
+          .setAuthor({
+            name: `Sponsorblock: auto-skipping these parts:`
+          })
+          .setDescription(sponsoredPartsStrings.join('\n'))
+          .setColor('#2b2d31')
+      )
+    }
+
+    return returnArray
   }
 
   /**
    * Construct buttons for the music player embed
    */
-  public createPlayerButtons (disableAll = false, overrides?: ButtonOverrides): ActionRowBuilder<ButtonBuilder> {
+  public createPlayerButtons(disableAll = false, overrides?: ButtonOverrides): ActionRowBuilder<ButtonBuilder> {
     const loopColor = {
       NONE: ButtonStyle.Primary,
       TRACK: ButtonStyle.Success,
@@ -138,8 +164,10 @@ class MessageManager {
 
     if (!message) return
 
+    const embeds = await this.createPlayerEmbed()
+
     await message.edit({
-      embeds: [await this.createPlayerEmbed()],
+      embeds: [...embeds],
       components: [this.createPlayerButtons()]
     })
   }

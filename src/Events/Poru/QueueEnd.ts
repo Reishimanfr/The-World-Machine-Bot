@@ -19,7 +19,7 @@ const QueueEnd: Event = {
 
     const embed = await builder.createPlayerEmbed()
     const buttons = builder.createPlayerButtons(true)
-    const descriptionSplit = embed.data.description?.split('\n')
+    const descriptionSplit = embed[0].data.description?.split('\n')
 
     if (player.settings.queueEndDisconnect) {
       return PlayerDestroy.execute(player, 'Queue ended.')
@@ -30,8 +30,8 @@ const QueueEnd: Event = {
 
     if (!message) return
 
-    embed.setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`)
-    embed.setAuthor({
+    embed[0].setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`)
+    embed[0].setAuthor({
       name: 'Waiting for another song...',
       iconURL: inactiveGifUrl
     })
@@ -40,7 +40,7 @@ const QueueEnd: Event = {
 
     try {
       await message.edit({
-        embeds: [embed],
+        embeds: [...embed],
         components: [buttons]
       })
     } catch (error) {

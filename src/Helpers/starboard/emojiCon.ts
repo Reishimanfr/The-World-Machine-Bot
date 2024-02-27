@@ -9,7 +9,7 @@ export default async function emojiCon(interaction: CommandInteraction) {
     where: { guildId: interaction.guildId }
   })
 
-  const emojis = record?.getDataValue('emojis')
+  const emojis = record?.getDataValue('emojis').split(' ')
 
   const embeds = [
     new EmbedBuilder()
@@ -103,6 +103,6 @@ export default async function emojiCon(interaction: CommandInteraction) {
   })
 
   await starboardConfig.update({
-    emojis: newEmojis
+    emojis: newEmojis.join(' ')
   }, { where: { guildId: interaction.guildId } })
 }
