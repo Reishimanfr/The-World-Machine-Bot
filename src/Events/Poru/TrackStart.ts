@@ -57,10 +57,8 @@ const TrackStart: Event = {
       return
     }
 
-    logger.trace('Initial player message was created already. Looking for other things to do.')
 
     if (player.settings?.resendMessageOnEnd) {
-      logger.trace('Resend message on track end is enabled. Checking if we have to resend the message.')
       const messages = await channel.messages.fetch({ limit: 1 })
       const firstMessage = messages.at(0)
 
@@ -69,28 +67,23 @@ const TrackStart: Event = {
         !firstMessage.embeds.length ||
         !firstMessage.embeds.at(0)?.footer?.text.startsWith('Requested by')
       ) {
-        logger.trace('Resending the now playing message since it\'s not the first message in the channel.')
         const message = await player.message.fetch()
           .catch(() => null)
 
         if (message?.deletable) {
-          logger.trace('Attempting to delete the old message')
           await message.delete()
         }
 
-        logger.trace('Assigning the new message to the player class')
         player.message = await channel.send(options)
         return
       }
     }
 
     if (player.message) {
-      logger.trace('Attempting to edit the existing message')
       const message = await player.message.fetch()
         .catch(() => null)
 
       if (message) {
-        logger.trace('The message exists, editing it with up-to-date info now')
         await message.edit(options)
       }
     }

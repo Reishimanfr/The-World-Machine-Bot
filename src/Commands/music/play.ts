@@ -45,10 +45,9 @@ async function loadPlaylist(interaction: ChatInputCommandInteraction, player: Ex
         .setStyle(ButtonStyle.Secondary)
     )
 
-  const response = await interaction.reply({
+  const response = await interaction.editReply({
     content: 'A playlist was found. Do you want to load it?',
-    components: [buttons],
-    ephemeral: true
+    components: [buttons]
   })
 
   const button = await response.awaitMessageComponent({

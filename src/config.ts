@@ -2,7 +2,7 @@ import fs from 'fs'
 import yaml from 'js-yaml'
 import path from 'path'
 import { NodeGroup, PoruOptions } from 'poru'
-import * as pino from 'pino'
+import winston from 'winston'
 
 interface BotConfigI {
   botToken?: string
@@ -82,11 +82,25 @@ const config: BotConfigI = {
   databaseType: configFile.database ?? 'sqlite'
 }
 
-export const logger = pino.default({
-  transport: {
-    target: 'pino-pretty'
-  },
-  level: config.logLevel
+export const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console({
+      level: config.logLevel,
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple(),
+        winston.format.timestamp(),
+        winston.format.printf(({ level, message, timestamp }) => {
+          return `[${timestamp}] [${level.toUpperCase()}] : ${message}`
+        }),
+        winston.format.errors({ stack: true }),
+        winston.format.splat(),
+        winston.format.metadata({
+          fillExcept: ['message', 'level', 'timestamp', 'label'],
+        })
+      )
+    })
+  ]
 })
 
 export type BotConfig = typeof config
@@ -95,7 +109,7 @@ export type PlayerSettings = typeof config.player
 const token = config.botToken ?? config.devBotToken
 
 if (!token) {
-  logger.fatal('Provide a bot token in the config.yml file located in the root of the folder!')
+  logger.error('Provide a bot token in the config.yml file located in the root of the folder!')
   process.exit(1)
 }
 
@@ -104,14 +118,14 @@ if (config.databaseType === 'postgres') {
     require('pg')
     require('pg-hstore')
   } catch (error) {
-    logger.fatal('Please install the pg and pg-hstore packages to use the postgres database. (npm install pg pg-hstore)')
+    logger.error('Please install the pg and pg-hstore packages to use the postgres database. (npm install pg pg-hstore)')
     process.exit(1)
   }
 } else {
   try {
     require('sqlite3')
   } catch (error) {
-    logger.fatal('Please install the sqlite3 package to use the sqlite database. (npm install sqlite3)')
+    logger.error('Please install the sqlite3 package to use the sqlite database. (npm install sqlite3)')
     process.exit(1)
   }
 } 

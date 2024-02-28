@@ -176,12 +176,10 @@ export class MessageManager {
       sponsoredPartsStrings.push(`**${TranslateSponsorBlockNames[part.category]}** from \`${formatSeconds(Math.trunc(part.startTime))}\` to \`${formatSeconds(Math.trunc(part.endTime))}\``)
     }
 
-    if (sponsoredPartsStrings) {
+    if (sponsoredPartsStrings.length > 0) {
       returnArray.push(
         new EmbedBuilder()
-          .setAuthor({
-            name: 'Sponsorblock: auto-skipping these parts:'
-          })
+          .setAuthor({ name: 'Sponsorblock: auto-skipping these parts:' })
           .setDescription(sponsoredPartsStrings.join('\n'))
           .setColor('#2b2d31')
       )

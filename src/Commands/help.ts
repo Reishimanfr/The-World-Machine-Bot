@@ -2,7 +2,6 @@ import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, Str
 import commandList from '../Data/CommandExport'
 import { embedColor } from '../Helpers/Util'
 import { Command } from '../Types/Command'
-import { logger } from '../config'
 import { clipString } from '../Funcs/ClipString'
 
 const help: Command = {
@@ -37,7 +36,6 @@ If you'd like to self-host the bot check out the **[How to self-host](https://gi
 
     for (const command of commandList) {
       if (command.helpData && command.helpData.description && command.data.name) {
-        logger.trace(`Adding command data to /help list: ${command.data.name}, ${command.helpData?.description}`)
         const clippedDescription = clipString({ string: command.helpData.description, maxLength: 97, sliceEnd: '...'})
 
         commandOptions.push(
