@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 
 const loop: Command<true> = {
   permissions: {
@@ -20,7 +20,7 @@ const loop: Command<true> = {
   helpData: {
     description: 'Toggles looping.\nAvailable looping options are: `none`, `track` and `queue`\nIf the `mode` option isn\'t provided the next option in order will be selected.',
     examples: [
-      `> **Toggle the current looping mode in order**\n\`\`\`/loop\`\`\``,
+      '> **Toggle the current looping mode in order**\n```/loop```',
 
       `> **Change the looping mode to** \`TRACK\`
       \`\`\`/loop

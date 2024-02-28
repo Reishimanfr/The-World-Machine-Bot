@@ -1,15 +1,6 @@
-import {
- AutocompleteInteraction,
- ChatInputCommandInteraction,
- Message,
- PermissionResolvable,
- SlashCommandBuilder,
- SlashCommandSubcommandsOnlyBuilder
-} from 'discord.js'
-import { ExtClient, ExtPlayer } from '../Helpers/ExtendedClasses'
-import { MessageManager } from '../Helpers/MessageManager'
-import { PlayerController } from '../Helpers/PlayerController'
-import { QueueManager } from '../Helpers/QueueManager'
+import { AutocompleteInteraction, ChatInputCommandInteraction, PermissionResolvable, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
+import { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import { ExtClient } from '../Helpers/ExtendedClient'
 
 interface MusicOptions {
   /** Must be in a voice channel to be used */
@@ -20,16 +11,13 @@ interface MusicOptions {
   requiresDjRole?: boolean
 }
 
-export interface Args<T> {
+interface Args<T> {
   interaction: ChatInputCommandInteraction
   client: ExtClient
   player: T extends true ? ExtPlayer : null
-  message: T extends true ? MessageManager : null
-  controller: T extends true ? PlayerController : null
-  queue: T extends true ? QueueManager : null
 }
 
-interface Command<requirePlayer = true> {
+export interface Command<requirePlayer = true> {
   // Command data
   data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder
 
@@ -56,5 +44,3 @@ interface Command<requirePlayer = true> {
   callback: (args: Readonly<Args<requirePlayer>>) => any
   autocomplete?: (interaction: AutocompleteInteraction) => any
 }
-
-export default Command

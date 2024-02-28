@@ -1,10 +1,10 @@
-import fs from "fs";
-import yaml from "js-yaml";
-import path from "path";
-import { NodeGroup, PoruOptions } from "poru";
-import * as pino from "pino"
+import fs from 'fs'
+import yaml from 'js-yaml'
+import path from 'path'
+import { NodeGroup, PoruOptions } from 'poru'
+import * as pino from 'pino'
 
-export interface BotConfigI {
+interface BotConfigI {
   botToken?: string
   devBotToken?: string
   apiKeys: {
@@ -32,13 +32,13 @@ export interface BotConfigI {
   databaseType: 'postgres' | 'sqlite'
 }
 
-if (!fs.existsSync("config.yml")) {
-  console.error("Unable to find the config.yml file. Please copy the default configuration file from the github page and place it in the root directory.");
-  process.exit(1);
+if (!fs.existsSync('config.yml')) {
+  console.error('Unable to find the config.yml file. Please copy the default configuration file from the github page and place it in the root directory.')
+  process.exit(1)
 }
 
-const configYAML = fs.readFileSync(path.join(__dirname, "../config.yml"));
-const configFile = yaml.load(configYAML);
+const configYAML = fs.readFileSync(path.join(__dirname, '../config.yml'))
+const configFile = yaml.load(configYAML)
 
 const config: BotConfigI = {
   botToken: configFile.botToken,
@@ -47,7 +47,7 @@ const config: BotConfigI = {
     steam: configFile.apiKeys.steam ?? '',
     tenor: configFile.apiKeys.tenor ?? '',
   },
-  logLevel: configFile.logLevel ?? "info",
+  logLevel: configFile.logLevel ?? 'info',
   enableDatabase: configFile.enableDatabase ?? true,
   /** Settings related to the bot's music player */
   player: {
@@ -80,7 +80,7 @@ const config: BotConfigI = {
     playerTimeout: configFile.player.playerTimeout ?? 5,
   },
   databaseType: configFile.database ?? 'sqlite'
-};
+}
 
 export const logger = pino.default({
   transport: {
@@ -95,8 +95,8 @@ export type PlayerSettings = typeof config.player
 const token = config.botToken ?? config.devBotToken
 
 if (!token) {
-  logger.fatal(`Provide a bot token in the config.yml file located in the root of the folder!`);
-  process.exit(1);
+  logger.fatal('Provide a bot token in the config.yml file located in the root of the folder!')
+  process.exit(1)
 }
 
 if (config.databaseType === 'postgres') {
@@ -104,41 +104,41 @@ if (config.databaseType === 'postgres') {
     require('pg')
     require('pg-hstore')
   } catch (error) {
-    logger.fatal(`Please install the pg and pg-hstore packages to use the postgres database. (npm install pg pg-hstore)`)
+    logger.fatal('Please install the pg and pg-hstore packages to use the postgres database. (npm install pg pg-hstore)')
     process.exit(1)
   }
 } else {
   try {
     require('sqlite3')
   } catch (error) {
-    logger.fatal(`Please install the sqlite3 package to use the sqlite database. (npm install sqlite3)`)
+    logger.fatal('Please install the sqlite3 package to use the sqlite database. (npm install sqlite3)')
     process.exit(1)
   }
 } 
 
 if (!config.apiKeys.steam) {
-  logger.warn("You haven't provided a steam API key. The /tf2 command will NOT work!");
+  logger.warn('You haven\'t provided a steam API key. The /tf2 command will NOT work!')
 }
 
 if (!config.apiKeys.tenor) {
-  logger.warn("You haven't provided a tenor API key. The starboard won't be able to embed tenor gifs!");
+  logger.warn('You haven\'t provided a tenor API key. The starboard won\'t be able to embed tenor gifs!')
 }
 
 const poruOptions: PoruOptions = {
-  library: "discord.js",
-  defaultPlatform: "ytsearch",
+  library: 'discord.js',
+  defaultPlatform: 'ytsearch',
   autoResume: true,
   reconnectTimeout: 1000,
   reconnectTries: 5,
-}; 
+} 
 
 const poruNodes: NodeGroup[] = [
   {
-    host: "localhost",
-    name: "localnode",
-    password: "MyPassword",
+    host: 'localhost',
+    name: 'localnode',
+    password: 'MyPassword',
     port: 2333
   }
-];
+]
 
-export { config, poruNodes, poruOptions };
+export { config, poruNodes, poruOptions }

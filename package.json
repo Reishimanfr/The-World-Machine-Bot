@@ -3,28 +3,29 @@
     "watch": "nodemon --quiet --watch src/** --exec sucrase-node src/index.ts",
     "start": "sucrase-node src/index.ts",
     "lavalink": "java -jar lavalink.jar",
-    "deploy": "sucrase-node src/Data/DeployCommands.ts"
+    "deploy": "sucrase-node src/Data/DeployCommands.ts",
+    "lint:fix": "eslint src/** --fix",
+    "lint": "eslint src/**"
   },
-  "version": "1.7.0",
+  "version": "1.7.1",
   "dependencies": {
+    "@eslint/create-config": "^0.4.6",
     "axios": "^1.6.0",
     "discord.js": "^14.13.0",
     "js-yaml": "^4.1.0",
-    "moment": "^2.29.4",
-    "npm-run-all": "^4.1.5",
-    "pg": "^8.11.3",
-    "pg-hstore": "^2.3.4",
     "pino": "^8.16.2",
     "pino-pretty": "^10.2.3",
     "poru": "^4.2.2",
     "semver": "^7.6.0",
     "sequelize": "^6.37.1",
     "sponsorblock-api": "^0.2.4",
-    "sqlite3": "^5.1.7",
     "sucrase": "^3.34.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
     "nodemon": "^3.0.1",
     "typescript": "^5.3.3"
   }

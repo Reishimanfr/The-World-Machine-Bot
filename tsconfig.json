@@ -1,20 +1,24 @@
 {
-    "compilerOptions": {
-        "module": "CommonJS",
-        "rootDir": "./src",
-        "outDir": "./dist",
-        "skipLibCheck": true,
-        "skipDefaultLibCheck": true,
-        "esModuleInterop": true,
-        "strictNullChecks": true,
-        "resolveJsonModule": true,
-        "removeComments": true,
-        "checkJs": true,
-        "target": "ES2017",
-        "lib": [
-          "es5", "es6", "dom", "dom.iterable"
-        ]
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+  "compilerOptions": {
+    "module": "CommonJS",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "checkJs": true,
+    "lib": [
+      "es5",
+      "es6",
+      "dom",
+      "dom.iterable"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,7 +1,7 @@
 import { Events, type VoiceState } from 'discord.js'
-import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { type ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { client  } from '../../index'
-import type Event from '../../types/Event'
+import { Event } from '../../Types/Event'
 import PlayerDestroy from '../Poru/PlayerDestroy'
 
 const UpdateVoiceState: Event = {

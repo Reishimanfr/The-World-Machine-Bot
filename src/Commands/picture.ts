@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -6,15 +6,15 @@ import {
   ComponentType,
   EmbedBuilder,
   SlashCommandBuilder
-} from 'discord.js';
-import { embedColor } from '../Helpers/Util';
-import Command from '../types/Command';
+} from 'discord.js'
+import { embedColor } from '../Helpers/Util'
+import { Command } from '../Types/Command'
 
 async function getImage(link: string) {
-  const request = await axios.get(link);
-  const data = request.data;
+  const request = await axios.get(link)
+  const data = request.data
 
-  return data.image || data.data.url; // Depending on which api we're using
+  return data.image || data.data.url // Depending on which api we're using
 }
 
 const picture: Command = {
@@ -22,7 +22,7 @@ const picture: Command = {
     user: ['SendMessages', 'AttachFiles'],
     bot: ['SendMessages', 'AttachFiles']
   },
-  
+
   data: new SlashCommandBuilder()
     .setName('picture')
     .setDescription('Get a random picture of a selected animal')
@@ -66,22 +66,22 @@ const picture: Command = {
   },
 
   callback: async ({ interaction }) => {
-    if (!interaction.inCachedGuild()) return;
+    if (!interaction.inCachedGuild()) return
 
-    const choice = interaction.options.getString('animal');
-    const secret = interaction.options.getBoolean('secret') ?? false;
+    const choice = interaction.options.getString('animal')
+    const secret = interaction.options.getBoolean('secret') ?? false
 
     // Depending on the choice prepare the link to be used in the getImage function
-    const link: string =
+    const link =
       choice === 'capybara'
         ? 'https://api.capy.lol/v1/capybara?json=true'
-        : `https://some-random-api.com/animal/${choice}`;
+        : `https://some-random-api.com/animal/${choice}`
 
-    const image = await getImage(link);
+    const image = await getImage(link)
 
     const embed = new EmbedBuilder()
       .setImage(image) // Get and set the image
-      .setColor(embedColor);
+      .setColor(embedColor)
 
     // The reason we use a array is so we can edit the .setDisabled value of the button once the interaction expires
     const components = [
@@ -89,47 +89,45 @@ const picture: Command = {
         .setCustomId('get-another')
         .setLabel('🔃')
         .setStyle(ButtonStyle.Secondary),
-    ];
+    ]
 
     const enabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       components
-    );
+    )
 
     const reply = await interaction.reply({
       embeds: [embed],
       components: [enabledRow],
       ephemeral: secret,
-    });
+    })
 
     const collector = reply.createMessageComponentCollector({
       componentType: ComponentType.Button,
       time: 60000,
-    });
+    })
 
     collector.on('collect', async (button) => {
-      await button.deferUpdate();
-      collector.resetTimer();
+      await button.deferUpdate()
+      collector.resetTimer()
 
-      const image = await getImage(link);
+      const image = await getImage(link)
 
       const newEmbed = new EmbedBuilder()
         .setImage(image) // Get set image
-        .setColor(embedColor);
+        .setColor(embedColor)
 
-      try {
-        await reply.edit({ embeds: [newEmbed] });
-      } catch { }
-    });
+      await reply.edit({ embeds: [newEmbed] })
+        .catch(() => { })
+    })
 
-    collector.on('end', async (_) => {
+    collector.on('end', async () => {
       const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         components[0].setDisabled(true)
-      );
+      )
 
-      try {
-        await reply.edit({ components: [disabledRow] });
-      } catch { }
-    });
+      await reply.edit({ components: [disabledRow] })
+        .catch(() => { })
+    })
   },
 }
 

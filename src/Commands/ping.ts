@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
-import type Command from '../types/Command'
+import { Command } from '../Types/Command'
 
 const ping: Command = {
   permissions: {
@@ -9,7 +9,7 @@ const ping: Command = {
 
   data: new SlashCommandBuilder()
     .setName('ping')
-    .setDescription("Check the bot's ping and if it's online or not"),
+    .setDescription('Check the bot\'s ping and if it\'s online or not'),
 
   helpData: {
     description: 'Sends the bot\'s gateway ping\nThis command is mainly used for testing if the bot is online or not.',

@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js'
 import commandList from '../Data/CommandExport'
 import { embedColor } from '../Helpers/Util'
-import type Command from '../types/Command'
+import { Command } from '../Types/Command'
 import { logger } from '../config'
 import { clipString } from '../Funcs/ClipString'
 
@@ -98,9 +98,9 @@ If you'd like to self-host the bot check out the **[How to self-host](https://gi
 
       if (selectedCommand.musicOptions) {
         description += `\n### Requirements:
-Requires DJ role: \`${selectedCommand.musicOptions.requiresDjRole ? "✅" : "❌"}\`
-Requires music to be playing: \`${selectedCommand.musicOptions.requiresPlaying ? "✅" : "❌"}\`
-Requires user to be in VC: \`${selectedCommand.musicOptions.requiresVc ? "✅" : "❌"}\``
+Requires DJ role: \`${selectedCommand.musicOptions.requiresDjRole ? '✅' : '❌'}\`
+Requires music to be playing: \`${selectedCommand.musicOptions.requiresPlaying ? '✅' : '❌'}\`
+Requires user to be in VC: \`${selectedCommand.musicOptions.requiresVc ? '✅' : '❌'}\``
       }
 
       const helpEmbed = new EmbedBuilder()

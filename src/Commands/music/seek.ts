@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { embedColor } from '../../Helpers/Util'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 
 // Check if string is in HH?:MM:SS format
 function validateTimestamp (timestamp: string): boolean {
@@ -113,7 +113,7 @@ const seek: Command<true> = {
 
       pos = player.position + direction * time
       responseString = `Seeked ${seconds.slice(1)} ${direction === 1 ? 'forward' : 'backwards'
-        }`
+      }`
     } else {
       return await interaction.reply({
         embeds: [

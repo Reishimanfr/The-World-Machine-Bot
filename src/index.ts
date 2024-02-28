@@ -1,11 +1,11 @@
-import { ActivityType, GatewayIntentBits, Partials } from "discord.js"
-import fs from "fs"
-import path from "path"
-import { Poru } from "poru"
-import { ExtClient } from "./Helpers/ExtendedClasses"
-import { config, logger, poruNodes, poruOptions } from "./config"
+import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
+import fs from 'fs'
+import path from 'path'
+import { Poru } from 'poru'
+import { config, logger, poruNodes, poruOptions } from './config'
+import { ExtClient } from './Helpers/ExtendedClient'
 
-export const client  = new ExtClient({
+export const client = new ExtClient({
   failIfNotExists: true,
   intents: [
     GatewayIntentBits.Guilds,
@@ -21,7 +21,7 @@ export const client  = new ExtClient({
     Partials.Message,
   ],
   allowedMentions: { repliedUser: false },
-});
+})
 
 process.on('uncaughtException', (error) => {
   console.error(error)
@@ -36,13 +36,13 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 try {
-  client.poru = new Poru(client , poruNodes, poruOptions)
+  client.poru = new Poru(client, poruNodes, poruOptions)
 } catch (error) {
   logger.error('Failed to connect to lavalink.')
 }
 
-const poruEventPath = path.join(__dirname, "./Events/Poru")
-const eventPath = path.join(__dirname, "./Events/Bot")
+const poruEventPath = path.join(__dirname, './Events/Poru')
+const eventPath = path.join(__dirname, './Events/Bot')
 
 const poruEvents = fs
   .readdirSync(poruEventPath)
@@ -53,8 +53,8 @@ const botEvents = fs
   .filter(file => file.endsWith('.ts'))
 
 for (const file of botEvents) {
-  const filePath = path.join(eventPath, file);
-  const event = require(filePath)?.default;
+  const filePath = path.join(eventPath, file)
+  const event = require(filePath)?.default
 
   if (!event) {
     logger.warn(`Client event ${event} doesn't have a default export. Skipping...`)
@@ -95,7 +95,7 @@ setInterval(() => {
     activityName = `music in ${activePlayers} server${activePlayers > 1 ? 's' : ''}`
   }
 
-  client.user?.setPresence({ 
+  client.user?.setPresence({
     activities: [
       {
         name: activityName,

@@ -10,7 +10,7 @@ const BEGIN = {
   '0.08': '<:b80:1155216156441980949>',
   '0.09': '<:b90:1155216138947547299>',
   '0.1': '<:b100:1155216141157929053>',
-};
+}
 const CENTER = {
   '0': '<:c0:1155208684591382598>',
   '1': '<:c10:1155208691621056653>',
@@ -23,7 +23,7 @@ const CENTER = {
   '8': '<:c80:1155208741143183421>',
   '9': '<:c90:1155208748227379280>',
   '10': '<:c100:1155208754602704998>',
-};
+}
 const END = {
   '0': '<:e0:1155215625933815828>',
   '1': '<:e10:1155215627963871404>',
@@ -36,56 +36,56 @@ const END = {
   '8': '<:e80:1155215669273559081>',
   '9': '<:e90:1155215639686955179>',
   '10': '<:e100:1155215624784588850>',
-};
+}
 
 function constructProgressBar(songLength: number, playerPosition: number) {
-  const songProgress = Math.round((playerPosition / songLength) * 100) / 100;
+  const songProgress = Math.round((playerPosition / songLength) * 100) / 100
 
-  let begin: string;
-  let center: string;
-  let end: string;
+  let begin: string
+  let center: string
+  let end: string
 
   if (songProgress <= 0) {
-    return `${BEGIN['0.00']}${CENTER['0'].repeat(8)}${END['0']}`;
+    return `${BEGIN['0.00']}${CENTER['0'].repeat(8)}${END['0']}`
   }
 
   if (songProgress >= 1) {
-    return `${BEGIN['0.1']}${CENTER['10'].repeat(8)}${END['10']}`;
+    return `${BEGIN['0.1']}${CENTER['10'].repeat(8)}${END['10']}`
   }
 
   // 10%
   if (songProgress <= 0.1) {
-    begin = BEGIN[songProgress];
-    center = CENTER['0'].repeat(8);
-    end = END['0'];
+    begin = BEGIN[songProgress]
+    center = CENTER['0'].repeat(8)
+    end = END['0']
   } else if (songProgress >= 0.1 && songProgress <= 0.9) {
-    begin = BEGIN['0.1'];
+    begin = BEGIN['0.1']
 
-    const repeat = Math.floor(songProgress * 10) % 10;
-    const rest = songProgress.toString().charAt(3);
-    const repeatRest = 8 - repeat;
+    const repeat = Math.floor(songProgress * 10) % 10
+    const rest = songProgress.toString().charAt(3)
+    const repeatRest = 8 - repeat
 
-    center = CENTER['10'].repeat(repeat);
+    center = CENTER['10'].repeat(repeat)
 
     if (parseInt(rest) > 0) {
-      center += CENTER[rest];
+      center += CENTER[rest]
     }
 
     if (repeatRest > 0) {
-      center += CENTER['0'].repeat(repeatRest);
+      center += CENTER['0'].repeat(repeatRest)
     }
 
-    end = END['0'];
+    end = END['0']
   } else {
-    begin = BEGIN['0.1'];
-    center = CENTER['10'].repeat(8);
+    begin = BEGIN['0.1']
+    center = CENTER['10'].repeat(8)
 
-    const rest = Math.floor(songProgress * 10) % 10;
+    const rest = Math.floor(songProgress * 10) % 10
 
-    end = END[`${rest}`];
+    end = END[`${rest}`]
   }
 
-  return `${begin}${center}${end}`;
+  return `${begin}${center}${end}`
 }
 
-export default constructProgressBar;
+export default constructProgressBar

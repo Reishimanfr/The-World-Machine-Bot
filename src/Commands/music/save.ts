@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { SaveStatus } from '../../Helpers/PlayerController'
-import type Command from '../../types/Command'
+import { SaveStatus } from '../../Helpers/ExtendedPlayer'
+import { Command } from '../../Types/Command'
 
 const save: Command<true> = {
   permissions: {

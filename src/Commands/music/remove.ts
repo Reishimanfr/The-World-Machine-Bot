@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { embedColor } from '../../Helpers/Util'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 
 const remove: Command<true> = {
   permissions: {

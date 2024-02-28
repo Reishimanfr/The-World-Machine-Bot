@@ -1,25 +1,20 @@
 import constructProgressBar from '../../Funcs/ProgressBarConstructor'
-import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../config'
-import { MessageManager } from '../../Helpers/MessageManager'
-import { PlayerController } from '../../Helpers/PlayerController'
 import { inactiveGifUrl } from '../../Helpers/Util'
-import type Event from '../../types/Event'
+import { Event } from '../../Types/Event'
 import PlayerDestroy from './PlayerDestroy'
 
 const QueueEnd: Event = {
   name: 'queueEnd',
   once: false,
   execute: async (player: ExtPlayer) => {
-    const builder = new MessageManager(player)
-    const controller = new PlayerController(player)
-
     // Set the player timeout
-    void controller.setupPlayerTimeout()
+    void player.controller.setupPlayerTimeout()
 
-    const embed = await builder.createPlayerEmbed()
-    const buttons = builder.createPlayerButtons(true)
-    const descriptionSplit = embed[0].data.description?.split('\n')
+    const embed = await player.messageManger.createPlayerEmbed()[0]
+    const buttons = player.messageManger.createPlayerButtons(true)
+    const descriptionSplit = embed.data.description?.split('\n')
 
     if (player.settings.queueEndDisconnect) {
       return PlayerDestroy.execute(player, 'Queue ended.')
@@ -30,8 +25,8 @@ const QueueEnd: Event = {
 
     if (!message) return
 
-    embed[0].setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`)
-    embed[0].setAuthor({
+    embed.setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`)
+    embed.setAuthor({
       name: 'Waiting for another song...',
       iconURL: inactiveGifUrl
     })
@@ -40,7 +35,7 @@ const QueueEnd: Event = {
 
     try {
       await message.edit({
-        embeds: [...embed],
+        embeds: [embed],
         components: [buttons]
       })
     } catch (error) {

@@ -3,7 +3,7 @@ import type Queue from 'poru/dist/src/guild/Queue'
 import { client  } from '../..'
 import { embedColor } from '../../Helpers/Util'
 import { config as botConfig, logger } from '../../config'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 import { Track } from 'poru'
 
@@ -98,23 +98,23 @@ const skipTo: Command<true> = {
       player.votingActive = false
 
       switch (status) {
-        case VoteStatus.Success: {
-          interaction.editReply(`Skipped to song **${song.info.title}**.`)
-          player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
-          player.stop()
-          break
-        }
+      case VoteStatus.Success: {
+        interaction.editReply(`Skipped to song **${song.info.title}**.`)
+        player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
+        player.stop()
+        break
+      }
 
-        case VoteStatus.Failure: {
-          interaction.editReply(`Other members didn't agree to skip to this song.`)
-          break
-        }
+      case VoteStatus.Failure: {
+        interaction.editReply('Other members didn\'t agree to skip to this song.')
+        break
+      }
 
-        case VoteStatus.Error: {
-          logger.error(`Failed to finish skipto voting: ${error?.stack}`)
-          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
-          break
-        }
+      case VoteStatus.Error: {
+        logger.error(`Failed to finish skipto voting: ${error?.stack}`)
+        interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+        break
+      }
       }
     } else {
       player.queue = player.queue.slice(position - 1, player.queue.length) as Queue

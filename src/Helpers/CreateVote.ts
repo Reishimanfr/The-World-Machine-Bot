@@ -1,6 +1,6 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, ButtonInteraction, ChatInputCommandInteraction, TextChannel, VoiceBasedChannel, VoiceChannel, VoiceBasedChannelTypes, ChannelType } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, ButtonInteraction, ChatInputCommandInteraction, TextChannel, VoiceBasedChannel, VoiceChannel } from 'discord.js'
 import { setTimeout } from 'timers/promises'
-import { client  } from '..'
+import { client } from '..'
 
 export enum VoteStatus {
   'Failure',
@@ -69,7 +69,7 @@ async function CreateVote (args: {
     return [VoteStatus.Error, new Error('Failed to send voting message to text channel.')]
   }
 
-  return await new Promise(async (resolve) => {
+  return await new Promise((resolve) => {
     const collector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
       time

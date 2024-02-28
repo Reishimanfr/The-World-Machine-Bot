@@ -1,6 +1,6 @@
 import { logger } from '../../config'
 import { poruOptions } from '../../config'
-import type Event from '../../types/Event'
+import { Event } from '../../Types/Event'
 
 const NodeError: Event = {
   name: 'nodeError',

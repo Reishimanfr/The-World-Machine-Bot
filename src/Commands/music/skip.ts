@@ -3,7 +3,7 @@ import {
   SlashCommandBuilder
 } from 'discord.js'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 import { logger } from '../../config'
 
 const skip: Command<true> = {
@@ -74,22 +74,22 @@ const skip: Command<true> = {
       player.votingActive = false
   
       switch (status) {
-        case VoteStatus.Success: {
-          interaction.editReply(`Song **${player.currentTrack.info.title}** skipped.`)
-          player.stop()
-          break
-        }
+      case VoteStatus.Success: {
+        interaction.editReply(`Song **${player.currentTrack.info.title}** skipped.`)
+        player.stop()
+        break
+      }
 
-        case VoteStatus.Failure: {
-          interaction.editReply(`Other members didn't agree to skip the current song.`)
-          break
-        }
+      case VoteStatus.Failure: {
+        interaction.editReply('Other members didn\'t agree to skip the current song.')
+        break
+      }
 
-        case VoteStatus.Error: {
-          logger.error(`Failed to finish skip voting: ${error?.stack}`)
-          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
-          break
-        }
+      case VoteStatus.Error: {
+        logger.error(`Failed to finish skip voting: ${error?.stack}`)
+        interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+        break
+      }
       }
     } else {
       interaction.reply({

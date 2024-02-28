@@ -1,6 +1,6 @@
-import { Sequelize } from "sequelize";
-import options from "../../postgres.json"
-import { config, logger } from "../config";
+import { Sequelize } from 'sequelize'
+import options from '../../postgres.json'
+import { config, logger } from '../config'
 
 let sequelize: Sequelize
 
@@ -21,10 +21,10 @@ if (config.databaseType === 'postgres') {
 
 async function authenticate() {
   try {
-    await sequelize.authenticate();
+    await sequelize.authenticate()
     logger.info('Connection to database established.')
   } catch (error) {
-    logger.error(`Unable to connect to database: ${error.stack}`);
+    logger.error(`Unable to connect to database: ${error.stack}`)
   }
 }
 
@@ -32,6 +32,6 @@ authenticate();
 
 (async () => {
   await sequelize.sync({ alter: true  })
-})();
+})()
 
 export default sequelize

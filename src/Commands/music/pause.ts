@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 
 const pause: Command<true> = {
   permissions: {

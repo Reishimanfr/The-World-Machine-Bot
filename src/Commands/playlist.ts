@@ -1,15 +1,12 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import crypto from "node:crypto";
-import { Track } from "poru";
-import { setTimeout } from "timers/promises";
-import { formatSeconds } from "../Funcs/FormatSeconds";
-import { ExtClient, ExtPlayer } from "../Helpers/ExtendedClasses";
-import { MessageManager } from "../Helpers/MessageManager";
-import { PlayerController } from "../Helpers/PlayerController";
-import { QueueManager } from "../Helpers/QueueManager";
-import { combineConfig } from "../Helpers/config/playerSettings";
-import { playlists } from "../Models";
-import Command from "../types/Command";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import { Track } from 'poru'
+import { setTimeout } from 'timers/promises'
+import { formatSeconds } from '../Funcs/FormatSeconds'
+import { MessageManager, ExtPlayer, PlayerController, QueueManager } from '../Helpers/ExtendedPlayer'
+import { combineConfig } from '../Funcs/CombinePlayerConfig'
+import { playlists } from '../Models'
+import { Command } from '../Types/Command'
+import { ExtClient } from '../Helpers/ExtendedClient'
 
 const playlist: Command = {
   permissions: {
@@ -18,7 +15,7 @@ const playlist: Command = {
   },
 
   helpData: {
-    description: `Create, import, manage or load your playlists.`,
+    description: 'Create, import, manage or load your playlists.',
     examples: [
       `> **Create a new empty playlist**
       \`\`\`/playlist create
@@ -107,11 +104,11 @@ const playlist: Command = {
     }
 
     switch (subcommand) {
-      case 'create': createPlaylist(interaction); break;
-      case 'import': importSongs(interaction, client); break;
-      case 'load': loadPlaylist(interaction, client, interaction.options.getString('playlist', true)); break;
-      case 'manage': managePlaylist(interaction, client); break;
-      case 'delete': deletePlaylist(interaction); break;
+    case 'create': createPlaylist(interaction); break
+    case 'import': importSongs(interaction, client); break
+    case 'load': loadPlaylist(interaction, client, interaction.options.getString('playlist', true)); break
+    case 'manage': managePlaylist(interaction, client); break
+    case 'delete': deletePlaylist(interaction); break
     }
   },
 
@@ -136,7 +133,7 @@ const playlist: Command = {
         const songs = playlistData.find(p => p.name === pl).tracks?.split(' ')?.length ?? 0
 
         return {
-          name: `${pl} -> 🎶 ${songs === 0 ? "Empty playlist" : `${songs} song${songs === 1 ? '' : 's'}`}`,
+          name: `${pl} -> 🎶 ${songs === 0 ? 'Empty playlist' : `${songs} song${songs === 1 ? '' : 's'}`}`,
           value: pl
         }
       })
@@ -169,9 +166,9 @@ async function formatPlaylistEntires(client: ExtClient, tracks: Array<string>, i
           name: `Playlist management -> ${playlistName}`,
           iconURL: interaction.user.displayAvatarURL()
         })
-        .setDescription(`❌ **-> Playlist is empty!**`
-        + `\n\n:information_source: Your changes will be **automatically saved** after **4 minutes of inactivity**.`
-          + `\n:information_source: Only you can edit this.`)
+        .setDescription('❌ **-> Playlist is empty!**'
+        + '\n\n:information_source: Your changes will be **automatically saved** after **4 minutes of inactivity**.'
+          + '\n:information_source: Only you can edit this.')
     ]
   }
 
@@ -183,7 +180,7 @@ async function formatPlaylistEntires(client: ExtClient, tracks: Array<string>, i
   for (let i = 0; i < tracksData.length; i++) {
     const info = tracksData[i]
 
-    tracksDataStrings.push(`\`#${i + 1}:\` **[${info.title === '' ? ":warning: No title!" : info.title}](${info.uri})**\n* By: **${info.author}** (${formatSeconds(info.length / 1000)})`)
+    tracksDataStrings.push(`\`#${i + 1}:\` **[${info.title === '' ? ':warning: No title!' : info.title}](${info.uri})**\n* By: **${info.author}** (${formatSeconds(info.length / 1000)})`)
   }
 
   const splitter = 7
@@ -202,8 +199,8 @@ async function formatPlaylistEntires(client: ExtClient, tracks: Array<string>, i
           iconURL: interaction.user.displayAvatarURL()
         })
         .setDescription(slice.join('\n')
-          + `\n\n:information_source: Your changes will be **automatically saved** after **4 minutes of inactivity**.`
-          + `\n:information_source: Only you can edit this.`)
+          + '\n\n:information_source: Your changes will be **automatically saved** after **4 minutes of inactivity**.'
+          + '\n:information_source: Only you can edit this.')
         .setFooter({ text: `Playlist length: ${formatSeconds(playlistLength / 1000)} (${resolvedTracks.length} songs)` })   
     )
   }
@@ -338,7 +335,7 @@ async function importSongs(interaction: ChatInputCommandInteraction, client: Ext
 
   const confirmationEmbed = new EmbedBuilder()
     .setAuthor({
-      name: `Confirm data?`,
+      name: 'Confirm data?',
       iconURL: interaction.user.displayAvatarURL()
     })
     .setDescription(
@@ -386,7 +383,7 @@ async function importSongs(interaction: ChatInputCommandInteraction, client: Ext
     })
   } else {
     interaction.editReply({
-      content: `Playlist discarded.`,
+      content: 'Playlist discarded.',
       components: [],
       embeds: []
     })
@@ -453,7 +450,6 @@ export async function loadPlaylist(interaction: ChatInputCommandInteraction, cli
   if (!player.isPlaying) player.play()
 
   player.guildId ||= interaction.guild!.id
-  player.sessionId ||= crypto.randomBytes(6).toString('hex')
   player.settings ||= await combineConfig(interaction.guild!.id)
 
   interaction.reply({
@@ -553,7 +549,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
     }
   })
 
-  let tracks: Array<string> = record?.getDataValue('tracks')?.split(' ') ?? [] // trust
+  const tracks: Array<string> = record?.getDataValue('tracks')?.split(' ') ?? [] // trust
   let embeds = await formatPlaylistEntires(client, tracks, interaction)
   let page = 0
 
@@ -589,7 +585,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
   collector.on('collect', async (btn) => {
     collector.resetTimer()
     await btn.deferUpdate()
-    let toDelete: Array<string> = []
+    const toDelete: Array<string> = []
 
     // Don't disable buttons for navigation bar
     if (!['previous', 'next'].includes(btn.customId)) {
@@ -599,284 +595,284 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
     }
 
     if (btn.customId === 'previous') {
-      page = page > 0 ? --page : embeds.length - 1;
+      page = page > 0 ? --page : embeds.length - 1
     } else if (btn.customId === 'next') {
-      page = page + 1 < embeds.length ? ++page : 0;
+      page = page + 1 < embeds.length ? ++page : 0
     }
 
     switch (btn.customId) {
-      case 'add': {
-        const res = await btn.followUp({
-          content: 'Please send the URL of the song you\'d like to add followed by the position at which the song should be placed.'
+    case 'add': {
+      const res = await btn.followUp({
+        content: 'Please send the URL of the song you\'d like to add followed by the position at which the song should be placed.'
             + '\nExample: `url, 5` -> Adds song by url at position 5'
-        })
+      })
 
-        toDelete.push(res.id)
+      toDelete.push(res.id)
 
-        const message = await btn.channel?.awaitMessages({
-          max: 1,
-          filter: (msg) => msg.author.id === interaction.user.id,
-          time: 60000
-        })
+      const message = await btn.channel?.awaitMessages({
+        max: 1,
+        filter: (msg) => msg.author.id === interaction.user.id,
+        time: 60000
+      })
 
-        const collectedMessage = message?.at(0)
+      const collectedMessage = message?.at(0)
 
-        if (!collectedMessage) {
-          res.edit({
-            content: 'You haven\'t provided a song to add in time.'
-          })
-          break
-        }
-
-        toDelete.push(collectedMessage.id)
-
-        const parts = collectedMessage.content.split(', ')
-
-        if (parts.length !== 2) {
-          res.edit({
-            content: 'This doesn\'t look right. Did you follow the schema? (`url, position`)'
-          })
-          break
-        }
-
-        const url = parts[0]?.trim()
-        const position = parseInt(parts[1]?.trim() ?? tracks.length + 1)
-
-        if (!URL_REGEX.test(url)) {
-          res.edit({
-            content: 'This doesn\'t seem to be a correct url.'
-          })
-          break
-        }
-
-        if (isNaN(position)) {
-          res.edit({
-            content: 'Position doesn\'t seem to be a valid number.'
-          })
-          break
-        }
-
-        if (position <= 0) {
-          res.edit({
-            content: 'The position can\'t be smaller than **1**!'
-          })
-          break
-        }
-
-        const resolvedUrl = await client.poru.resolve({ query: url })
-        const trackInfo = resolvedUrl.tracks[0]
-
-        tracks.splice(position - 1, 0, trackInfo.track)
-
+      if (!collectedMessage) {
         res.edit({
-          content: `Track **${trackInfo.info.title}** added at position **#${position}**!`
+          content: 'You haven\'t provided a song to add in time.'
         })
         break
       }
 
-      case 'remove': {
-        const res = await btn.followUp({
-          content: 'Please send the position of the song you\'d like to remove from the playlist.'
+      toDelete.push(collectedMessage.id)
+
+      const parts = collectedMessage.content.split(', ')
+
+      if (parts.length !== 2) {
+        res.edit({
+          content: 'This doesn\'t look right. Did you follow the schema? (`url, position`)'
+        })
+        break
+      }
+
+      const url = parts[0]?.trim()
+      const position = parseInt(parts[1]?.trim() ?? tracks.length + 1)
+
+      if (!URL_REGEX.test(url)) {
+        res.edit({
+          content: 'This doesn\'t seem to be a correct url.'
+        })
+        break
+      }
+
+      if (isNaN(position)) {
+        res.edit({
+          content: 'Position doesn\'t seem to be a valid number.'
+        })
+        break
+      }
+
+      if (position <= 0) {
+        res.edit({
+          content: 'The position can\'t be smaller than **1**!'
+        })
+        break
+      }
+
+      const resolvedUrl = await client.poru.resolve({ query: url })
+      const trackInfo = resolvedUrl.tracks[0]
+
+      tracks.splice(position - 1, 0, trackInfo.track)
+
+      res.edit({
+        content: `Track **${trackInfo.info.title}** added at position **#${position}**!`
+      })
+      break
+    }
+
+    case 'remove': {
+      const res = await btn.followUp({
+        content: 'Please send the position of the song you\'d like to remove from the playlist.'
             + '\nExample: `1` -> This would remove song #1 from the playlist'
+      })
+
+      toDelete.push(res.id)
+
+      const message = await btn.channel?.awaitMessages({
+        max: 1,
+        filter: (msg) => msg.author.id === interaction.user.id,
+        time: 60000
+      })
+
+      const collectedMessage = message?.at(0)
+
+      if (!collectedMessage) {
+        res.edit({
+          content: 'You haven\'t provided a song to remove in time.'
         })
+        break
+      }
 
-        toDelete.push(res.id)
+      // Add the user message to delete list
+      toDelete.push(collectedMessage.id)
 
-        const message = await btn.channel?.awaitMessages({
-          max: 1,
-          filter: (msg) => msg.author.id === interaction.user.id,
-          time: 60000
+      let position = parseInt(collectedMessage.content)
+
+      // Sanitize position
+      if (isNaN(position)) {
+        res.edit({
+          content: 'Position doesn\'t seem to be a valid number.'
         })
+        break
+      }
 
-        const collectedMessage = message?.at(0)
+      if (position <= 0) {
+        res.edit({
+          content: 'The position can\'t be smaller than **1**!'
+        })
+        break
+      }
 
-        if (!collectedMessage) {
-          res.edit({
-            content: 'You haven\'t provided a song to remove in time.'
-          })
-          break
-        }
-
-        // Add the user message to delete list
-        toDelete.push(collectedMessage.id)
-
-        let position = parseInt(collectedMessage.content)
-
-        // Sanitize position
-        if (isNaN(position)) {
-          res.edit({
-            content: 'Position doesn\'t seem to be a valid number.'
-          })
-          break
-        }
-
-        if (position <= 0) {
-          res.edit({
-            content: 'The position can\'t be smaller than **1**!'
-          })
-          break
-        }
-
-        if (position > tracks.length) position = tracks.length + 1
+      if (position > tracks.length) position = tracks.length + 1
         
-        const removedTrack = tracks.splice(position - 1, 1)[0]
+      const removedTrack = tracks.splice(position - 1, 1)[0]
 
-        const trackNameRequest = await client.poru.decodeTrack(removedTrack, client.poru.getNode()[0]) as Track
-        const trackInfo = trackNameRequest.info
+      const trackNameRequest = await client.poru.decodeTrack(removedTrack, client.poru.getNode()[0]) as Track
+      const trackInfo = trackNameRequest.info
 
-        res.edit({
-          content: `Song **${trackInfo.title}** (at position **#${position}**) removed!`
-        })
-        break
-      }
+      res.edit({
+        content: `Song **${trackInfo.title}** (at position **#${position}**) removed!`
+      })
+      break
+    }
 
-      case 'replace': {
-        const res = await btn.followUp({
-          content: 'Please send the URL of the song you\'d like to replace with followed by the position at which the song should be placed.'
+    case 'replace': {
+      const res = await btn.followUp({
+        content: 'Please send the URL of the song you\'d like to replace with followed by the position at which the song should be placed.'
             + '\nExample: `url, 5` -> Replaces song at position 5 with song by url'
-        })
+      })
 
-        toDelete.push(res.id)
+      toDelete.push(res.id)
 
-        const message = await btn.channel?.awaitMessages({
-          max: 1,
-          filter: (msg) => msg.author.id === interaction.user.id,
-          time: 60000
-        })
+      const message = await btn.channel?.awaitMessages({
+        max: 1,
+        filter: (msg) => msg.author.id === interaction.user.id,
+        time: 60000
+      })
 
-        const collectedMessage = message?.at(0)
+      const collectedMessage = message?.at(0)
 
-        if (!collectedMessage) {
-          res.edit({
-            content: 'You haven\'t provided a track to replace with in time.'
-          })
-          break
-        }
-
-        toDelete.push(collectedMessage.id)
-
-        const parts = collectedMessage.content.split(', ')
-
-        if (parts.length !== 2) {
-          res.edit({
-            content: 'This doesn\'t look right. Did you follow the schema? (`url, position`)'
-          })
-          break
-        }
-
-        const url = parts[0].trim()
-        const position = parseInt(parts[1].trim())
-
-        if (!URL_REGEX.test(url)) {
-          res.edit({
-            content: 'This doesn\'t seem to be a correct url.'
-          })
-          break
-        }
-
-        if (isNaN(position)) {
-          res.edit({
-            content: 'Position doesn\'t seem to be a valid number.'
-          })
-          break
-        }
-
-        if (position <= 0) {
-          res.edit({
-            content: 'The position can\'t be smaller than **1**!'
-          })
-          break
-        }
-
-        const resolveUrlResponse = await client.poru.resolve({ query: url })
-        const resolvedTrack = resolveUrlResponse.tracks[0]
-
-        const replacedSong = tracks[position - 1]
-        const replacedTrackResponse = await client.poru.decodeTrack(replacedSong, client.poru.getNode()[0]) as Track
-        const replacedTrackInfo = replacedTrackResponse.info 
-
-        tracks[position - 1] = resolveUrlResponse.tracks[0].track
-
+      if (!collectedMessage) {
         res.edit({
-          content: `Track **${replacedTrackInfo.title}** (at position **#${position}**) replaced with track **${resolvedTrack.info.title}**!`
+          content: 'You haven\'t provided a track to replace with in time.'
         })
         break
       }
 
-      case 'move': {
-        const res = await btn.followUp({
-          content: 'Please send the positions of the songs to move and where to move it.'
+      toDelete.push(collectedMessage.id)
+
+      const parts = collectedMessage.content.split(', ')
+
+      if (parts.length !== 2) {
+        res.edit({
+          content: 'This doesn\'t look right. Did you follow the schema? (`url, position`)'
+        })
+        break
+      }
+
+      const url = parts[0].trim()
+      const position = parseInt(parts[1].trim())
+
+      if (!URL_REGEX.test(url)) {
+        res.edit({
+          content: 'This doesn\'t seem to be a correct url.'
+        })
+        break
+      }
+
+      if (isNaN(position)) {
+        res.edit({
+          content: 'Position doesn\'t seem to be a valid number.'
+        })
+        break
+      }
+
+      if (position <= 0) {
+        res.edit({
+          content: 'The position can\'t be smaller than **1**!'
+        })
+        break
+      }
+
+      const resolveUrlResponse = await client.poru.resolve({ query: url })
+      const resolvedTrack = resolveUrlResponse.tracks[0]
+
+      const replacedSong = tracks[position - 1]
+      const replacedTrackResponse = await client.poru.decodeTrack(replacedSong, client.poru.getNode()[0]) as Track
+      const replacedTrackInfo = replacedTrackResponse.info 
+
+      tracks[position - 1] = resolveUrlResponse.tracks[0].track
+
+      res.edit({
+        content: `Track **${replacedTrackInfo.title}** (at position **#${position}**) replaced with track **${resolvedTrack.info.title}**!`
+      })
+      break
+    }
+
+    case 'move': {
+      const res = await btn.followUp({
+        content: 'Please send the positions of the songs to move and where to move it.'
           + '\nExample: `1, 3` -> This would move the 1st song into the 3rd position.'
-        })
+      })
 
-        toDelete.push(res.id)
+      toDelete.push(res.id)
 
-        const message = await btn.channel?.awaitMessages({
-          max: 1,
-          filter: (msg) => msg.author.id === interaction.user.id,
-          time: 60000
-        })
+      const message = await btn.channel?.awaitMessages({
+        max: 1,
+        filter: (msg) => msg.author.id === interaction.user.id,
+        time: 60000
+      })
 
-        const collectedMessage = message?.at(0)
+      const collectedMessage = message?.at(0)
 
-        if (!collectedMessage) {
-          res.edit({
-            content: 'You haven\'t provided a track to replace with in time.'
-          })
-          break
-        }
-
-        toDelete.push(collectedMessage.id)
-
-        const parts = collectedMessage.content.split(', ')
-
-        if (parts.length !== 2) {
-          res.edit({
-            content: 'This doesn\'t look right. Did you follow the schema? (`song, position`)'
-          })
-          break
-        }
-
-        const toMove = parseInt(parts[0].trim())
-        const movePosition = parseInt(parts[1].trim())
-
-        if (isNaN(toMove) || isNaN(movePosition)) {
-          res.edit({
-            content: 'One of the values is not a correct number!'
-          })
-          break
-        }
-
-        if (toMove <= 0) {
-          res.edit({
-            content: 'The song to move position can\'t be smaller than **1**!'
-          })
-          break
-        }
-
-        // fuck variable naming
-        const temp = tracks.at(toMove)
-
-        if (!temp) {
-          res.edit({
-            content: `No song found at this position (#${toMove})!`
-          })
-          break
-        }
-
-        tracks.splice(movePosition - 1, 0, temp)
-
-        const resolveTrack = await client.poru.decodeTrack(temp, client.poru.getNode()[0]) as Track
-        const trackInfo = resolveTrack.info
-
+      if (!collectedMessage) {
         res.edit({
-          content: `Track **${trackInfo.title}** moved to position **#${movePosition}**!`
+          content: 'You haven\'t provided a track to replace with in time.'
         })
         break
       }
 
-      case 'save': collector.stop('saved-by-user'); return;
-      case 'discard': collector.stop('discarded-by-user'); return
+      toDelete.push(collectedMessage.id)
+
+      const parts = collectedMessage.content.split(', ')
+
+      if (parts.length !== 2) {
+        res.edit({
+          content: 'This doesn\'t look right. Did you follow the schema? (`song, position`)'
+        })
+        break
+      }
+
+      const toMove = parseInt(parts[0].trim())
+      const movePosition = parseInt(parts[1].trim())
+
+      if (isNaN(toMove) || isNaN(movePosition)) {
+        res.edit({
+          content: 'One of the values is not a correct number!'
+        })
+        break
+      }
+
+      if (toMove <= 0) {
+        res.edit({
+          content: 'The song to move position can\'t be smaller than **1**!'
+        })
+        break
+      }
+
+      // fuck variable naming
+      const temp = tracks.at(toMove)
+
+      if (!temp) {
+        res.edit({
+          content: `No song found at this position (#${toMove})!`
+        })
+        break
+      }
+
+      tracks.splice(movePosition - 1, 0, temp)
+
+      const resolveTrack = await client.poru.decodeTrack(temp, client.poru.getNode()[0]) as Track
+      const trackInfo = resolveTrack.info
+
+      res.edit({
+        content: `Track **${trackInfo.title}** moved to position **#${movePosition}**!`
+      })
+      break
+    }
+
+    case 'save': collector.stop('saved-by-user'); return
+    case 'discard': collector.stop('discarded-by-user'); return
     }
 
     embeds = await formatPlaylistEntires(client, tracks, interaction)
@@ -932,7 +928,7 @@ async function managePlaylist(interaction: ChatInputCommandInteraction, client: 
       })
     } else if (reason === 'discarded-by-user') {
       response.edit({
-        content: `Playlist changes have been discarded.`,
+        content: 'Playlist changes have been discarded.',
         components: [],
         embeds: []
       })

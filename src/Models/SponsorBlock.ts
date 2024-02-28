@@ -1,5 +1,5 @@
-import { DataTypes } from "sequelize";
-import sequelize from "./Connection";
+import { DataTypes } from 'sequelize'
+import sequelize from './Connection'
 
 export const SponsorBlockDb = sequelize.define('sponsorBlock', {
   guildId: {

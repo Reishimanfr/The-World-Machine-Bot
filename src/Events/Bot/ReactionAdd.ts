@@ -1,8 +1,8 @@
-import { Events, type MessageReaction } from 'discord.js'
+import { Events, MessageReaction } from 'discord.js'
 import Mutex from '../../Helpers/Mutex'
 import { logger } from '../../config'
-import Starboard from '../../Helpers/StarboardHelpers'
-import type Event from '../../types/Event'
+import { StarboardHelper } from '../../Helpers/StarboardHelper'
+import { Event } from '../../Types/Event'
 
 const mutex = new Mutex()
 
@@ -13,7 +13,7 @@ const ReactionAdd: Event = {
     await mutex.lock()
 
     try {
-      await new Starboard(reaction).main()
+      await new StarboardHelper(reaction).main()
     } catch (error) {
       logger.error(`Failed to send starboard message: ${error.message}`)
     } finally {

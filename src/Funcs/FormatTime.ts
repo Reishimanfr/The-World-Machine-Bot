@@ -4,31 +4,31 @@ function FormatTime(seconds: number | string): string {
     seconds = parseInt(seconds)
   }
 
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainingSeconds = seconds % 60
 
-  let result = '';
+  let result = ''
 
   if (hours > 0) {
-    result += `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+    result += `${hours} ${hours === 1 ? 'hour' : 'hours'}`
   }
 
   if (minutes > 0) {
     if (result !== '') {
-      result += ' ';
+      result += ' '
     }
-    result += `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+    result += `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
   }
 
   if (remainingSeconds > 0) {
     if (result !== '') {
-      result += ' ';
+      result += ' '
     }
-    result += `${remainingSeconds} ${remainingSeconds === 1 ? 'second' : 'seconds'}`;
+    result += `${remainingSeconds} ${remainingSeconds === 1 ? 'second' : 'seconds'}`
   }
 
-  return `${result}`;
+  return `${result}`
 }
 
 export default FormatTime

@@ -5,22 +5,17 @@ import {
   ComponentType,
   SlashCommandBuilder,
   TextChannel,
-  type ChatInputCommandInteraction
+  ChatInputCommandInteraction
 } from 'discord.js'
-import crypto from 'node:crypto'
 import { Track, type LavalinkResponse } from 'poru'
 import { client } from '../..'
 import { clipString } from '../../Funcs/ClipString'
 import { formatSeconds } from '../../Funcs/FormatSeconds'
-import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
-import { MessageManager } from '../../Helpers/MessageManager'
-import { PlayerController } from '../../Helpers/PlayerController'
-import { QueueManager } from '../../Helpers/QueueManager'
-import { combineConfig } from '../../Helpers/config/playerSettings'
+import { ExtPlayer, MessageManager, PlayerController, QueueManager } from '../../Helpers/ExtendedPlayer'
 import { config as botConfig, logger } from '../../config'
-import type Command from '../../types/Command'
+import { combineConfig } from '../../Funcs/CombinePlayerConfig'
+import { Command } from '../../Types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
-import { SponsorBlock } from "sponsorblock-api"
 
 const messages = {
   LOAD_FAILED: 'Failed to load track **{query}**.',
@@ -129,11 +124,8 @@ const play: Command = {
     const member = await interaction.guild.members.fetch(interaction.user.id)
     const bypassQueue = interaction.options.getBoolean('bypass-queue') ?? false
     const query = interaction.options.getString('url-or-search', true)
-    
+
     let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
-    
-    const sessionId = player?.sessionId ?? crypto.randomBytes(6).toString('hex')
-    const sponsorBlock = new SponsorBlock(sessionId)
 
     // Typeguard
     if (!member.voice.channel) {
@@ -186,84 +178,82 @@ const play: Command = {
       })
 
       switch (status) {
-        case VoteStatus.Success: {
-          if (player.currentTrack) {
-            player.queue.splice(0, 0, player.currentTrack)
-          }
-
-          const [loadType, data] = await player.controller
-            .resolveQueryOrUrl(query, interaction.user)
-
-          switch (loadType) {
-            case 'LOAD_FAILED':
-            case 'NO_MATCHES': {
-              return await interaction.followUp({
-                content: messages[loadType].replace('{query}', query),
-                ephemeral: true
-              })
-            }
-
-            case 'PLAYLIST_LOADED':
-            case 'TRACK_LOADED': {
-              track = data.tracks[0]
-
-              await interaction.followUp({
-                content: `Track **${track.info.title}** will now play bypassing the queue.`,
-                ephemeral: true
-              })
-
-              player.queue.splice(0, 0, track)
-              player.stop() // Why is this not named skip like what
-              // I'm making my own library fuck this shit
-            }
-          }
-          break
+      case VoteStatus.Success: {
+        if (player.currentTrack) {
+          player.queue.splice(0, 0, player.currentTrack)
         }
-        case VoteStatus.Failure: {
-          interaction.editReply({
-            content: 'The voting resulted in a failure.'
+
+        const [loadType, data] = await player.controller
+          .resolveQueryOrUrl(query, interaction.user)
+
+        switch (loadType) {
+        case 'LOAD_FAILED':
+        case 'NO_MATCHES': {
+          return await interaction.followUp({
+            content: messages[loadType].replace('{query}', query),
+            ephemeral: true
           })
-          return
         }
-        case VoteStatus.Error: {
-          if (!error) return // Typeguard
-          interaction.editReply({
-            content: 'The voting resulted in a error.',
+
+        case 'PLAYLIST_LOADED':
+        case 'TRACK_LOADED': {
+          track = data.tracks[0]
+
+          await interaction.followUp({
+            content: `Track **${track.info.title}** will now play bypassing the queue.`,
+            ephemeral: true
           })
-          logger.error(`Voting failed with error: ${error.stack}`)
-          return
+
+          player.queue.splice(0, 0, track)
+          player.stop() // Why is this not named skip like what
+          // I'm making my own library fuck this shit
         }
+        }
+        break
+      }
+      case VoteStatus.Failure: {
+        interaction.editReply({
+          content: 'The voting resulted in a failure.'
+        })
+        return
+      }
+      case VoteStatus.Error: {
+        if (!error) return // Typeguard
+        interaction.editReply({
+          content: 'The voting resulted in a error.',
+        })
+        logger.error(`Voting failed with error: ${error.stack}`)
+        return
+      }
       }
     } else {
       const [loadType, data] = await player.controller
         .resolveQueryOrUrl(query, interaction.user)
 
       switch (loadType) {
-        case 'LOAD_FAILED':
-        case 'NO_MATCHES': {
-          return await interaction.reply({
-            content: messages[loadType].replace('{query}', query),
-            ephemeral: true
-          })
-        }
+      case 'LOAD_FAILED':
+      case 'NO_MATCHES': {
+        return await interaction.editReply({
+          content: messages[loadType].replace('{query}', query)
+        })
+      }
 
-        case 'TRACK_LOADED': {
-          track = data.tracks[0]
+      case 'TRACK_LOADED': {
+        track = data.tracks[0]
 
-          await interaction.editReply({
-            content: `Track **${track.info.title}** added to the queue.`
-          })
-          break
-        }
+        await interaction.editReply({
+          content: `Track **${track.info.title}** added to the queue.`
+        })
+        break
+      }
 
-        case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
+      case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
       }
     }
 
     if (player.isConnected && !player.isPlaying) player.play()
 
     player.guildId ||= interaction.guild.id
-    player.sessionId ||= sessionId
     player.settings ||= await combineConfig(interaction.guild.id)
   },
 

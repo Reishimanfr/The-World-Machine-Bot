@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
-import type Command from '../../types/Command'
+import { Command } from '../../Types/Command'
 import { logger } from '../../config'
 
 const queue: Command<true> = {
@@ -105,7 +105,7 @@ const queue: Command<true> = {
       })
     })
 
-    collector.on('end', async (_) => {
+    collector.on('end', async () => {
       const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         buttons[0].setDisabled(true),
         buttons[1].setDisabled(true)

@@ -1,8 +1,9 @@
-import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits, StringSelectMenuComponent, StringSelectMenuOptionBuilder } from 'discord.js'
-import { type Model } from 'sequelize'
+import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
+import { Model } from 'sequelize'
 import { PlayerSettings as PlayerSettingsDb, SponsorBlockDb } from '../Models'
-import type Command from '../types/Command'
+import { Command } from '../Types/Command'
 import { config } from '../config'
+
 
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold', 'sponsorBlockConfig']
 
@@ -154,11 +155,11 @@ const music: Command = {
       }
 
       switch (optionName) {
-        case 'djRoleId': await setDjRole(interaction); break
-        case 'voteSkipMembers': await setVoteSkipMembers(interaction); break
-        case 'setVoteSkipThreshold': await setVoteSkipThreshold(interaction); break
-        case 'showConfig': await showConfig(interaction, record); break
-        case 'sponsorBlockConfig': await sponsorBlockConfig(interaction); break
+      case 'djRoleId': await setDjRole(interaction); break
+      case 'voteSkipMembers': await setVoteSkipMembers(interaction); break
+      case 'setVoteSkipThreshold': await setVoteSkipThreshold(interaction); break
+      case 'showConfig': await showConfig(interaction, record); break
+      case 'sponsorBlockConfig': await sponsorBlockConfig(interaction); break
       }
     })
 
@@ -290,7 +291,7 @@ async function showConfig(interaction: ChatInputCommandInteraction, record: Mode
     })
     .setDescription(`### DJ role
 Enabled: \`${isEnabled(data.requireDjRole)}\`
-Role: ${data.djRoleId ? roleMention(data.djRoleId) : `Not set`}
+Role: ${data.djRoleId ? roleMention(data.djRoleId) : 'Not set'}
 ### Skipvote
 Enabled: \`${isEnabled(data.voteSkipToggle)}\`
 Required members: \`${data.voteSkipMembers} member(s)\`
@@ -377,8 +378,8 @@ async function sponsorBlockConfig(interaction: ChatInputCommandInteraction) {
     await int.deferUpdate()
     collector.resetTimer()
 
-    let updatedSettings = await getSettings()
-    let changedValue = updatedSettings[int.values[0]]
+    const updatedSettings = await getSettings()
+    const changedValue = updatedSettings[int.values[0]]
 
     if (config.databaseType === 'sqlite') {
       updatedSettings[int.values[0]] = changedValue === '0' ? '1' : '0'

@@ -11,7 +11,7 @@ import {
 import { classIconEmoji, classIconObject, classes, statFields, type ITf2Stats } from '../Funcs/Tf2Data'
 import { embedColor } from '../Helpers/Util'
 import { config } from '../config'
-import type Command from '../types/Command'
+import { Command } from '../Types/Command'
 
 const token = config.apiKeys.steam
 
@@ -178,7 +178,7 @@ const tf2: Command = {
       return await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setDescription("[ Can't find anything for this steam Id. ]")
+            .setDescription('[ Can\'t find anything for this steam Id. ]')
             .setColor(embedColor)
         ]
       })
@@ -207,7 +207,7 @@ const tf2: Command = {
       interaction.editReply({ embeds: [embed], components: [menu] })
     })
 
-    collector.on('end', (_) => {
+    collector.on('end', () => {
       interaction.editReply({ components: [] }).catch(() => { }) // Ignore the error since we can't do anything about it
     })
   }

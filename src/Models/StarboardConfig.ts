@@ -1,7 +1,7 @@
-import { DataTypes } from "sequelize";
-import sequelize from "./Connection";
+import { DataTypes } from 'sequelize'
+import sequelize from './Connection'
 
-export const starboardConfig = sequelize.define("starboardConfig", {
+export const starboardConfig = sequelize.define('starboardConfig', {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -25,4 +25,4 @@ export const starboardConfig = sequelize.define("starboardConfig", {
     type: DataTypes.STRING,
     defaultValue: ''
   }
-});
+})

@@ -1,8 +1,7 @@
-import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { ExtPlayer, MessageManager } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../config'
-import { MessageManager } from '../../Helpers/MessageManager'
 import { inactiveGifUrl } from '../../Helpers/Util'
-import type Event from '../../types/Event'
+import { Event } from '../../Types/Event'
 
 const PlayerDestroy: Event = {
   name: 'playerDestroy',

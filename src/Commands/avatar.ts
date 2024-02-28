@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder, type GuildMember } from 'discord.js'
 import { embedColor } from '../Helpers/Util'
-import type Command from '../types/Command'
+import { Command } from '../Types/Command'
 
 const avatar: Command = {
   permissions: {
@@ -10,7 +10,7 @@ const avatar: Command = {
 
   data: new SlashCommandBuilder()
     .setName('avatar')
-    .setDescription("Get a user's avatar")
+    .setDescription('Get a user\'s avatar')
     .addUserOption(user => user
       .setName('user')
       .setDescription('User to fetch')
@@ -18,7 +18,7 @@ const avatar: Command = {
     )
     .addBooleanOption(ephemeral => ephemeral
       .setName('secret')
-      .setDescription("Should you be the only one seeing the command's reply?")
+      .setDescription('Should you be the only one seeing the command\'s reply?')
     ),
 
   helpData: {

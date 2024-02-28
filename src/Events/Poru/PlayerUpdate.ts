@@ -1,7 +1,6 @@
-import { type ExtPlayer } from '../../Helpers/ExtendedClasses'
+import { ExtPlayer, MessageManager } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../config'
-import { MessageManager } from '../../Helpers/MessageManager'
-import type Event from '../../types/Event'
+import { Event } from '../../Types/Event'
 
 // Updates the player song state embed stuff
 const PlayerUpdate: Event = {
