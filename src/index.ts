@@ -1,9 +1,25 @@
-import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
+import { ActivityType, GatewayIntentBits, Partials, WebhookClient } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 import { Poru } from 'poru'
 import { config, logger, poruNodes, poruOptions } from './config'
 import { ExtClient } from './Helpers/ExtendedClient'
+
+// let errorWebhook: WebhookClient | null = null
+
+// if (config.errorWebhookUrl && config.errorWebhookUrl.length > 0) {
+//   try {
+//     errorWebhook = new WebhookClient({
+//       url: config.errorWebhookUrl
+//     })
+//   } catch (error) {
+//     if (error.message.includes('The provided webhook URL is not valid')) {
+//       logger.error('You provided an invalid URL for the error webhook. Please provide a valid URL in the config file.')
+//     } else {
+//       logger.error(`Failed to connect to error webhook: ${error.stack}`)
+//     }
+//   }
+// }
 
 export const client = new ExtClient({
   failIfNotExists: true,
@@ -25,14 +41,26 @@ export const client = new ExtClient({
 
 process.on('uncaughtException', (error) => {
   console.error(error)
+
+  // if (errorWebhook) {
+  //   errorWebhook.send({ content: `An uncaught exception occurred: ${error.stack}` })
+  // }
 })
 
 process.on('uncaughtExceptionMonitor', (listener) => {
   console.error(listener)
+
+  // if (errorWebhook) {
+  //   errorWebhook.send({ content: `An uncaught exception occurred: ${listener.stack}` })
+  // }
 })
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error(reason, promise)
+
+  // if (errorWebhook) {
+  //   errorWebhook.send({ content: `An unhandled rejection occurred: ${reason}` })
+  // }
 })
 
 try {

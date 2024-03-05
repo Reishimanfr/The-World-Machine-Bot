@@ -4,7 +4,6 @@ import { PlayerSettings as PlayerSettingsDb, SponsorBlockDb } from '../Models'
 import { Command } from '../Types/Command'
 import { config } from '../config'
 
-
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold', 'sponsorBlockConfig']
 
 interface PlayerSettings {
@@ -54,7 +53,6 @@ const music: Command = {
 
   helpData: {
     description: 'Shows the current configuration of the player.',
-    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1174770707578761276/image.png',
     examples: ['```/player-config```']
   },
 

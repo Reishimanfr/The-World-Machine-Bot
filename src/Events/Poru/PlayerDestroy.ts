@@ -20,11 +20,11 @@ const PlayerDestroy: Event = {
 
     if (!message) return
 
-    const embed = await builder.createPlayerEmbed()[0]
+    const embed = await builder.createPlayerEmbed()
     const buttons = builder.createPlayerButtons(true)
 
     if (reason) {
-      embed.setAuthor({
+      embed.at(0)!.setAuthor({
         name: `${reason}`,
         iconURL: inactiveGifUrl
       })
@@ -32,7 +32,7 @@ const PlayerDestroy: Event = {
 
     try {
       await message.edit({
-        embeds: [embed],
+        embeds: [embed.at(0)!],
         components: [buttons]
       })
     } catch (error) {

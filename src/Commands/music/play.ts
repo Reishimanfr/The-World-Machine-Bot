@@ -177,76 +177,76 @@ const play: Command = {
       })
 
       switch (status) {
-      case VoteStatus.Success: {
-        if (player.currentTrack) {
-          player.queue.splice(0, 0, player.currentTrack)
+        case VoteStatus.Success: {
+          if (player.currentTrack) {
+            player.queue.splice(0, 0, player.currentTrack)
+          }
+
+          const [loadType, data] = await player.controller
+            .resolveQueryOrUrl(query, interaction.user)
+
+          switch (loadType) {
+            case 'LOAD_FAILED':
+            case 'NO_MATCHES': {
+              return await interaction.followUp({
+                content: messages[loadType].replace('{query}', query),
+                ephemeral: true
+              })
+            }
+
+            case 'PLAYLIST_LOADED':
+            case 'TRACK_LOADED': {
+              track = data.tracks[0]
+
+              await interaction.followUp({
+                content: `Track **${track.info.title}** will now play bypassing the queue.`,
+                ephemeral: true
+              })
+
+              player.queue.splice(0, 0, track)
+              player.stop() // Why is this not named skip like what
+              // I'm making my own library fuck this shit
+            }
+          }
+          break
         }
-
-        const [loadType, data] = await player.controller
-          .resolveQueryOrUrl(query, interaction.user)
-
-        switch (loadType) {
-        case 'LOAD_FAILED':
-        case 'NO_MATCHES': {
-          return await interaction.followUp({
-            content: messages[loadType].replace('{query}', query),
-            ephemeral: true
+        case VoteStatus.Failure: {
+          interaction.editReply({
+            content: 'The voting resulted in a failure.'
           })
+          return
         }
-
-        case 'PLAYLIST_LOADED':
-        case 'TRACK_LOADED': {
-          track = data.tracks[0]
-
-          await interaction.followUp({
-            content: `Track **${track.info.title}** will now play bypassing the queue.`,
-            ephemeral: true
+        case VoteStatus.Error: {
+          if (!error) return // Typeguard
+          interaction.editReply({
+            content: 'The voting resulted in a error.',
           })
-
-          player.queue.splice(0, 0, track)
-          player.stop() // Why is this not named skip like what
-          // I'm making my own library fuck this shit
+          logger.error(`Voting failed with error: ${error.stack}`)
+          return
         }
-        }
-        break
-      }
-      case VoteStatus.Failure: {
-        interaction.editReply({
-          content: 'The voting resulted in a failure.'
-        })
-        return
-      }
-      case VoteStatus.Error: {
-        if (!error) return // Typeguard
-        interaction.editReply({
-          content: 'The voting resulted in a error.',
-        })
-        logger.error(`Voting failed with error: ${error.stack}`)
-        return
-      }
       }
     } else {
       const [loadType, data] = await player.controller
         .resolveQueryOrUrl(query, interaction.user)
 
       switch (loadType) {
-      case 'LOAD_FAILED':
-      case 'NO_MATCHES': {
-        return await interaction.editReply({
-          content: messages[loadType].replace('{query}', query)
-        })
-      }
+        case 'LOAD_FAILED':
+        case 'NO_MATCHES': {
+          return await interaction.editReply({
+            content: messages[loadType].replace('{query}', query)
+          })
+        }
 
-      case 'TRACK_LOADED': {
-        track = data.tracks[0]
+        case 'TRACK_LOADED': {
+          track = data.tracks[0]
 
-        await interaction.editReply({
-          content: `Track **${track.info.title}** added to the queue.`
-        })
-        break
-      }
+          await interaction.editReply({
+            content: `Track **${track.info.title}** added to the queue.`
+          })
+          break
+        }
 
-      case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
+        case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
       }
     }
 

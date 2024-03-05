@@ -5,7 +5,7 @@ const NodeConnect: Event = {
   name: 'nodeConnect',
   once: false,
   execute: (node) => {
-    logger.info(`${node.name} connected to lavalink server successfully.`)
+    logger.info(`Node ${node.name} connected to lavalink.`)
   }
 }
 

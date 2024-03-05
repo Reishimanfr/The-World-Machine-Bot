@@ -7,18 +7,18 @@
     "lint:fix": "eslint src/** --fix",
     "lint": "eslint src/**"
   },
-  "version": "1.7.2",
+  "version": "1.8.0",
   "dependencies": {
-    "@eslint/create-config": "^0.4.6",
     "axios": "^1.6.0",
     "discord.js": "^14.13.0",
     "js-yaml": "^4.1.0",
+    "pino": "^8.19.0",
+    "pino-pretty": "^10.3.1",
     "poru": "^4.2.2",
     "semver": "^7.6.0",
     "sequelize": "^6.37.1",
     "sponsorblock-api": "^0.2.4",
-    "sucrase": "^3.34.0",
-    "winston": "^3.11.0"
+    "sucrase": "^3.34.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",

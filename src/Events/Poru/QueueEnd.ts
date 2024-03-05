@@ -12,9 +12,9 @@ const QueueEnd: Event = {
     // Set the player timeout
     void player.controller.setupPlayerTimeout()
 
-    const embed = await player.messageManger.createPlayerEmbed()[0]
+    const embed = await player.messageManger.createPlayerEmbed()
     const buttons = player.messageManger.createPlayerButtons(true)
-    const descriptionSplit = embed.data.description?.split('\n')
+    const descriptionSplit = embed.at(0)?.data.description?.split('\n')
 
     if (player.settings.queueEndDisconnect) {
       return PlayerDestroy.execute(player, 'Queue ended.')
@@ -25,8 +25,8 @@ const QueueEnd: Event = {
 
     if (!message) return
 
-    embed.setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`)
-    embed.setAuthor({
+    embed.at(0)?.setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1)}\nSong ended.`)
+    embed.at(0)?.setAuthor({
       name: 'Waiting for another song...',
       iconURL: inactiveGifUrl
     })
@@ -35,7 +35,7 @@ const QueueEnd: Event = {
 
     try {
       await message.edit({
-        embeds: [embed],
+        embeds: [embed.at(0)!],
         components: [buttons]
       })
     } catch (error) {

@@ -16,9 +16,7 @@ const TrackStart: Event = {
 
     if (player.currentTrack.info.sourceName === 'youtube') {
       const [record] = await SponsorBlockDb.findOrCreate({
-        where: {
-          guildId: player.guildId
-        }
+        where: { guildId: player.guildId }
       })
 
       const sponsorBlockConfig = record.dataValues
@@ -51,23 +49,23 @@ const TrackStart: Event = {
     }
 
     // Send initial message
-    if (!player.message) {
+    if (player.message === null) {
       logger.debug('Creating initial player status message')
       player.message = await channel.send(options)
       return
     }
 
-
     if (player.settings?.resendMessageOnEnd) {
       const messages = await channel.messages.fetch({ limit: 1 })
       const firstMessage = messages.at(0)
 
-      if (!firstMessage ||
-        firstMessage.author.id !== client.user.id ||
+      if (!firstMessage) return
+
+      if (firstMessage.author.id !== client.user.id ||
         !firstMessage.embeds.length ||
         !firstMessage.embeds.at(0)?.footer?.text.startsWith('Requested by')
       ) {
-        const message = await player.message.fetch()
+        const message = await player.message?.fetch()
           .catch(() => null)
 
         if (message?.deletable) {

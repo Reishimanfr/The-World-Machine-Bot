@@ -1,20 +1,41 @@
 # This is a example configuration file for the bot. You can download it and fill out it's contents
 
 # Token for the bot to login with
-botToken: "Insert your bot token here"
+botToken: ''
 
 # Sets which type of database the bot should use. If you have a postgres database setup, it's recommended
 # to use it as it's faster than sqlite. If you don't want to setup a postgres database you can just set this
 # to "sqlite" and call it a day. The performance difference won't matter much for smaller bots.
 # Allowed values: "postgres" | "sqlite"
-database: "postgres"
+database: postgres
+
+# Available options: trace, debug, info, warn, error, fatal
+# Trace is the most verbose, fatal is the least.
+# Recommended level is info, unless you want to report a bug,
+# then you most likely want to use the debug level instead. 
+logLevel: info
+
+# This changes if the bot should attempt to start the lavalink server automatically
+# after receiving the ClientReady event.
+autostartLavalink: false
+
+# This changes if any stdout or stderr output should be piped to the console
+# Note: This only works if autostartLavalink is set to true
+# Note 2: Stdout will be piped on the "debug" level
+# Note 3: Stderr will always be piped on the "error" level
+pipeLavalinkStdout: true
+
+# === NOT IMPLEMENTED YET! === 
+# This sets the URL of the webhook that will send any uncaught errors to a channel
+# To disable set this to a empty string or null
+errorWebhookUrl: null
 
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
-  steam: "Your steam api key here"
+  steam: null
 
   # This is used in the starboard script to display tenor gifs correctly
-  tenor: "Your tenor api key here"
+  tenor: null
 
 # Settings to control the bot's player behavior
 player:
@@ -27,7 +48,7 @@ player:
 
   # Enables search suggestions in the /music play command when typing stuff in the field
   # You must run the command deployment script after enabling/disabling this!
-  # Deployment script: <npm> run deploy
+  # Deployment script: npm run deploy
   autocomplete: true
 
   # Re-sends the now playing embed after a song ends

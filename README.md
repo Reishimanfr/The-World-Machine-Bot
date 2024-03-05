@@ -16,13 +16,14 @@ My motivation was that all the other music bots I used didn't suit me, so I wrot
 
 ## ⭐ Features
 - YouTube, Spotify, and Soundcloud playback support
-- [Sponsorblock](https://sponsor.ajay.app/) integration
-- Lots of QoL features to make the experience as nice as possible
-- Amazing support from the bot's developer
+- [Sponsorblock](https://sponsor.ajay.app/) integration 
+- Lots of QoL features and customization options
+- Amazing support from the bot's developer 
 - Amazing, customizable starboard
-- A lot of other fun to use commands
+- A lot of other fun to use commands 
+- The most advanced, yet simple playlists system you can find
 
-## Want to self-host?
+## Want to self-host your own instance?
 
 Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self%E2%80%90hosting) for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
 
@@ -31,15 +32,23 @@ Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self
  <summary>Example config.yml file:</summary>
 
 ```yaml
-# Token for the bot to log in with
-botToken: 'Insert your bot token here'
+# This is a example configuration file for the bot. You can download it and fill out it's contents
+
+# Token for the bot to login with
+botToken: "Insert your bot token here"
+
+# Sets which type of database the bot should use. If you have a postgres database setup, it's recommended
+# to use it as it's faster than sqlite. If you don't want to setup a postgres database you can just set this
+# to "sqlite" and call it a day. The performance difference won't matter much for smaller bots.
+# Allowed values: "postgres" | "sqlite"
+database: "sqlite"
 
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
-  steam: 'Your steam API key here'
+  steam: "Your steam api key here"
 
   # This is used in the starboard script to display tenor gifs correctly
-  tenor: 'Your tenor API key here'
+  tenor: "Your tenor api key here"
 
 # Settings to control the bot's player behavior
 player:
@@ -55,22 +64,20 @@ player:
   # Deployment script: <npm> run deploy
   autocomplete: true
 
-  # Instead of making all responses to commands like /music play ephemeral, make them public
-  announcePlayerActions: false # TODO
-
-  # Re-sends the now-playing embed after a song ends
+  # Re-sends the now playing embed after a song ends
   resendEmbedAfterSongEnd: true
 
   # Enables vote to skip song
   enableSkipvote: true
 
   # Sets the percentage of voice chat users required to vote "Yes" for the song to be skipped
-  # Values between 0 - 100 (percent). This will be ignored if enableSkipvote is set to false
+  # Values between 0 - 100 (percents). This will be ignored if enableSkipvote is set to false
   skipvoteThreshold: 50
 
   # Sets how many people should be in vc for skipvotes to be enabled
   # -1 -> Always initiate skipvote
   skipvoteMemberRequirement: 3
+
 ```
 </details>
 
