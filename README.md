@@ -19,8 +19,9 @@ My motivation was that all the other music bots I used didn't suit me, so I wrot
 - [Sponsorblock](https://sponsor.ajay.app/) integration
 - Lots of QoL features to make the experience as nice as possible
 - Amazing support from the bot's developer
-- Amazing, customizable starboard
-- A lot of other fun to use commands
+- Very customizable starboard
+- Docker support to easily host your instance in seconds
+- A lot of other fun-to-use commands
 
 ## Want to self-host?
 
@@ -31,15 +32,43 @@ Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self
  <summary>Example config.yml file:</summary>
 
 ```yaml
-# Token for the bot to log in with
-botToken: 'Insert your bot token here'
+# This is an example configuration file for the bot. You can download it and fill out it's contents
+
+# Token for the bot to login with
+botToken: ''
+
+# Sets which type of database the bot should use. If you have a postgres database setup, it's recommended
+# to use it as it's faster than sqlite. If you don't want to set up a postgres database you can just set this
+# to "sqlite" and call it a day. The performance difference won't matter much for smaller bots.
+# Allowed values: "postgres" | "sqlite"
+database: postgres
+
+# Available options: trace, debug, info, warn, error, fatal
+# Trace is the most verbose, and fatal is the least.
+# Recommended level is info, unless you want to report a bug,
+# then you most likely want to use the debug level instead. 
+logLevel: info
+
+# This changes if the bot should attempt to start the lavalink server automatically
+# after receiving the ClientReady event.
+autostartLavalink: false
+
+# This changes if any stdout or stderr output should be piped to the console
+# Note: This only works if autostartLavalink is set to true
+# Note 2: Stdout will be piped on the "debug" level
+# Note 3: Stderr will always be piped on the "error" level
+pipeLavalinkStdout: true
+
+# This sets the URL of the webhook that will send any uncaught errors to a channel
+# To disable set this to an empty string or null
+errorWebhookUrl: null
 
 apiKeys:
   # This key is used for the /tf2 command to get data from a user's profile
-  steam: 'Your steam API key here'
+  steam: null
 
   # This is used in the starboard script to display tenor gifs correctly
-  tenor: 'Your tenor API key here'
+  tenor: null
 
 # Settings to control the bot's player behavior
 player:
@@ -52,11 +81,8 @@ player:
 
   # Enables search suggestions in the /music play command when typing stuff in the field
   # You must run the command deployment script after enabling/disabling this!
-  # Deployment script: <npm> run deploy
+  # Deployment script: npm run deploy
   autocomplete: true
-
-  # Instead of making all responses to commands like /music play ephemeral, make them public
-  announcePlayerActions: false # TODO
 
   # Re-sends the now-playing embed after a song ends
   resendEmbedAfterSongEnd: true
@@ -68,15 +94,15 @@ player:
   # Values between 0 - 100 (percent). This will be ignored if enableSkipvote is set to false
   skipvoteThreshold: 50
 
-  # Sets how many people should be in vc for skipvotes to be enabled
-  # -1 -> Always initiate skipvote
+  # Sets how many people should be in vc for skip votes to be enabled
+  # -1 -> Always initiate skip vote
   skipvoteMemberRequirement: 3
 ```
 </details>
 
 ## ❓ Support
 
-Please message me on discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also, be sure to check the wiki for the most common topics!
+Please message me on Discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also, be sure to check the wiki for the most common topics!
 
 ## 📦 Dependencies
 
