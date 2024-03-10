@@ -105,6 +105,9 @@ player:
 
 Please message me on Discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also, be sure to check the wiki for the most common topics!
 
+## Migrating from v1?
+Check [this comprehensive guide](https://takiten.notion.site/How-to-migrate-from-v1-to-v2-a4f6e03c8a0e4f7d990a777be6b85475?pvs=4) on how to migrate from twm v1 to v2
+
 ## 📦 Dependencies
 
 Required:
@@ -112,13 +115,13 @@ Required:
 - A [Lavalink](https://github.com/lavalink-devs/Lavalink) server
 - [Node.js](https://nodejs.org/en)
 - A [discord bot token](https://discord.com/developers/applications)
-- A [postgres](https://www.postgresql.org/) database (Soon to be optional
+
 
 Optional:
-
 - [Tenor API token](https://tenor.com/developer/dashboard) (for the starboard to be able to embed tenor gifs)
 - [Spotify client & client secret](https://developer.spotify.com/documentation/web-api): [How to add Spotify support](https://github.com/Reishimanfr/TWM-bot/wiki/%F0%9F%9F%A9-Adding-spotify-support) (Host only)
 - [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
+- A [postgres](https://www.postgresql.org/) database
 
 ## ✨ Some project stats
 ![Alt](https://repobeats.axiom.co/api/embed/1a10163858d87c76196a1510e496f5c5cfb6990e.svg "Repobeats analytics image")
