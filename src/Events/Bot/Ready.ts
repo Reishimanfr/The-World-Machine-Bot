@@ -58,7 +58,7 @@ const Ready: Event = {
 
     if (process.env.AUTOSTART_LAVALINK === 'true') {
       logger.info('Starting lavalink server...')
-      await exec(['java', '-jar', 'lavalink.jar'])
+      await exec(['java', '-jar', './lavalink/lavalink.jar'])
     }
 
     client.poru.init(client)
