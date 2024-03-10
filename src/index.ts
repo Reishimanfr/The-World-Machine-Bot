@@ -1,25 +1,11 @@
-import { ActivityType, GatewayIntentBits, Partials, WebhookClient } from 'discord.js'
+import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 import { Poru } from 'poru'
-import { config, logger, poruNodes, poruOptions } from './config'
+import { logger } from './Helpers/Logger'
 import { ExtClient } from './Helpers/ExtendedClient'
-
-// let errorWebhook: WebhookClient | null = null
-
-// if (config.errorWebhookUrl && config.errorWebhookUrl.length > 0) {
-//   try {
-//     errorWebhook = new WebhookClient({
-//       url: config.errorWebhookUrl
-//     })
-//   } catch (error) {
-//     if (error.message.includes('The provided webhook URL is not valid')) {
-//       logger.error('You provided an invalid URL for the error webhook. Please provide a valid URL in the config file.')
-//     } else {
-//       logger.error(`Failed to connect to error webhook: ${error.stack}`)
-//     }
-//   }
-// }
+import { validateConfig } from './Funcs/ConfigValidator'
+require('dotenv').config()
 
 export const client = new ExtClient({
   failIfNotExists: true,
@@ -32,42 +18,42 @@ export const client = new ExtClient({
     GatewayIntentBits.MessageContent,
   ],
   partials: [
-    // These allow you to receive interactions on old messages for example
     Partials.Reaction,
     Partials.Message,
   ],
   allowedMentions: { repliedUser: false },
 })
 
+validateConfig()
+
 process.on('uncaughtException', (error) => {
   console.error(error)
-
-  // if (errorWebhook) {
-  //   errorWebhook.send({ content: `An uncaught exception occurred: ${error.stack}` })
-  // }
 })
 
 process.on('uncaughtExceptionMonitor', (listener) => {
   console.error(listener)
-
-  // if (errorWebhook) {
-  //   errorWebhook.send({ content: `An uncaught exception occurred: ${listener.stack}` })
-  // }
 })
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error(reason, promise)
-
-  // if (errorWebhook) {
-  //   errorWebhook.send({ content: `An unhandled rejection occurred: ${reason}` })
-  // }
 })
 
-try {
-  client.poru = new Poru(client, poruNodes, poruOptions)
-} catch (error) {
-  logger.error('Failed to connect to lavalink.')
-}
+
+client.poru = new Poru(
+  client,
+  [{
+    host: process.env.LAVALINK_HOST,
+    password: process.env.LAVALINK_PASSWORD,
+    port: Number(process.env.LAVALINK_PORT),
+    name: 'local'
+  }],
+  {
+    library: 'discord.js',
+    defaultPlatform: 'ytsearch',
+    autoResume: true,
+    reconnectTimeout: 10000,
+    reconnectTries: 5,
+  })
 
 const poruEventPath = path.join(__dirname, './Events/Poru')
 const eventPath = path.join(__dirname, './Events/Bot')
@@ -112,7 +98,7 @@ for (const file of poruEvents) {
   }
 }
 
-client.login(config.botToken ?? config.devBotToken)
+client.login(process.env.BOT_TOKEN)
 
 // Update the bot's status every 1 minute
 setInterval(() => {

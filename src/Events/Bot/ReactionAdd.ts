@@ -1,6 +1,6 @@
 import { Events, MessageReaction } from 'discord.js'
 import Mutex from '../../Helpers/Mutex'
-import { logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 import { StarboardHelper } from '../../Helpers/StarboardHelper'
 import { Event } from '../../Types/Event'
 

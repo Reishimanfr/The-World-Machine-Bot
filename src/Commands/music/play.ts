@@ -7,13 +7,12 @@ import {
   TextChannel,
   ChatInputCommandInteraction
 } from 'discord.js'
-import { Track, type LavalinkResponse } from 'poru'
+import { Track, Response } from 'poru'
 import { client } from '../..'
 import { clipString } from '../../Funcs/ClipString'
 import { formatSeconds } from '../../Funcs/FormatSeconds'
 import { ExtPlayer, MessageManager, PlayerController, QueueManager } from '../../Helpers/ExtendedPlayer'
-import { config as botConfig, logger } from '../../config'
-import { combineConfig } from '../../Funcs/CombinePlayerConfig'
+import { logger } from '../../Helpers/Logger'
 import { Command } from '../../Types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 
@@ -29,7 +28,7 @@ interface TracksType {
   length?: number
 }
 
-async function loadPlaylist(interaction: ChatInputCommandInteraction, player: ExtPlayer, result: LavalinkResponse): Promise<void> {
+async function loadPlaylist(interaction: ChatInputCommandInteraction, player: ExtPlayer, result: Response): Promise<void> {
   const buttons = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
       new ButtonBuilder()
@@ -108,7 +107,7 @@ const play: Command = {
       .setName('url-or-search')
       .setDescription('Search query or URL to the song/playlist.')
       .setRequired(true)
-      .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
+      .setAutocomplete(false)
     )
     .addBooleanOption(bypass => bypass
       .setName('bypass-queue')
@@ -186,16 +185,17 @@ const play: Command = {
             .resolveQueryOrUrl(query, interaction.user)
 
           switch (loadType) {
-            case 'LOAD_FAILED':
-            case 'NO_MATCHES': {
+            case 'error':
+            case 'empty': {
               return await interaction.followUp({
                 content: messages[loadType].replace('{query}', query),
                 ephemeral: true
               })
             }
 
-            case 'PLAYLIST_LOADED':
-            case 'TRACK_LOADED': {
+            case 'playlist':
+            case 'search':
+            case 'track': {
               track = data.tracks[0]
 
               await interaction.followUp({
@@ -230,14 +230,15 @@ const play: Command = {
         .resolveQueryOrUrl(query, interaction.user)
 
       switch (loadType) {
-        case 'LOAD_FAILED':
-        case 'NO_MATCHES': {
+        case 'error':
+        case 'empty': {
           return await interaction.editReply({
             content: messages[loadType].replace('{query}', query)
           })
         }
 
-        case 'TRACK_LOADED': {
+        case 'search':
+        case 'track': {
           track = data.tracks[0]
 
           await interaction.editReply({
@@ -246,14 +247,13 @@ const play: Command = {
           break
         }
 
-        case 'PLAYLIST_LOADED': await loadPlaylist(interaction, player, data); break
+        case 'playlist': await loadPlaylist(interaction, player, data); break
       }
     }
 
     if (player.isConnected && !player.isPlaying) player.play()
 
     player.guildId ||= interaction.guild.id
-    player.settings ||= await combineConfig(interaction.guild.id)
   },
 
   autocomplete: async (interaction) => {
@@ -303,7 +303,7 @@ const play: Command = {
 
         trackString += ` - (${formatSeconds(track.info.length / 1000)})`
 
-        tracks.push({ name: trackString.slice(0, 99), value: track.info.uri })
+        tracks.push({ name: trackString.slice(0, 99), value: track.info.uri! })
       }
     }
 

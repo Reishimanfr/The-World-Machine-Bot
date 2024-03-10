@@ -1,11 +1,12 @@
 import { Events } from 'discord.js'
 import { ExtClient } from '../../Helpers/ExtendedClient'
-import { config, logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 import { Event } from '../../Types/Event'
 import pjson from '../../../package.json'
 import axios from 'axios'
 import semver from 'semver'
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
+require('dotenv').config()
 
 async function checkIfNewVersionAvailable() {
   const REPOSITORY_URL = 'https://api.github.com/repos/Reishimanfr/The-World-Machine-Bot/tags'
@@ -29,21 +30,21 @@ async function checkIfNewVersionAvailable() {
 }
 
 async function exec(args: string[]): Promise<ChildProcessWithoutNullStreams> {
-  const process = spawn(args[0], args.slice(1))
+  const childProcess = spawn(args[0], args.slice(1))
 
   return new Promise((resolve) => {
-    process.stdout.on('data', (data) => {
-      if (config.pipeLavalinkStdout) {
+    childProcess.stdout.on('data', (data) => {
+      if (process.env.PIPE_LAVALINK_STDOUT) {
         logger.debug(`Piped lavalink stdout: ${data.toString()}`)
       }
 
       if (data.toString().includes('Lavalink is ready to accept connections.')) {
         logger.info('Lavalink server started.')
-        resolve(process)
+        resolve(childProcess)
       }
     })
 
-    process.stderr.on('data', (data) => {
+    childProcess.stderr.on('data', (data) => {
       logger.error(`Piped lavalink stderr: ${data.toString()}`)
     })
   })
@@ -55,8 +56,7 @@ const Ready: Event = {
   execute: async (client: ExtClient) => {
     await checkIfNewVersionAvailable()
 
-    if (config.autostartLavalink) {
-      logger.debug(`Piping lavalink stdout:${config.pipeLavalinkStdout}`)
+    if (process.env.AUTOSTART_LAVALINK === 'true') {
       logger.info('Starting lavalink server...')
       await exec(['java', '-jar', 'lavalink.jar'])
     }

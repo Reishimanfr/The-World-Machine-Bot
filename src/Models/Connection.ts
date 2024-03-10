@@ -1,23 +1,16 @@
 import { Sequelize } from 'sequelize'
-import options from '../../postgres.json'
-import { config, logger } from '../config'
+import { logger } from '../Helpers/Logger'
 
-let sequelize: Sequelize
-
-if (config.databaseType === 'postgres') {
-  sequelize = new Sequelize({
-    ...options,
-    logging: false,
-    dialect: 'postgres'
-  })
-} else {
-  sequelize = new Sequelize({
-    ...options,
-    logging: false,
-    dialect: 'sqlite',
-    storage: './database.sqlite'
-  })
-}
+const sequelize = new Sequelize({
+  dialect: process.env.DATABASE_DIALECT,
+  host: process.env.DATABASE_HOST,
+  port: Number(process.env.DATABASE_PORT),
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
+  storage: __dirname + '../../../data/database.sqlite',
+  logging: false
+})
 
 async function authenticate() {
   try {
@@ -31,7 +24,7 @@ async function authenticate() {
 authenticate();
 
 (async () => {
-  await sequelize.sync({ alter: true  })
+  await sequelize.sync({ alter: true })
 })()
 
 export default sequelize

@@ -8,21 +8,13 @@ export const save: Button = async ({ interaction, player }) => {
   const member = await interaction.guild.members.fetch(interaction.user.id)
   const status = await player.controller.saveTrack(member, interaction.guild)
 
-  if (status === SaveStatus.NotPlaying) {
-    return await interaction.editReply({
-      content: 'Nothing is playing right now.'
-    })
+  const replies = {
+    [SaveStatus.DmChannelFailure]: 'I can\'t send you a DM.',
+    [SaveStatus.NotPlaying]: 'Nothing is playing right now.',
+    [SaveStatus.Success]: 'Song saved to DMs.',
   }
 
-  if (status === SaveStatus.DmChannelFailure) {
-    return await interaction.editReply({
-      content: 'I can\'t send you a DM.'
-    })
-  }
-
-  if (status === SaveStatus.Success) {
-    return await interaction.editReply({
-      content: 'Song saved to DMs.',
-    })
-  }
+  interaction.editReply({
+    content: replies[status],
+  })
 }

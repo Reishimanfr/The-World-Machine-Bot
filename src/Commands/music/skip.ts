@@ -4,7 +4,7 @@ import {
 } from 'discord.js'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 import { Command } from '../../Types/Command'
-import { logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 
 const skip: Command<true> = {
   permissions: {

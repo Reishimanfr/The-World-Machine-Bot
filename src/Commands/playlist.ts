@@ -790,6 +790,7 @@ const playlist: Command = {
 
           if (!playlistName) break
 
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const [response, _, error] = await playlistManager.clear(playlistName, interaction.user.id)
 
           const replies = {

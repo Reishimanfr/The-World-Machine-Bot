@@ -1,7 +1,7 @@
 import { Category, Segment, SponsorBlock } from 'sponsorblock-api'
 import { client } from '../..'
 import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
-import { logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 import { Event } from '../../Types/Event'
 import { SponsorBlockDb } from '../../Models'
 
@@ -11,7 +11,7 @@ const TrackStart: Event = {
   execute: async (player: ExtPlayer) => {
     if (player.timeout) {
       logger.debug('Canceling active player timeout')
-      void player.controller.cancelPlayerTimeout()
+      player.controller.cancelPlayerTimeout()
     }
 
     if (player.currentTrack.info.sourceName === 'youtube') {

@@ -1,9 +1,11 @@
-application.yml
-config.yml
-lavalink.jar
 node_modules
-jest.config.jest
-pnpm-lock.yaml
-postgres.json
-database.sqlite
 .vscode
+.env
+data/*
+yarn.lock
+lavalink/*
+
+# Only for now
+.dockerignore
+Dockerfile
+docker-compose.yml

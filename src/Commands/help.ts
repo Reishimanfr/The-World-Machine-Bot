@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js'
-import commandList from '../Data/CommandExport'
+import commandList from '../Helpers/CommandExport'
 import { embedColor } from '../Helpers/Util'
 import { Command } from '../Types/Command'
 import { clipString } from '../Funcs/ClipString'
@@ -35,7 +35,7 @@ If you'd like to self-host the bot check out the **[How to self-host](https://gi
     const commandOptions: StringSelectMenuOptionBuilder[] = []
 
     for (const command of commandList) {
-      if (command.helpData && command.helpData.description && command.data.name) {
+      if (command.helpData?.description && command.data.name) {
         const clippedDescription = clipString({ string: command.helpData.description, maxLength: 97, sliceEnd: '...'})
 
         commandOptions.push(

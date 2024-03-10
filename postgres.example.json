@@ -1,8 +1,0 @@
-{
-  "database": "twm-database",
-  "host": "url here",
-  "port": "your port here as a number",
-  "username": "your user here",
-  "password": "your password here",
-  "ssl": "true/false, set this to true if you get the \"[SequelizeConnectionError]: connection is insecure\" error while starting the bot"
-}

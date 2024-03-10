@@ -1,11 +1,12 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, GuildMember, Message, User } from 'discord.js'
-import { LavalinkResponse, LoadType, Player, Response, Track } from 'poru'
-import { PlayerSettings, config, logger } from '../config'
+import { Response as LavalinkResponse, LoadType, Player, Response, Track } from 'poru'
+import { logger } from './Logger'
 import { Segment } from 'sponsorblock-api'
 import axios from 'axios'
 import { formatSeconds } from '../Funcs/FormatSeconds'
 import constructProgressBar from '../Funcs/ProgressBarConstructor'
 import { playerGifUrl, inactiveGifUrl, embedColor } from './Util'
+import { PlayerSettingsI } from '../Models'
 
 const TranslateSponsorBlockNames = {
   filler: 'Filler',
@@ -28,7 +29,7 @@ export class ExtPlayer extends Player {
   private $message: Message | undefined
   private $pauseEditing: boolean
   private $timeout: NodeJS.Timeout | null
-  private $settings: PlayerSettings
+  private $settings: PlayerSettingsI
   private $voteSkipActive = false
   private $lavalinkUpdateTics = 0
   private $currentSponsoredSegments: Array<Segment>
@@ -77,11 +78,11 @@ export class ExtPlayer extends Player {
     this.$timeout = timeout
   }
 
-  get settings(): PlayerSettings {
+  get settings(): PlayerSettingsI {
     return this.$settings
   }
 
-  set settings(settings: PlayerSettings) {
+  set settings(settings: PlayerSettingsI) {
     this.$settings = settings
   }
 
@@ -130,7 +131,7 @@ export class MessageManager {
 
     const image = (info.sourceName === 'spotify')
       ? await this.fetchSpotifyThumbnail(info.identifier)
-      : info.image
+      : info.artworkUrl
 
     const progressBar = constructProgressBar(info.length, player.position)
     // These are used for the user-readable progress notation under the progress bar
@@ -158,7 +159,7 @@ export class MessageManager {
           iconURL: this.player.isPlaying ? playerGifUrl : inactiveGifUrl
         })
         .setTitle(info.title)
-        .setURL(info.uri)
+        .setURL(info.uri ?? '')
         .setDescription(description)
         .setThumbnail(image ?? null)
         .setFooter({
@@ -265,7 +266,7 @@ export class PlayerController {
     soundcloud: '<:soundcloud:1171916943192752199>'
   }
 
-  constructor (player: ExtPlayer) {
+  constructor(player: ExtPlayer) {
     this.player = player
     this.messageManager = new MessageManager(player)
   }
@@ -274,7 +275,7 @@ export class PlayerController {
    * Toggles the player playback
    * @param override Set a override to ignore toggling and instead set the value to override
    */
-  public togglePlayback (override?: boolean) {
+  public togglePlayback(override?: boolean) {
     if (override !== undefined) {
       this.player.pause(override)
     } else {
@@ -285,7 +286,7 @@ export class PlayerController {
   /**
    * Resolves a search query or url and appends the result if it's a track or search result
    */
-  public async resolveQueryOrUrl (query: string, requester: GuildMember | User): Promise<[LoadType, Response]> {
+  public async resolveQueryOrUrl(query: string, requester: GuildMember | User): Promise<[LoadType, Response]> {
     const result = await this.player.poru.resolve({
       query,
       source: 'ytsearch',
@@ -298,7 +299,7 @@ export class PlayerController {
 
     const loadType = result.loadType
 
-    if (loadType === 'SEARCH_RESULT' || loadType === 'TRACK_LOADED') {
+    if (loadType === 'search' || loadType === 'track') {
       const track = result.tracks[0]
 
       this.player.queue.add(track)
@@ -312,8 +313,8 @@ export class PlayerController {
   /**
    * Adds all songs from a playlist to the player queue
    */
-  public async loadPlaylist (result: LavalinkResponse) {
-    if (result.loadType !== 'PLAYLIST_LOADED') {
+  public async loadPlaylist(result: LavalinkResponse) {
+    if (result.loadType !== 'playlist') {
       throw new Error(`Expected PLAYLIST_LOADED load type, got ${result.loadType} instead.`)
     }
 
@@ -327,9 +328,9 @@ export class PlayerController {
   /**
    * Sets up a player timeout that destroys the player after 10 seconds unless cancelled
    */
-  public async setupPlayerTimeout () {
+  public async setupPlayerTimeout() {
     // Player timeout set in config.yml converted to minutes
-    const playerTimeout = config.hostPlayerOptions.playerTimeout * 60 * 1000
+    const playerTimeout = Number(process.env.PLAYER_TIMEOUT) * 60 * 1000
 
     // Returns if the playerTimeout is set to 0 or less
     if (playerTimeout <= 0) return
@@ -361,7 +362,7 @@ export class PlayerController {
    * Toggles the current player loop
    * @param override
    */
-  public toggleLoop (override?: 'NONE' | 'QUEUE' | 'TRACK') {
+  public toggleLoop(override?: 'NONE' | 'QUEUE' | 'TRACK') {
     const currentLoop = this.player.loop
 
     if (override) {
@@ -380,7 +381,7 @@ export class PlayerController {
   /**
    * Cancels a pending player timeout
    */
-  public cancelPlayerTimeout (): void {
+  public cancelPlayerTimeout(): void {
     if (!this.player.timeout) return
 
     clearTimeout(this.player.timeout)
@@ -391,7 +392,7 @@ export class PlayerController {
   /**
    * Sends the currently playing track to user's dms
    */
-  public async saveTrack (user: GuildMember, guild: Guild): Promise<SaveStatus> {
+  public async saveTrack(user: GuildMember, guild: Guild): Promise<SaveStatus> {
     if (!this.player.isPlaying) return SaveStatus.NotPlaying
 
     const info = this.player.currentTrack.info
@@ -411,7 +412,7 @@ export class PlayerController {
 
     const image = (info.sourceName === 'spotify')
       ? await this.messageManager.fetchSpotifyThumbnail(info.identifier)
-      : info.image
+      : info.artworkUrl
 
     const trackInfo = new EmbedBuilder()
       .setAuthor({ name: `Originally requested by ${info.requester.username}`, iconURL: info.requester.avatar })

@@ -10,7 +10,7 @@ export const loop: Button = async ({ interaction, player }) => {
   player.controller.toggleLoop()
   player.messageManger.updatePlayerMessage()
 
-  await interaction.reply({
+  interaction.reply({
     content: loopString[player.loop],
     ephemeral: true
   })

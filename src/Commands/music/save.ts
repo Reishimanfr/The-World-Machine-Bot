@@ -14,9 +14,7 @@ const save: Command<true> = {
 
   helpData: {
     description: 'Saves the currently playing song to bot DMs',
-    examples: [
-      '```/save```'
-    ]
+    examples: ['```/save```']
   },
 
   musicOptions: {
@@ -31,23 +29,15 @@ const save: Command<true> = {
     const member = await interaction.guild.members.fetch(interaction.user.id)
     const status = await player.controller.saveTrack(member, interaction.guild)
 
-    if (status === SaveStatus.NotPlaying) {
-      return await interaction.editReply({
-        content: 'Nothing is playing right now.'
-      })
+    const replies = {
+      [SaveStatus.NotPlaying]: 'Nothing is playing right now.',
+      [SaveStatus.DmChannelFailure]: 'I can\'t send you a DM.',
+      [SaveStatus.Success]: 'Song saved to DMs!'
     }
 
-    if (status === SaveStatus.DmChannelFailure) {
-      return await interaction.editReply({
-        content: 'I can\'t send you a DM.'
-      })
-    }
-
-    if (status === SaveStatus.Success) {
-      return await interaction.editReply({
-        content: 'Song saved to DMs!'
-      })
-    }
+    interaction.editReply({
+      content: replies[status]
+    })
   }
 }
 

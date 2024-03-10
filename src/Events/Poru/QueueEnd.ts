@@ -1,6 +1,6 @@
 import constructProgressBar from '../../Funcs/ProgressBarConstructor'
 import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
-import { logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 import { inactiveGifUrl } from '../../Helpers/Util'
 import { Event } from '../../Types/Event'
 import PlayerDestroy from './PlayerDestroy'

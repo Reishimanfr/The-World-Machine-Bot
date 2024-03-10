@@ -1,7 +1,7 @@
 import { Events, Interaction, InteractionType, AutocompleteInteraction, ButtonInteraction, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js'
 import { Event } from '../../Types/Event'
-import { logger } from '../../config'
-import commandList from '../../Data/CommandExport'
+import { logger } from '../../Helpers/Logger'
+import commandList from '../../Helpers/CommandExport'
 import { client } from '../..'
 import { ExtPlayer, } from '../../Helpers/ExtendedPlayer'
 import { embedColor } from '../../Helpers/Util'
@@ -195,7 +195,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     }
 
     // Member doesn't have the DJ role
-    if (options.requiresDjRole && config.requireDjRole && !member?.roles.cache.find(role => role.id === config.djRoleId)) {
+    if (options.requiresDjRole && config.requireDjRole && !member?.roles.cache.find(role => role.id === config.djRoleId) && config.djRoleId) {
       return await interaction.reply({
         content: `You must have the <@&${config.djRoleId}> role to use this command.`,
         ephemeral: true
@@ -205,7 +205,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     if (!player) {
       player = client.poru.createConnection({
         guildId: interaction.guild.id,
-        voiceChannel: member!.voice.channel!.id,
+        voiceChannel: member.voice.channel!.id,
         textChannel: interaction.channel!.id,
         deaf: true,
         mute: false

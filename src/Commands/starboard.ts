@@ -393,7 +393,7 @@ async function emojiCon(interaction: CommandInteraction) {
   const newEmojis = content
     .split(',')
     .map((emj) => emj.trim())
-    .filter(emj => emj.match(/\p{Emoji}/gu) || emj.match(/<(a|):(.*):(.*?)>/gu))
+    .filter(emj => emj.match(/\p{Emoji}/gu) ?? emj.match(/<(a|):(.*):(.*?)>/gu))
 
   const finalCon = await interaction.editReply({
     embeds: [

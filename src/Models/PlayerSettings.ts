@@ -1,6 +1,27 @@
 import { DataTypes } from 'sequelize'
-import { config } from '../config'
 import sequelize from './Connection'
+
+export type PlayerSettingsI = {
+  queueEndDisconnect: boolean
+  resendMessageOnEnd: boolean
+  voteSkipToggle: boolean
+  dynamicNowPlaying: boolean
+  voteSkipThreshold: number
+  voteSkipMembers: number
+  requireDjRole: boolean
+  djRoleId: string | null
+}
+
+export const defaultConfig = {
+  queueEndDisconnect: false,
+  resendMessageOnEnd: false,
+  voteSkipToggle: true,
+  dynamicNowPlaying: true,
+  voteSkipThreshold: 50,
+  voteSkipMembers: 3,
+  requireDjRole: true,
+  djRoleId: null
+} as const
 
 export const PlayerSettings = sequelize.define('playerSettings', {
   guildId: {
@@ -10,34 +31,34 @@ export const PlayerSettings = sequelize.define('playerSettings', {
   },
   queueEndDisconnect: {
     type: DataTypes.BOOLEAN,
-    defaultValue: config.player.queueEndDisconnect
+    defaultValue: defaultConfig.queueEndDisconnect
   },
   voteSkipToggle: {
     type: DataTypes.BOOLEAN,
-    defaultValue: config.player.voteSkipToggle
+    defaultValue: defaultConfig.voteSkipToggle
   },
   resendMessageOnEnd: {
     type: DataTypes.BOOLEAN,
-    defaultValue: config.player.resendMessageOnEnd
+    defaultValue: defaultConfig.resendMessageOnEnd
   },
   dynamicNowPlaying: {
     type: DataTypes.BOOLEAN,
-    defaultValue: config.player.dynamicNowPlaying
+    defaultValue: defaultConfig.dynamicNowPlaying
   },
   requireDjRole: {
     type: DataTypes.BOOLEAN,
-    defaultValue: config.player.requireDjRole
+    defaultValue: defaultConfig.requireDjRole
   },
   djRoleId: {
     type: DataTypes.STRING,
-    defaultValue: null
+    defaultValue: defaultConfig.djRoleId
   },
   voteSkipMembers: {
     type: DataTypes.INTEGER,
-    defaultValue: config.player.voteSkipMembers
+    defaultValue: defaultConfig.voteSkipMembers
   },
   voteSkipThreshold: {
     type: DataTypes.INTEGER,
-    defaultValue: config.player.voteSkipThreshold
+    defaultValue: defaultConfig.voteSkipThreshold
   }
 })

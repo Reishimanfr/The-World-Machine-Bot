@@ -1,4 +1,4 @@
-import { ChannelType, TextChannel } from 'discord.js'
+import { ChannelType } from 'discord.js'
 import CreateVote, { VoteStatus } from '../../../Helpers/CreateVote'
 import { Button } from '../../../Types/Button'
 
@@ -40,26 +40,20 @@ export const skip: Button = async ({ interaction, player }) => {
     interaction,
     reason: 'Wants to skip the current song',
     requiredVotes,
-    voiceText: interaction.channel as TextChannel,
+    voiceText: interaction.channel,
     voiceChannel: member.voice.channel,
     time: 60000
   })
 
-  switch (status) {
-  case VoteStatus.Success: {
-    interaction.editReply(`Song **${player.currentTrack.info.title}** skipped!`)
-    player.stop()
-    break
+  const replies = {
+    [VoteStatus.Success]: `Song **${player.currentTrack.info.title}** skipped.`,
+    [VoteStatus.Error]: `There was an error while voting: \`${error}\``,
+    [VoteStatus.Failure]: 'There are not enough votes to skip the current song.'
   }
-  case VoteStatus.Failure: {
-    interaction.editReply('The voting resulted in a failure!')
-    break
-  }
-  case VoteStatus.Error: {
-    interaction.editReply(`Voting failed: \`\`\`${error?.message}\`\`\``)
-    break
-  }
-  }
+
+  interaction.editReply({
+    content: replies[status],
+  })
 
   player.votingActive = false
 }

@@ -1,4 +1,4 @@
-import { logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 import { Event } from '../../Types/Event'
 
 const NodeConnect: Event = {

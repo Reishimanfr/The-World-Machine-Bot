@@ -217,7 +217,7 @@ class PlaylistManager {
 
     const resolveUrl = await client.poru.resolve({ query: playlistUrl })
 
-    if (resolveUrl.loadType !== 'PLAYLIST_LOADED') return [PlaylistResponse.INVALID_PLAYLIST_URL]
+    if (resolveUrl.loadType !== 'playlist') return [PlaylistResponse.INVALID_PLAYLIST_URL]
     if (resolveUrl.tracks.length > this.trackLimit) return [PlaylistResponse.TOO_MANY_TRACKS]
 
     let playlistLength = 0
@@ -458,12 +458,12 @@ class PlaylistManager {
       const resolveUrl = await client.poru.resolve({ query: song })
 
       switch (resolveUrl.loadType) {
-        case 'LOAD_FAILED': return [PlaylistResponse.ERROR, undefined, new Error(`Failed to resolve: ${song}`)]
-        case 'NO_MATCHES': return [PlaylistResponse.ERROR, undefined, new Error(`No matches found for: ${song}`)]
+        case 'error': return [PlaylistResponse.ERROR, undefined, new Error(`Failed to resolve: ${song}`)]
+        case 'empty': return [PlaylistResponse.ERROR, undefined, new Error(`No matches found for: ${song}`)]
 
-        case 'SEARCH_RESULT':
-        case 'PLAYLIST_LOADED':
-        case 'TRACK_LOADED': {
+        case 'search':
+        case 'playlist':
+        case 'track': {
           const track = resolveUrl.tracks[0]
           const splitTracks = playlist.tracks?.split(' ') ?? []
 
@@ -510,7 +510,7 @@ class PlaylistManager {
         indexSanitized = splitTracks.length + 1 // The end user will probably start from 1 not 0
       }
 
-      splitTracks.splice(index - 1, 1)
+      splitTracks.splice(indexSanitized - 1, 1)
 
       playlist.tracks = splitTracks.length > 0 ? splitTracks.join(' ') : null
     } catch (error) {
@@ -525,12 +525,12 @@ class PlaylistManager {
       const resolveUrl = await client.poru.resolve({ query: song })
 
       switch (resolveUrl.loadType) {
-        case 'LOAD_FAILED': return [PlaylistResponse.ERROR, undefined, new Error(`Failed to resolve: ${song}`)]
-        case 'NO_MATCHES': return [PlaylistResponse.ERROR, undefined, new Error(`No matches found for: ${song}`)]
+        case 'error': return [PlaylistResponse.ERROR, undefined, new Error(`Failed to resolve: ${song}`)]
+        case 'empty': return [PlaylistResponse.ERROR, undefined, new Error(`No matches found for: ${song}`)]
 
-        case 'SEARCH_RESULT':
-        case 'PLAYLIST_LOADED':
-        case 'TRACK_LOADED': {
+        case 'search':
+        case 'playlist':
+        case 'track': {
           const track = resolveUrl.tracks[0]
           const splitTracks = playlist.tracks?.split(' ') ?? []
 

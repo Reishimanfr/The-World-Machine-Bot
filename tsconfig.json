@@ -20,7 +20,8 @@
     ]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "./src/Types/process-env.d.ts"
   ],
   "exclude": [
     "node_modules"

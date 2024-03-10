@@ -6,4 +6,4 @@ export type Button = (args: {
   interaction: ButtonInteraction
   player: ExtPlayer
   client: ExtClient
-}) => void
+}) => any

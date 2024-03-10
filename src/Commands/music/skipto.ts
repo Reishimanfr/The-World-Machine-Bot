@@ -1,8 +1,8 @@
 import { EmbedBuilder, SlashCommandBuilder, TextChannel, type ApplicationCommandOptionChoiceData } from 'discord.js'
 import type Queue from 'poru/dist/src/guild/Queue'
-import { client  } from '../..'
+import { client } from '../..'
 import { embedColor } from '../../Helpers/Util'
-import { config as botConfig, logger } from '../../config'
+import { logger } from '../../Helpers/Logger'
 import { Command } from '../../Types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 import { Track } from 'poru'
@@ -26,7 +26,7 @@ const skipTo: Command<true> = {
       .setName('position')
       .setDescription('Position in the queue to skip to')
       .setRequired(true)
-      .setAutocomplete(botConfig.hostPlayerOptions.autocomplete)
+      .setAutocomplete(true)
       .setMinValue(1)
     ),
 
@@ -98,23 +98,23 @@ const skipTo: Command<true> = {
       player.votingActive = false
 
       switch (status) {
-      case VoteStatus.Success: {
-        interaction.editReply(`Skipped to song **${song.info.title}**.`)
-        player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
-        player.stop()
-        break
-      }
+        case VoteStatus.Success: {
+          interaction.editReply(`Skipped to song **${song.info.title}**.`)
+          player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
+          player.stop()
+          break
+        }
 
-      case VoteStatus.Failure: {
-        interaction.editReply('Other members didn\'t agree to skip to this song.')
-        break
-      }
+        case VoteStatus.Failure: {
+          interaction.editReply('Other members didn\'t agree to skip to this song.')
+          break
+        }
 
-      case VoteStatus.Error: {
-        logger.error(`Failed to finish skipto voting: ${error?.stack}`)
-        interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
-        break
-      }
+        case VoteStatus.Error: {
+          logger.error(`Failed to finish skipto voting: ${error?.stack}`)
+          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+          break
+        }
       }
     } else {
       player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
@@ -123,7 +123,7 @@ const skipTo: Command<true> = {
       await interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .setDescription(`[ Skipped to song **${player.queue.at(0).info.title}**. ]`)
+            .setDescription(`[ Skipped to song **${player.queue.at(0)!.info.title}**. ]`)
             .setColor(embedColor)
         ],
         ephemeral: true
@@ -134,7 +134,7 @@ const skipTo: Command<true> = {
   autocomplete: async (interaction) => {
     if (!interaction.guild) return
 
-    const player = client .poru.players.get(interaction.guild.id)
+    const player = client.poru.players.get(interaction.guild.id)
     const queue = player?.queue
 
     const member = await interaction.guild.members.fetch(interaction.user.id)

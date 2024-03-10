@@ -1,8 +1,7 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 import { Model } from 'sequelize'
-import { PlayerSettings as PlayerSettingsDb, SponsorBlockDb } from '../Models'
+import { PlayerSettings, SponsorBlockDb } from '../Models'
 import { Command } from '../Types/Command'
-import { config } from '../config'
 
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold', 'sponsorBlockConfig']
 
@@ -133,14 +132,14 @@ const music: Command = {
 
       const optionName = collected.values[0]
       const optionLabel = collected.component.options.find(c => c.value === optionName)?.label
-      const [record] = await PlayerSettingsDb.findOrCreate({
+      const [record] = await PlayerSettings.findOrCreate({
         where: { guildId: interaction.guildId }
       })
 
       if (!NON_TOGGLE_OPTIONS.includes(optionName)) {
         const toggledOption = !record.getDataValue(optionName)
 
-        await PlayerSettingsDb.update({
+        await PlayerSettings.update({
           [optionName]: toggledOption
         }, { where: { guildId: interaction.guildId } })
 
@@ -153,11 +152,11 @@ const music: Command = {
       }
 
       switch (optionName) {
-      case 'djRoleId': await setDjRole(interaction); break
-      case 'voteSkipMembers': await setVoteSkipMembers(interaction); break
-      case 'setVoteSkipThreshold': await setVoteSkipThreshold(interaction); break
-      case 'showConfig': await showConfig(interaction, record); break
-      case 'sponsorBlockConfig': await sponsorBlockConfig(interaction); break
+        case 'djRoleId': await setDjRole(interaction); break
+        case 'voteSkipMembers': await setVoteSkipMembers(interaction); break
+        case 'setVoteSkipThreshold': await setVoteSkipThreshold(interaction); break
+        case 'showConfig': await showConfig(interaction, record); break
+        case 'sponsorBlockConfig': await sponsorBlockConfig(interaction); break
       }
     })
 
@@ -204,7 +203,7 @@ async function setDjRole(interaction: ChatInputCommandInteraction) {
     correctRole = roleId
   }
 
-  await PlayerSettingsDb.update({
+  await PlayerSettings.update({
     djRoleId: correctRole
   }, { where: { guildId: interaction.guildId } })
 
@@ -236,7 +235,7 @@ async function setVoteSkipMembers(interaction: ChatInputCommandInteraction) {
     return
   }
 
-  await PlayerSettingsDb.update({
+  await PlayerSettings.update({
     voteSkipMembers: newAmount
   }, { where: { guildId: interaction.guildId } })
 
@@ -268,7 +267,7 @@ async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
     return
   }
 
-  await PlayerSettingsDb.update({
+  await PlayerSettings.update({
     voteSkipThreshold: newAmount
   }, { where: { guildId: interaction.guildId } })
 
@@ -379,7 +378,7 @@ async function sponsorBlockConfig(interaction: ChatInputCommandInteraction) {
     const updatedSettings = await getSettings()
     const changedValue = updatedSettings[int.values[0]]
 
-    if (config.databaseType === 'sqlite') {
+    if (process.env.DATABASE_DIALECT === 'sqlite') {
       updatedSettings[int.values[0]] = changedValue === '0' ? '1' : '0'
     } else {
       updatedSettings[int.values[0]] = changedValue === 'true' ? 'false' : 'true'

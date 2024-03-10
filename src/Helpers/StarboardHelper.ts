@@ -13,7 +13,7 @@ import {
 } from 'discord.js'
 import { clipString } from '../Funcs/ClipString'
 import { starboardConfig, starboardEntries } from '../Models'
-import { logger } from '../config'
+import { logger } from './Logger'
 import { client } from '..'
 
 type ReactionOrPart = MessageReaction | PartialMessageReaction;
@@ -41,13 +41,11 @@ export class StarboardHelper {
   private formatReactionString(
     reactionEmoji: ReactionEmoji | GuildEmoji
   ): string {
-    logger.debug(`[StarboardHelpers.ts/#formatReactionString]: Input: [${JSON.stringify(reactionEmoji, null, 2)}]`)
+    let formattedEmoji = reactionEmoji.animated ? '<a:' : '<:'
     
-    const formattedEmoji = reactionEmoji.id
-      ? `<${reactionEmoji.animated ? 'a' : ''}:${reactionEmoji.name}:${reactionEmoji.id}>`
+    formattedEmoji += reactionEmoji.id
+      ? `${reactionEmoji.name}:${reactionEmoji.id}>`
       : this.reaction.emoji.name ?? 'Error!'
-
-    logger.debug(`[StarboardHelpers.ts/#formatReactionString]: Output: [${formattedEmoji}]`)
 
     return formattedEmoji
   }

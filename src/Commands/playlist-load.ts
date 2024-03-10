@@ -1,8 +1,7 @@
 import { ApplicationCommandOptionChoiceData, SlashCommandBuilder } from 'discord.js'
 import { Command } from '../Types/Command'
 import { PlaylistManager, PlaylistResponse } from '../Helpers/PlaylistManager'
-import { ExtPlayer, PlayerController, QueueManager, MessageManager } from '../Helpers/ExtendedPlayer'
-import { combineConfig } from '../Funcs/CombinePlayerConfig'
+import { ExtPlayer } from '../Helpers/ExtendedPlayer'
 
 const playlist_load: Command = {
   data: new SlashCommandBuilder()
@@ -66,14 +65,8 @@ const playlist_load: Command = {
       }) as ExtPlayer
 
       player.setVolume(75)
+      player.guildId ||= interaction.guild!.id
     }
-
-    player.controller ||= new PlayerController(player)
-    player.messageManger ||= new MessageManager(player)
-    player.queueManager ||= new QueueManager(player)
-    player.guildId ||= interaction.guild!.id
-    player.settings ||= await combineConfig(interaction.guild!.id)
-
     const [response, error] = await playlistManager.load(playlist!, player, interaction.user)
 
     if (player.isConnected && !player.isPlaying) player.play()
