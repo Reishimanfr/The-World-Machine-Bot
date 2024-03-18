@@ -27,7 +27,7 @@ body:
       label: "Expected behavior"
       description: "Provide what's the expected behavior for the command"
 
-  - type: markdown
+  - type: textarea
     id: additional_info
     attributes:
       label: "Additional context and info"
