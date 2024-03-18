@@ -1,0 +1,34 @@
+name: 🐛 Bug Report
+description: File a bug report
+title: "🐛 Bug: "
+labels: ["bug"]
+assignees:
+  - reishimanfr
+body:
+  - type: input
+    id: bug_description
+    attributes:
+      label: "Describe the bug"
+      description: "Provide a small description for the bug you're facing"
+    validations:
+      required: true
+
+  - type: markdown
+    id: steps_to_reproduce
+    attributes:
+      label: "Steps to reproduce"
+      description: "Provide the steps to reproduce the bug"
+    validations:
+      required: true
+
+  - type: input
+    id: expected_behavior
+    attributes: 
+      label: "Expected behavior"
+      description: "Provide what's the expected behavior for the command"
+
+  - type: markdown
+    id: additional_info
+    attributes:
+      label: "Additional context and info"
+      descriptions: "Provide any additional context or info regarding the issue, if applicable include screenshots."
