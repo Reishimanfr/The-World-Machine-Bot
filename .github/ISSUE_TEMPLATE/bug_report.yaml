@@ -31,4 +31,4 @@ body:
     id: additional_info
     attributes:
       label: "Additional context and info"
-      descriptions: "Provide any additional context or info regarding the issue, if applicable include screenshots."
+      description: "Provide any additional context or info regarding the issue, if applicable include screenshots."
