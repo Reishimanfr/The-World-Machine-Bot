@@ -25,7 +25,7 @@ body:
   - type: input
     attributes:
       label: "What version of your runtime are you using"
-      description: "Type `node --version` in your terminal and paste it here
+      description: "Type `node --version` in your terminal and paste it here"
     validations:
       required: true
 
