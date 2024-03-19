@@ -1,0 +1,31 @@
+name: ✨ Feature request
+description: Propose a new feature that should be added to TWM.
+title: "✨ Feature request: "
+labels: ["✨ Feature request"]
+assignees:
+  - reishimanfr
+body:
+  - type: input
+      label: "What would you like to be added?"
+      description: "A short description of the feature you'd like to be added."
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: "Why do you want this feature to be added?"
+      description: "Provide a short reason for why you'd like to have this feature added."
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Proposed solution"
+      description: "Provide an idea/solution for the new feature"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Additional context and info"
+      description: "Provide any additional context or info regarding the feature."
