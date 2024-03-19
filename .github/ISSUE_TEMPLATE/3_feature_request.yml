@@ -6,6 +6,7 @@ assignees:
   - reishimanfr
 body:
   - type: input
+    attributes:
       label: "What would you like to be added?"
       description: "A short description of the feature you'd like to be added."
     validations:
