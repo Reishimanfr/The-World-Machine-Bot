@@ -1,4 +1,4 @@
-name: 🐛 Self-hoster instance bug Report
+name: 🐛 Bug report (Self-hosting)
 description: File a bug report related specifically to a self-hosted instance
 title: "🐛 Bug (Self-host): "
 labels: ["bug"]
