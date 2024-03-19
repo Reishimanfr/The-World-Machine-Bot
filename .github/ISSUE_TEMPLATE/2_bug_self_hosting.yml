@@ -17,6 +17,7 @@ body:
       required: true
 
   - type: input
+    attributes:
       label: "What version of Lavalink are you using?"
       description: "You can check the Lavalink version by running the jar file and checking logs."
     validations:
