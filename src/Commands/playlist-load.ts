@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionChoiceData, SlashCommandBuilder } from 'discord.js'
 import { Command } from '../Types/Command'
-import { PlaylistManager, PlaylistResponse } from '../Helpers/PlaylistManager'
+import { PlaylistManager, PlaylistResponse } from '../Classes/PlaylistManager'
 import { ExtPlayer } from '../Helpers/ExtendedPlayer'
 
 const playlist_load: Command = {

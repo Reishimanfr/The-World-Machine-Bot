@@ -9,10 +9,7 @@ const TrackStart: Event = {
   name: 'trackStart',
   once: false,
   execute: async (player: ExtPlayer) => {
-    if (player.timeout) {
-      logger.debug('Canceling active player timeout')
-      player.controller.cancelPlayerTimeout()
-    }
+    if (player.timeout) player.controller.cancelPlayerTimeout()
 
     if (player.currentTrack.info.sourceName === 'youtube') {
       const [record] = await SponsorBlockDb.findOrCreate({
@@ -27,7 +24,7 @@ const TrackStart: Event = {
         if (bool && !['id', 'guildId', 'createdAt', 'updatedAt'].includes(key)) segments.push(key)
       }
 
-      player.currentSponsoredSegments = segments.length ? await new SponsorBlock('twm')
+      player.sponsorSegments = segments.length ? await new SponsorBlock('twm')
         .getSegments(player.currentTrack.info.identifier, segments as Category[])
         .catch(() => {
           return [] as Segment[]

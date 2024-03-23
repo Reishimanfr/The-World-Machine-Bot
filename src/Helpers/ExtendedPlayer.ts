@@ -31,28 +31,19 @@ export class ExtPlayer extends Player {
   private $timeout: NodeJS.Timeout | null
   private $settings: PlayerSettingsI
   private $voteSkipActive = false
-  private $lavalinkUpdateTics = 0
-  private $currentSponsoredSegments: Array<Segment>
+  private $sponsorSegments: Array<Segment>
 
   // Managers
   public messageManger: MessageManager
   public queueManager: QueueManager
   public controller: PlayerController
 
-  get currentSponsoredSegments(): Array<Segment> {
-    return this.$currentSponsoredSegments
+  get sponsorSegments(): Array<Segment> {
+    return this.$sponsorSegments
   }
 
-  set currentSponsoredSegments(value: Array<Segment>) {
-    this.$currentSponsoredSegments = value
-  }
-
-  get lavalinkUpdateTics(): number {
-    return this.$lavalinkUpdateTics
-  }
-
-  set lavalinkUpdateTics(newValue: number) {
-    this.$lavalinkUpdateTics = newValue
+  set sponsorSegments(value: Array<Segment>) {
+    this.$sponsorSegments = value
   }
 
   get message(): Message | undefined {
@@ -133,7 +124,7 @@ export class MessageManager {
       ? await this.fetchSpotifyThumbnail(info.identifier)
       : info.artworkUrl
 
-    const progressBar = constructProgressBar(info.length, player.position)
+    const progressBar = constructProgressBar(info.length, player.position, player)
     // These are used for the user-readable progress notation under the progress bar
     const songLength = formatSeconds(info.length / 1000)
 
@@ -145,7 +136,7 @@ export class MessageManager {
       playerPosition = formatSeconds(Math.round((player.position / 1000) / 5) * 5)
     }
 
-    const description = `By: **${info.author}**\n\n${progressBar}\n${playerPosition}/${songLength}\n\n:information_source: Check \`/help\` to get started!`
+    const description = `By: **${info.author}**${info.isStream ? '' : `\n\n${progressBar}\n${playerPosition}/${songLength}`}\n\n:information_source: Check \`/help\` to get started!`
     const queueOrPlaying = (player.queue.length > 0)
       ? `There ${player.queue.length === 1 ? 'is one song' : `are ${player.queue.length} songs`} in the queue`
       : player.isPaused ? 'Paused' : 'Now Playing' + '...'
@@ -155,7 +146,7 @@ export class MessageManager {
     returnArray.push(
       new EmbedBuilder()
         .setAuthor({
-          name: queueOrPlaying,
+          name: info.isStream ? '🔴🎥 Playing a livestream' :  queueOrPlaying,
           iconURL: this.player.isPlaying ? playerGifUrl : inactiveGifUrl
         })
         .setTitle(info.title)
@@ -166,11 +157,10 @@ export class MessageManager {
           text: `Requested by ${info.requester.username ?? ''}`,
           iconURL: info.requester.avatar ?? undefined
         })
-        .setColor('#2b2d31')
+        .setColor(info.isStream ? 'Red' : '#2b2d31')
     )
 
-    const sponsoredSegments = player?.currentSponsoredSegments ?? [] // just to be safe
-
+    const sponsoredSegments = player?.sponsorSegments ?? [] // just to be safe
     const sponsoredPartsStrings: Array<string> = []
 
     for (const part of sponsoredSegments) {
@@ -329,7 +319,6 @@ export class PlayerController {
    * Sets up a player timeout that destroys the player after 10 seconds unless cancelled
    */
   public async setupPlayerTimeout() {
-    // Player timeout set in config.yml converted to minutes
     const playerTimeout = Number(process.env.PLAYER_TIMEOUT) * 60 * 1000
 
     // Returns if the playerTimeout is set to 0 or less

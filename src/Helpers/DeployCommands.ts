@@ -1,15 +1,18 @@
-import { Client, REST, Routes } from 'discord.js'
+import { REST, Routes } from 'discord.js'
 import { logger } from './Logger'
-import commandList from './CommandExport'
+import { Bot } from '../Classes/Bot'
+require('dotenv').config()
 
 async function main() {
   logger.info('Registering (/) commands...')
 
-  const client = new Client({ intents: [] })
+  const client = new Bot({ intents: [] })
+  await client.initialize()
+  client.login(process.env.BOT_TOKEN)
   
-  const commandJSON = commandList.map((command) => {
-    logger.debug(`Adding command ${command.data.name}...`)
-    return command.data.setDMPermission(false).toJSON()
+  const commandJSON = client.commands.map(c => {
+    logger.debug(`Adding command ${c.data.name}...`)
+    return c.data.setDMPermission(false).toJSON()
   })
 
   if (!process.env.BOT_TOKEN) {

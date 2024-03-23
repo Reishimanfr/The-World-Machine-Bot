@@ -17,9 +17,9 @@ import { Command } from '../../Types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 
 const messages = {
-  LOAD_FAILED: 'Failed to load track **{query}**.',
-  NO_MATCHES: 'No matches found for **{query}**.',
-  TRACK_ADDED: 'Track **{query}** added to the queue.'
+  error: 'Failed to load track **{query}**.',
+  empty: 'No matches found for **{query}**.',
+  track: 'Track **{query}** added to the queue.'
 }
 
 interface TracksType {

@@ -1,3 +1,5 @@
+import { ExtPlayer } from '../Helpers/ExtendedPlayer'
+// https://changaco.oy.lc/unicode-progress-bars/
 const BEGIN = {
   '0.00': '<:b0:1155216142625943593>',
   '0.01': '<:b10:1155216143775183039>',
@@ -38,9 +40,7 @@ const END = {
   '10': '<:e100:1155215624784588850>',
 }
 
-function constructProgressBar(songLength: number, playerPosition: number) {
-  const songProgress = Math.round((playerPosition / songLength) * 100) / 100
-
+function makeLegacyBar(songProgress: number) {
   let begin: string
   let center: string
   let end: string
@@ -86,6 +86,55 @@ function constructProgressBar(songLength: number, playerPosition: number) {
   }
 
   return `${begin}${center}${end}`
+}
+
+const barStyle = '⠀#'
+
+function makeBar(p: number, minSize: number, maxSize: number) {
+  let d: number
+  let full: number
+  let m: string
+  let middle: number
+  let r: string = ''
+  let rest: number
+  let x: number
+  let minDelta = Number.POSITIVE_INFINITY
+  const fullSymbol = barStyle[barStyle.length - 1]
+  const n = barStyle.length - 1
+
+  if (p === 100) return { str: fullSymbol.repeat(10), delta: 0 }
+
+  p = p / 100
+
+  for (let i = maxSize; i >= minSize; i--) {
+    x = p * i
+    full = Math.floor(x)
+    rest = x - full
+    middle = Math.floor(rest * n)
+
+    if (p !== 0 && full === 0 && middle === 0) middle = 1
+
+    d = Math.abs(p - (full + middle / n) / i) * 100
+
+    if (d < minDelta) {
+      minDelta = d
+      m = barStyle[middle]
+      if (full === i) m = ''
+      r = fullSymbol.repeat(full) + m + barStyle[0].repeat(i - full - 1)
+    }
+  }
+
+  return r
+}
+
+function constructProgressBar(songLength: number, playerPosition: number, player: ExtPlayer) {
+  const songProgress = Math.round((playerPosition / songLength) * 100) / 100
+
+  if (player.settings.useLegacyProgressBar) {
+    return makeLegacyBar(songProgress)
+  } else {
+    return `[${makeBar(songProgress, 20, 20)}] ${songProgress}%`
+  }
 }
 
 export default constructProgressBar

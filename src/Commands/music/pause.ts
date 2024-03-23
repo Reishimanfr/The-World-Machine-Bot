@@ -10,7 +10,7 @@ const pause: Command<true> = {
   musicOptions: {
     requiresDjRole: true,
     requiresVc: true,
-    requiresPlaying: true
+    requiresPlaying: false
   },
 
   data: new SlashCommandBuilder()
@@ -24,12 +24,12 @@ const pause: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     player.controller.togglePlayback()
-    void player.messageManger.updatePlayerMessage()
+    player.messageManger.updatePlayerMessage()
 
-    await interaction.reply({
-      content: player.isPaused ? 'Paused' : 'Resumed',
-      ephemeral: true
-    })
+    // a.k.a. reply with nothing and delete shortly after
+    await interaction.deferReply({ ephemeral: true })
+      .then(_ => _.delete()
+        .catch(() => {}))
   }
 }
 

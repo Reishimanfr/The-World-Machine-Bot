@@ -61,55 +61,65 @@ const music: Command = {
         new StringSelectMenuBuilder()
           .setCustomId('options-select')
           .setOptions(
-            { //
-              label: '⚙️ View config',
+            {
+              label: 'View config',
               description: 'Shows the current configuration of the player.',
-              value: 'showConfig'
+              value: 'showConfig',
+              emoji: '⚙️'
             },
             {
-              label: '⏭ Sponsorblock auto skipping',
+              label: 'Sponsorblock auto skipping',
               description: 'Configures skipping sponsored segments automatically with sponsorblock.',
-              value: 'sponsorBlockConfig'
+              value: 'sponsorBlockConfig',
+              emoji: '⏭'
             },
-            { //
-              label: '👋 Leave on queue end',
+            {
+              label: 'Leave on queue end',
               description: 'Toggles if the bot should leave after a queue ends.',
-              value: 'queueEndDisconnect'
+              value: 'queueEndDisconnect',
+              emoji: '👋'
             },
-            { //
-              label: '⏩ Vote skipping',
+            {
+              label: 'Vote skipping',
               description: 'Toggles if skipping a song requires users to vote to skip.',
-              value: 'voteSkipToggle'
+              value: 'voteSkipToggle',
+              emoji: '⏩'
             },
-            { //
-              label: '↪️ Resend message after song end',
+            {
+              label: 'Resend message after song end',
               description: 'Toggles if the bot should resend the now playing message on new track.',
-              value: 'resendMessageOnEnd'
+              value: 'resendMessageOnEnd',
+              emoji: '↪️'
             },
-            { //
-              label: '🔄 Dynamic now playing message',
+            {
+              label: 'Dynamic now playing message',
               description: 'Toggles if the bot should update the now playing message every 15s.',
-              value: 'dynamicNowPlaying'
+              value: 'dynamicNowPlaying',
+              emoji: '🔄'
             },
-            { //
-              label: '❗ Require DJ role',
+            {
+              label: 'Require DJ role',
               description: 'Toggles if members are required to have the DJ role to use commands.',
-              value: 'requireDjRole'
+              value: 'requireDjRole',
+              emoji: '❗'
             },
-            { // 
-              label: '✨ DJ role',
+            { 
+              label: 'DJ role',
               description: 'Sets the role to be considered the "DJ role".',
-              value: 'djRoleId'
+              value: 'djRoleId',
+              emoji: '✨'
             },
-            { // 
-              label: '🔢 Vote skipping member amount',
+            { 
+              label: 'Vote skipping member amount',
               description: 'Sets how many members must be in voice channel for voting to be enabled.',
-              value: 'voteSkipMembers'
+              value: 'voteSkipMembers',
+              emoji: '🔢'
             },
-            { //
-              label: '🔢 Vote skipping threshold (%)',
+            {
+              label: 'Vote skipping threshold (%)',
               description: 'Sets the % of members required to vote "yes" to skip a song.',
-              value: 'setVoteSkipThreshold'
+              value: 'setVoteSkipThreshold',
+              emoji: '🔢'
             }
           )
       )

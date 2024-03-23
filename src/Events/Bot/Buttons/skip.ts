@@ -56,5 +56,6 @@ export const skip: Button = async ({ interaction, player }) => {
   })
 
   player.votingActive = false
+  player.stop()
 }
 

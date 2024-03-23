@@ -1,6 +1,6 @@
 import { AutocompleteInteraction, ChatInputCommandInteraction, PermissionResolvable, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
 import { ExtPlayer } from '../Helpers/ExtendedPlayer'
-import { ExtClient } from '../Helpers/ExtendedClient'
+import { Bot } from '../Classes/Bot'
 
 export interface Command<T = true> {
   // Command data
@@ -35,7 +35,7 @@ export interface Command<T = true> {
   // Callback functions
   callback: (args: Readonly<{
     interaction: ChatInputCommandInteraction
-    client: ExtClient
+    client: Bot
     player: T extends true ? ExtPlayer : null
   }>) => any
   autocomplete?: (interaction: AutocompleteInteraction) => any

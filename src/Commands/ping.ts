@@ -18,7 +18,7 @@ const ping: Command = {
   },
 
   callback: async ({ interaction, client }) => {
-    await interaction.reply(`🏓 Pong! My current ping is ${client.ws.ping}ms`)
+    await interaction.reply(`🏓 Pong! My delay estimate is \`${client.ws.ping}ms\`.`)
   }
 }
 

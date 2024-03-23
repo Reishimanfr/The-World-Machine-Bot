@@ -1,15 +1,25 @@
 import { DataTypes } from 'sequelize'
 import sequelize from './Connection'
 
+export interface StarboardConfigI {
+  guildId: string
+  boardId: string | null
+  amount: number
+  emojis: string
+  bannedChannels: string
+  bannedUsers: string
+  bannedRoles: string
+}
+
 export const starboardConfig = sequelize.define('starboardConfig', {
   guildId: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
   boardId: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: null
   },
   amount: {
     type: DataTypes.INTEGER,
@@ -22,6 +32,14 @@ export const starboardConfig = sequelize.define('starboardConfig', {
     defaultValue: '⭐'
   },
   bannedChannels: {
+    type: DataTypes.STRING,
+    defaultValue: ''
+  },
+  bannedUsers: {
+    type: DataTypes.STRING,
+    defaultValue: ''
+  },
+  bannedRoles: {
     type: DataTypes.STRING,
     defaultValue: ''
   }

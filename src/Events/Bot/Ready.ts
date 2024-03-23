@@ -1,17 +1,15 @@
 import { Events } from 'discord.js'
-import { ExtClient } from '../../Helpers/ExtendedClient'
 import { logger } from '../../Helpers/Logger'
 import { Event } from '../../Types/Event'
 import pjson from '../../../package.json'
 import axios from 'axios'
 import semver from 'semver'
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
+import { Bot } from '../../Classes/Bot'
 require('dotenv').config()
 
 async function checkIfNewVersionAvailable() {
   const REPOSITORY_URL = 'https://api.github.com/repos/Reishimanfr/The-World-Machine-Bot/tags'
-
-  logger.info(`Checking for any TWM updates... (currently running version v${pjson.version})`)
 
   try {
     const response = await axios.get(REPOSITORY_URL)
@@ -20,12 +18,10 @@ async function checkIfNewVersionAvailable() {
     const currentVer = pjson.version
 
     if (semver.gt(latestTag, currentVer)) {
-      logger.warn(`A new version of TWM is available (v${latestTag}). Run git pull or download the new version here: https://github.com/Reishimanfr/The-World-Machine-Bot/`)
-    } else {
-      logger.info('No updates available.')
+      logger.warn(`TWM v${latestTag} is available (currently running ${pjson.version})`)
     }
   } catch (error) {
-    logger.error(`Failed to perform version checking. I can't determine if you're running the newest version of TWM!\n${error.stack}`)
+    logger.error(`Failed to perform version checking: ${error.stack}`)
   }
 }
 
@@ -53,16 +49,16 @@ async function exec(args: string[]): Promise<ChildProcessWithoutNullStreams> {
 const Ready: Event = {
   name: Events.ClientReady,
   once: true,
-  execute: async (client: ExtClient) => {
+  execute: async (client: Bot) => {
     await checkIfNewVersionAvailable()
 
     if (process.env.AUTOSTART_LAVALINK === 'true') {
       logger.info('Starting lavalink server...')
-      await exec(['java', '-jar', './lavalink/lavalink.jar'])
+      await exec(['java', '-jar', './lavalink.jar'])
     }
 
     client.poru.init(client)
-    logger.info(`${client.user?.username} is online.`)
+    logger.info(`${client.user.username} is online.`)
   }
 }
 

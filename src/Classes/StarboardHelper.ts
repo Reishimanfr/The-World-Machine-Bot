@@ -13,7 +13,7 @@ import {
 } from 'discord.js'
 import { clipString } from '../Funcs/ClipString'
 import { starboardConfig, starboardEntries } from '../Models'
-import { logger } from './Logger'
+import { logger } from '../Helpers/Logger'
 import { client } from '..'
 
 type ReactionOrPart = MessageReaction | PartialMessageReaction;

@@ -1,9 +1,9 @@
 import { ButtonInteraction } from 'discord.js'
 import { ExtPlayer } from '../Helpers/ExtendedPlayer'
-import { ExtClient } from '../Helpers/ExtendedClient'
+import { Bot } from '../Classes/Bot'
 
 export type Button = (args: {
   interaction: ButtonInteraction
   player: ExtPlayer
-  client: ExtClient
+  client: Bot
 }) => any

@@ -1,7 +1,6 @@
 import { Events, Interaction, InteractionType, AutocompleteInteraction, ButtonInteraction, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js'
 import { Event } from '../../Types/Event'
 import { logger } from '../../Helpers/Logger'
-import commandList from '../../Helpers/CommandExport'
 import { client } from '../..'
 import { ExtPlayer, } from '../../Helpers/ExtendedPlayer'
 import { embedColor } from '../../Helpers/Util'
@@ -39,11 +38,11 @@ const InteractionCreate: Event = {
 }
 
 async function Autocomplete(interaction: AutocompleteInteraction) {
-  const command = commandList.find(c => c.data.name === interaction.commandName)
+  const cmd = client.commands.get(interaction.commandName)
 
-  if (command?.autocomplete) {
+  if (cmd?.autocomplete) {
     try {
-      command.autocomplete(interaction)
+      cmd.autocomplete(interaction)
     } catch (error) {
       logger.error(`Autocomplete interaction for command "${interaction.commandName}" failed: ${error}`)
     }
@@ -119,9 +118,9 @@ async function Button(interaction: ButtonInteraction) {
 
 async function CommandInteraction(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild) return
-  const command = commandList.find(c => c?.data?.name == interaction.commandName)
+  const cmd = client.commands.get(interaction.commandName)
 
-  if (!command) {
+  if (!cmd) {
     logger.warn(`File for command ${interaction.commandName} doesn't exist!`)
     return await interaction.reply({
       embeds: [
@@ -134,12 +133,10 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
   }
 
   // Missing permissions check
-  if (command.permissions.user) {
+  if (cmd.permissions.user) {
     const userPermissions = interaction.memberPermissions
-    const requiredPermissions = command.permissions.user
-    const missingPermissions = requiredPermissions.filter(
-      permission => !userPermissions?.has(permission)
-    )
+    const requiredPermissions = cmd.permissions.user
+    const missingPermissions = requiredPermissions.filter(permission => !userPermissions?.has(permission))
 
     if (missingPermissions.length > 0) {
       return interaction.reply({
@@ -148,9 +145,9 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     }
   }
 
-  if (command.permissions.bot) {
+  if (cmd.permissions.bot) {
     const botPermissions = interaction.guild.members.me?.permissions
-    const requiredPermissions = command.permissions.bot
+    const requiredPermissions = cmd.permissions.bot
     const missingPermissions = requiredPermissions.filter(
       permission => !botPermissions?.has(permission)
     )
@@ -165,8 +162,8 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
   let player = client.poru.players.get(interaction.guild.id) as ExtPlayer
 
   // Case for music commands
-  if (command.musicOptions) {
-    const options = command.musicOptions
+  if (cmd.musicOptions) {
+    const options = cmd.musicOptions
 
     const config = await combineConfig(interaction.guild.id)
     const member = await interaction.guild.members.fetch(interaction.user.id)
@@ -219,7 +216,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     player
   }
 
-  await command.callback(args)
+  await cmd.callback(args)
 }
 
 export default InteractionCreate

@@ -59,9 +59,9 @@ const skip: Command<true> = {
         content: 'Waiting for members to place their votes...',
         ephemeral: true
       })
-  
+
       player.votingActive = true
-  
+
       const [status, error] = await CreateVote({
         interaction,
         reason: 'Wants to skip the current song',
@@ -72,24 +72,24 @@ const skip: Command<true> = {
       })
 
       player.votingActive = false
-  
+
       switch (status) {
-      case VoteStatus.Success: {
-        interaction.editReply(`Song **${player.currentTrack.info.title}** skipped.`)
-        player.stop()
-        break
-      }
+        case VoteStatus.Success: {
+          interaction.editReply(`Song **${player.currentTrack.info.title}** skipped.`)
+          player.stop()
+          break
+        }
 
-      case VoteStatus.Failure: {
-        interaction.editReply('Other members didn\'t agree to skip the current song.')
-        break
-      }
+        case VoteStatus.Failure: {
+          interaction.editReply('Other members didn\'t agree to skip the current song.')
+          break
+        }
 
-      case VoteStatus.Error: {
-        logger.error(`Failed to finish skip voting: ${error?.stack}`)
-        interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
-        break
-      }
+        case VoteStatus.Error: {
+          logger.error(`Failed to finish skip voting: ${error?.stack}`)
+          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+          break
+        }
       }
     } else {
       interaction.reply({

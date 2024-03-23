@@ -1,4 +1,4 @@
-import { ExtPlayer, MessageManager } from '../../Helpers/ExtendedPlayer'
+import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
 import { inactiveGifUrl } from '../../Helpers/Util'
 import { Event } from '../../Types/Event'
@@ -6,29 +6,20 @@ import { Event } from '../../Types/Event'
 const PlayerDestroy: Event = {
   name: 'playerDestroy',
   once: false,
-  execute: async (player: ExtPlayer, reason?: string) => {
+  execute: async (player: ExtPlayer) => {
     const message = await player.message?.fetch()
       .catch(() => null)
 
-    const builder = new MessageManager(player)
-
-    if (reason) {
-      player.disconnect()
-      void player.node.rest.destroyPlayer(player.guildId)
-      player.poru.players.delete(player.guildId)
-    }
 
     if (!message) return
 
-    const embed = await builder.createPlayerEmbed()
-    const buttons = builder.createPlayerButtons(true)
+    const embed = await player.messageManger.createPlayerEmbed()
+    const buttons = player.messageManger.createPlayerButtons(true)
 
-    if (reason) {
-      embed.at(0)!.setAuthor({
-        name: `${reason}`,
-        iconURL: inactiveGifUrl
-      })
-    }
+    embed.at(0)!.setAuthor({
+      name: 'Session ended.',
+      iconURL: inactiveGifUrl
+    })
 
     try {
       await message.edit({

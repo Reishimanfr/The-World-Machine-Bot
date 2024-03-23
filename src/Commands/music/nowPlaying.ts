@@ -1,4 +1,4 @@
-import { ChannelType, SlashCommandBuilder } from 'discord.js'
+import { SlashCommandBuilder } from 'discord.js'
 import { Command } from '../../Types/Command'
 
 const nowPlaying: Command<true> = {
@@ -25,26 +25,32 @@ const nowPlaying: Command<true> = {
     const channel = interaction.channel
 
     // Typeguard
-    if (!channel || !client.user) return
+    if (!channel) return
 
-    if (channel.type !== ChannelType.GuildText) {
-      return await interaction.reply({
+    if (!channel.isTextBased()) {
+      return interaction.reply({
         content: 'You have to use this command in a text channel.',
         ephemeral: true
+      })
+    }
+
+    if (channel.isDMBased()) {
+      return interaction.reply({
+        content: 'You can\'t use this command in DMs.'
       })
     }
 
     const permissions = channel.permissionsFor(client.user.id)
 
     if (permissions === null) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'Something went wrong while checking bot permissions.',
         ephemeral: true
       })
     }
 
     if (!permissions.has('SendMessages')) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'I can\'t send messages in this channel.',
         ephemeral: true
       })

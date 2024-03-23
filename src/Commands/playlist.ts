@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, StringSelectMenuOptionBuilder, Message } from 'discord.js'
 import { Command } from '../Types/Command'
-import { PlaylistManager, PlaylistResponse } from '../Helpers/PlaylistManager'
+import { PlaylistManager, PlaylistResponse } from '../Classes/PlaylistManager'
 import { playlists } from '../Models'
 
 const buttons = [

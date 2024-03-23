@@ -383,7 +383,7 @@ async function emojiCon(interaction: CommandInteraction) {
   const sel = await interaction.channel?.awaitMessages({
     max: 1,
     time: 180000,
-    filter: (u) => u.author.id === interaction.user.id, // Only accept messages from the command initiator
+    filter: (u) => u.author.id === interaction.user.id,
   })
 
   const content = sel?.at(0)?.content
@@ -394,6 +394,8 @@ async function emojiCon(interaction: CommandInteraction) {
     .split(',')
     .map((emj) => emj.trim())
     .filter(emj => emj.match(/\p{Emoji}/gu) ?? emj.match(/<(a|):(.*):(.*?)>/gu))
+
+  console.log(newEmojis)
 
   const finalCon = await interaction.editReply({
     embeds: [

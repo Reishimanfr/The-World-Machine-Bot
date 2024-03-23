@@ -1,8 +1,7 @@
-import { Events, type VoiceState } from 'discord.js'
-import { type ExtPlayer } from '../../Helpers/ExtendedPlayer'
+import { Events, VoiceState } from 'discord.js'
+import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { client  } from '../../index'
 import { Event } from '../../Types/Event'
-import PlayerDestroy from '../Poru/PlayerDestroy'
 
 const UpdateVoiceState: Event = {
   name: Events.VoiceStateUpdate,
@@ -15,17 +14,17 @@ const UpdateVoiceState: Event = {
 
     const newChannel = newState.guild.members.me?.voice.channel
 
-    // Bot disconnect event
-    if (!newChannel) {
-      return PlayerDestroy.execute(player, 'Bot was disconnected from voice channel.')
-    }
-
+    // Bot disconnect
+    if (!newChannel) return player.destroy()
+    
     const membersWithoutBots = newChannel.members
       .filter(m => !m.user.bot)
 
     // Everyone left voice
     if (membersWithoutBots.size === 0) {
-      return PlayerDestroy.execute(player, 'Everyone left the voice channel.')
+      player.controller.setupPlayerTimeout()
+    } else { // This means someone joined the voice channel
+      player.controller.cancelPlayerTimeout() 
     }
   }
 }

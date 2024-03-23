@@ -4,7 +4,7 @@ import { playlists } from '../Models'
 import { Track } from 'poru'
 import { formatSeconds } from '../Funcs/FormatSeconds'
 import axios from 'axios'
-import { ExtPlayer } from './ExtendedPlayer'
+import { ExtPlayer } from '../Helpers/ExtendedPlayer'
 
 export interface Playlist {
   name: string

@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js'
-import commandList from '../Helpers/CommandExport'
 import { embedColor } from '../Helpers/Util'
 import { Command } from '../Types/Command'
 import { clipString } from '../Funcs/ClipString'
+import { client } from '..'
 
 const help: Command = {
   permissions: {
@@ -34,15 +34,15 @@ If you'd like to self-host the bot check out the **[How to self-host](https://gi
 
     const commandOptions: StringSelectMenuOptionBuilder[] = []
 
-    for (const command of commandList) {
-      if (command.helpData?.description && command.data.name) {
-        const clippedDescription = clipString({ string: command.helpData.description, maxLength: 97, sliceEnd: '...'})
+    for (const [name, mod] of client.commands.entries()) {
+      if (mod.helpData?.description && name) {
+        const clippedDescription = clipString({ string: mod.helpData.description, maxLength: 97, sliceEnd: '...'})
 
         commandOptions.push(
           new StringSelectMenuOptionBuilder()
-            .setLabel(`/${command.data.name}${command.musicOptions ? '🎵' : ''}`)
+            .setLabel(`/${name}${mod.musicOptions ? '🎵' : ''}`)
             .setDescription(clippedDescription)
-            .setValue(command.data.name)
+            .setValue(name)
         )
       }
     }
@@ -69,7 +69,7 @@ If you'd like to self-host the bot check out the **[How to self-host](https://gi
       await option.deferUpdate()
       collector.resetTimer()
 
-      const selectedCommand = commandList.find(cmd => cmd.data.name === option.values[0])
+      const selectedCommand = client.commands.get(option.values[0])
       const helpData = selectedCommand?.helpData
 
       if (!helpData) {

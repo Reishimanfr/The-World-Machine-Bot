@@ -1,5 +1,5 @@
-import { EmbedBuilder, SlashCommandBuilder, TextChannel, type ApplicationCommandOptionChoiceData } from 'discord.js'
-import type Queue from 'poru/dist/src/guild/Queue'
+import { EmbedBuilder, SlashCommandBuilder, TextChannel, ApplicationCommandOptionChoiceData } from 'discord.js'
+import Queue from 'poru/dist/src/guild/Queue'
 import { client } from '../..'
 import { embedColor } from '../../Helpers/Util'
 import { logger } from '../../Helpers/Logger'
