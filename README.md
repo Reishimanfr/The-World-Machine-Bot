@@ -29,75 +29,55 @@ Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self
 
 ## ⚙️ Configuration
 <details>
- <summary>Example config.yml file:</summary>
+ <summary>Example .env file:</summary>
 
-```yaml
-# This is an example configuration file for the bot. You can download it and fill out it's contents
-
+```env
 # Token for the bot to login with
-botToken: ''
+BOT_TOKEN=
 
-# Sets which type of database the bot should use. If you have a postgres database setup, it's recommended
-# to use it as it's faster than sqlite. If you don't want to set up a postgres database you can just set this
-# to "sqlite" and call it a day. The performance difference won't matter much for smaller bots.
-# Allowed values: "postgres" | "sqlite"
-database: postgres
 
+# == MISC ==
 # Available options: trace, debug, info, warn, error, fatal
-# Trace is the most verbose, and fatal is the least.
-# Recommended level is info, unless you want to report a bug,
-# then you most likely want to use the debug level instead. 
-logLevel: info
+LOG_LEVEL=info
 
+
+# == API keys ==
+# This is used in the starboard script to display tenorgif correctly
+TENOR_API_KEY=null
+
+# This key is used for the /tf2 command to get data from a user's profile
+STEAM_API_KEY=null
+
+# == MUSIC PLAYER CONFIG ==
+# Provide in minutes
+PLAYER_TIMEOUT=10
+
+
+# == DATABASE ==
+# Available options: postgres, sqlite
+DATABASE_DIALECT=sqlite
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+# Ignored if DATABASE_DIALECT is postgres
+DATABASE_NAME=twm
+DATABASE_USERNAME=something
+DATABASE_PASSWORD=password
+
+
+# == Lavalink related stuff ==
 # This changes if the bot should attempt to start the lavalink server automatically
 # after receiving the ClientReady event.
-autostartLavalink: false
+AUTOSTART_LAVALINK=false
 
 # This changes if any stdout or stderr output should be piped to the console
 # Note: This only works if autostartLavalink is set to true
 # Note 2: Stdout will be piped on the "debug" level
 # Note 3: Stderr will always be piped on the "error" level
-pipeLavalinkStdout: true
+PIPE_LAVALINK_STDOUT=true
 
-# This sets the URL of the webhook that will send any uncaught errors to a channel
-# To disable set this to an empty string or null
-errorWebhookUrl: null
-
-apiKeys:
-  # This key is used for the /tf2 command to get data from a user's profile
-  steam: null
-
-  # This is used in the starboard script to display tenor gifs correctly
-  tenor: null
-
-# Settings to control the bot's player behavior
-player:
-  # Should the bot leave the voice channel after the queue ends?
-  leaveAfterQueueEnd: false
-
-  # Time after which the bot will be automatically disconnected from the voice channel
-  # (in minutes)
-  playerTimeout: 10
-
-  # Enables search suggestions in the /music play command when typing stuff in the field
-  # You must run the command deployment script after enabling/disabling this!
-  # Deployment script: npm run deploy
-  autocomplete: true
-
-  # Re-sends the now-playing embed after a song ends
-  resendEmbedAfterSongEnd: true
-
-  # Enables vote to skip song
-  enableSkipvote: true
-
-  # Sets the percentage of voice chat users required to vote "Yes" for the song to be skipped
-  # Values between 0 - 100 (percents). This will be ignored if enableSkipvote is set to false
-  skipvoteThreshold: 50
-
-  # Sets how many people should be in vc for skip votes to be enabled
-  # -1 -> Always initiate skip vote
-  skipvoteMemberRequirement: 3
-
+LAVALINK_HOST=127.0.0.1
+LAVALINK_PORT=2333
+LAVALINK_PASSWORD=youshallnotpass
 ```
 </details>
 
