@@ -53,7 +53,7 @@ services:
   postgres:
     container_name: twm_postgres
     image: postgres:latest
-    restart: always
+    restart: on-failure
     environment:
       POSTGRES_DB: twm
       POSTGRES_USER: postgres
@@ -64,9 +64,6 @@ services:
   discord-bot:
     container_name: twm
     image: reishimanfr/the-world-machine:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
     environment:
       # Your discord bot token. Never show it to anyone
       - BOT_TOKEN=
@@ -92,19 +89,10 @@ services:
       - DATABASE_PASSWORD=twmIsAwesome
     volumes:
       - ./:/usr/src/app
-    restart: unless-stopped
+    restart: on-failure
     depends_on:
       - lavalink
       - postgres
-```
-Also create a `Dockerfile` in the same directory with the following contents:
-```yaml
-FROM node:18-alpine
-
-WORKDIR /app
-COPY . .
-RUN npm install --omit=dev
-CMD ["npm", "start"]
 ```
 2. Edit the environment variables like the bot token
 3. `cd` into the folder where you placed the compose file
