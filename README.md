@@ -23,69 +23,138 @@
 - Amazing support from the bot's developer
 - Docker support for easy hosting
 
-## Self hosting
+## 🚀 Installation using Docker (recommended)
+> [!IMPORTANT]
+> This assumes you have Docker and Docker Compose installed and working correctly.
+
+1. Copy the example **docker-compose.yml** file:
+```yaml
+version: '3.7'
+
+services:
+  lavalink:
+    container_name: twm_lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4
+    restart: on-failure
+    environment:
+      - SERVER_PORT=2333
+      - SERVER_ADDRESS=0.0.0.0
+      - LAVALINK_SERVER_PASSWORD=youshallnotpass
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./lavalink/plugins:/opt/Lavalink/plugins/
+    healthcheck:
+      test: 'curl -H "Authorization: youshallnotpass" -s http://localhost:2333/version'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    
+  postgres:
+    container_name: twm_postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: twm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: twmIsAwesome
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  discord-bot:
+    container_name: twm
+    image: reishimanfr/the-world-machine:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Your discord bot token. Never show it to anyone
+      - BOT_TOKEN=
+      # Time after which the bot will leave vc if it's inactive
+      # for that time. (Provided in minutes)
+      - PLAYER_TIMEOUT=10
+      # This is only needed if you want the starboard feature
+      # to embed tenor gifs. You can safely ignore it.
+      - TENOR_API_KEY=null
+
+      # Don't change these unless you know what you're doing
+      - LOG_LEVEL=info      
+      # Lavalink stuff
+      - LAVALINK_HOST=lavalink
+      - LAVALINK_PORT=2333
+      - LAVALINK_PASSWORD=youshallnotpass
+      # Postgres stuff
+      - DATABASE_DIALECT=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=twm
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=twmIsAwesome
+    volumes:
+      - ./:/usr/src/app
+    restart: unless-stopped
+    depends_on:
+      - lavalink
+      - postgres
+```
+2. Edit the environment variables like the bot token
+3. `cd` into the folder where you placed the compose file
+```sh
+cd path/to/the/folder
+```
+4. Build the container
+```sh
+docker-compose build up -d
+```
+###### The `-d` flag means "detached" which will run the container in the background.
+
+To update, run this command:
+```sh
+docker-compose up --force-recreate --build -d
+```
+
+## 🚀 Installation using the source code
 1. Clone the source code<br>
 ```sh
 git clone https://github.com/Reishimanfr/The-World-Machine-Bot
 ```
 2. Install dependencies
 ```sh
-npm install --omit=dev
+npm i --omit=dev
 ```
-3. Start the bot
-```sh
-npm start
-```
-
-## ⚙️ Example .env file:
+3. Setup environment variables:
 ```env
 # Token for the bot to login with
 BOT_TOKEN=
 
-
-# == MISC ==
 # Available options: trace, debug, info, warn, error, fatal
 LOG_LEVEL=info
 
-
-# == API keys ==
 # This is used in the starboard script to display tenorgif correctly
 TENOR_API_KEY=null
 
-# This key is used for the /tf2 command to get data from a user's profile
-STEAM_API_KEY=null
-
-# == MUSIC PLAYER CONFIG ==
-# Provide in minutes
+# Time after which the bot will leave the voice channel if idling
 PLAYER_TIMEOUT=10
 
-
-# == DATABASE ==
 # Available options: postgres, sqlite
-DATABASE_DIALECT=sqlite
+DATABASE_DIALECT=sqlite # It's recommended to use a postgres database
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-# Ignored if DATABASE_DIALECT is postgres
+
+# You only have to change these if you set the DATABASE_DIALECT to postgres
 DATABASE_NAME=twm
 DATABASE_USERNAME=something
 DATABASE_PASSWORD=password
-
-
-# == Lavalink related stuff ==
-# This changes if the bot should attempt to start the lavalink server automatically
-# after receiving the ClientReady event.
-AUTOSTART_LAVALINK=false
-
-# This changes if any stdout or stderr output should be piped to the console
-# Note: This only works if autostartLavalink is set to true
-# Note 2: Stdout will be piped on the "debug" level
-# Note 3: Stderr will always be piped on the "error" level
-PIPE_LAVALINK_STDOUT=true
 
 LAVALINK_HOST=127.0.0.1
 LAVALINK_PORT=2333
 LAVALINK_PASSWORD=youshallnotpass
 ```
+4. Start the bot
+```sh
+npm start
+```
+
 
 ## ❓ Support
 
