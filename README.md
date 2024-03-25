@@ -113,6 +113,17 @@ To update, run this command:
 docker-compose up --force-recreate --build -d
 ```
 
+If you want to provide your application.yml file for lavalink:
+1. Create a new directory in the root folder called `lavalink`
+```sh
+mkdir lavalink
+```
+2. Create a file called `applcation.yml` and fill it out according to your needs.
+```sh
+touch application.yml
+vim application.yml
+```
+
 ## 🚀 Installation using the source code
 1. Clone the source code<br>
 ```sh
