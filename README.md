@@ -97,6 +97,15 @@ services:
       - lavalink
       - postgres
 ```
+Also create a `Dockerfile` in the same directory with the following contents:
+```yaml
+FROM node:18-alpine
+
+WORKDIR /app
+COPY . .
+RUN npm install --omit=dev
+CMD ["npm", "start"]
+```
 2. Edit the environment variables like the bot token
 3. `cd` into the folder where you placed the compose file
 ```sh
