@@ -101,13 +101,13 @@ cd path/to/the/folder
 ```
 4. Build the container
 ```sh
-docker-compose build up -d
+docker-compose up -d
 ```
 ###### The `-d` flag means "detached" which will run the container in the background.
 
 To update, run this command:
 ```sh
-docker-compose up --force-recreate --build -d
+docker-compose up --force-recreate -d
 ```
 
 If you want to provide your application.yml file for lavalink:
