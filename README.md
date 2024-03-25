@@ -132,11 +132,15 @@ vim application.yml
 ```sh
 git clone https://github.com/Reishimanfr/The-World-Machine-Bot
 ```
-2. Install dependencies
+2. Go into the newly created directory
+```sh
+cd The-World-Machine-Bot
+```
+3. Install dependencies
 ```sh
 npm i --omit=dev
 ```
-3. Setup environment variables:
+4. Setup environment variables:
 ```env
 # Token for the bot to login with
 BOT_TOKEN=
