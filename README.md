@@ -8,13 +8,19 @@
   <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> |
   <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
  
-<i>A Discord music bot made with ❤️ by Rei!</i><br>
+<i>A Discord music bot made with ❤️ by Rei!</i><be>
 
-<a href="https://wakatime.com/badge/github/Reishimanfr/The-World-Machine-Bot"><img src="https://wakatime.com/badge/github/Reishimanfr/The-World-Machine-Bot.svg" alt="wakatime"></a>
-
-# 
-> [!CAUTION]
-> This repo is still a work in progress, some stuff may be outdated (don't hesitate to ask me about it!)<br>
+<p align="center">
+ <a href="https://nodejs.org/en/download/">
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white">
+ </a>
+ <a href="https://discord.js.org/#/">
+  <img src="https://img.shields.io/badge/Discord.js-7289DA?style=for-the-badge&logo=discord&logoColor=white">
+ </a>
+ <a href="https://www.docker.com/">
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+ </a>
+</p>
 
 ## ⭐ Features
 - YouTube, Spotify, and Soundcloud playback support
