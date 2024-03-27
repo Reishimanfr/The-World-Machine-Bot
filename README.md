@@ -33,7 +33,7 @@
 > [!IMPORTANT]
 > This assumes you have Docker and Docker Compose installed and working correctly.
 
-1. Copy the example **docker-compose.yml** file (or **[download it from here](https://pastebin.com/dl/q61jw7SE)**:
+1. Copy the example **docker-compose.yml** file (or **[download it from here](https://pastebin.com/dl/q61jw7SE)**):
 ```yaml
 version: '3.7'
 
