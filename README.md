@@ -1,127 +1,180 @@
-<p align="center"><img width=200 height=200 src="https://github.com/Reishimanfr/TWM-bot/assets/92938606/de4f51a7-8499-4798-ad8c-dc78f5006cd0"</img></p>
-<h3 align="center"> <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> | <a href="https://discord.gg/9VyyCkMSFP">Support Server</a> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> | <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> | <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
+<p align="center">
+ <img width=200 height=200 src="https://github.com/Reishimanfr/TWM-bot/assets/92938606/de4f51a7-8499-4798-ad8c-dc78f5006cd0"</img>
+</p>
+<h3 align="center">
+ <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> |
+ <a href="https://discord.gg/9VyyCkMSFP">Support Server</a> |
+ <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> |
+  <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> |
+  <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
+ 
+<i>A Discord music bot made with ❤️ by Rei!</i><be>
 
-<i>A Discord music bot made with ❤️ by Rei!</i><br>
-
-<a href="https://wakatime.com/badge/github/Reishimanfr/The-World-Machine-Bot"><img src="https://wakatime.com/badge/github/Reishimanfr/The-World-Machine-Bot.svg" alt="wakatime"></a>
-
-# 
-> [!CAUTION]
-> This repo is still a work in progress, some stuff may be outdated (don't hesitate to ask me about it!)<br>
-
-## ℹ️ General info
-
-The world machine (or TWM for short) is an open-source discord bot written in typescript using the [discord.js](https://discord.js.org/) library.<br>
-My motivation was that all the other music bots I used didn't suit me, so I wrote my own!
+<p align="center">
+ <a href="https://nodejs.org/en/download/">
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white">
+ </a>
+ <a href="https://discord.js.org/#/">
+  <img src="https://img.shields.io/badge/Discord.js-7289DA?style=for-the-badge&logo=discord&logoColor=white">
+ </a>
+ <a href="https://www.docker.com/">
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+ </a>
+</p>
 
 ## ⭐ Features
 - YouTube, Spotify, and Soundcloud playback support
 - [Sponsorblock](https://sponsor.ajay.app/) integration
-- Lots of QoL features to make the experience as nice as possible
+- Lots of QoL features to make the experience smooth
 - Amazing support from the bot's developer
-- Very customizable starboard
-- Docker support to easily host your instance in seconds
-- A lot of other fun-to-use commands
+- Docker support for easy hosting
 
-## Want to self-host your own instance?
+## 🚀 Installation using Docker (recommended)
+> [!IMPORTANT]
+> This assumes you have Docker and Docker Compose installed and working correctly.
 
-Check [this page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self%E2%80%90hosting) for a step-by-step tutorial on how to host the bot (along with a [video tutorial!]()) 
-
-## ⚙️ Configuration
-<details>
- <summary>Example config.yml file:</summary>
-
+1. Copy the **docker-compose.yml** file:
 ```yaml
-# This is an example configuration file for the bot. You can download it and fill out it's contents
+version: '3.7'
 
+services:
+  lavalink:
+    container_name: twm_lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4
+    restart: on-failure
+    environment:
+      - SERVER_PORT=2333
+      - SERVER_ADDRESS=0.0.0.0
+      - LAVALINK_SERVER_PASSWORD=youshallnotpass
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./lavalink/plugins:/opt/Lavalink/plugins/
+    healthcheck:
+      test: 'curl -H "Authorization: youshallnotpass" -s http://localhost:2333/version'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    
+  postgres:
+    container_name: twm_postgres
+    image: postgres:latest
+    restart: on-failure
+    environment:
+      POSTGRES_DB: twm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: twmIsAwesome
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  discord-bot:
+    container_name: twm
+    image: reishimanfr/the-world-machine:latest
+    environment:
+      # Your discord bot token. Never show it to anyone
+      - BOT_TOKEN=
+      # Time after which the bot will leave vc if it's inactive
+      # for that time. (Provided in minutes)
+      - PLAYER_TIMEOUT=10
+      # This is only needed if you want the starboard feature
+      # to embed tenor gifs. You can safely ignore it.
+      - TENOR_API_KEY=null
+
+      # Don't change these unless you know what you're doing
+      - LOG_LEVEL=info      
+      # Lavalink stuff
+      - LAVALINK_HOST=lavalink
+      - LAVALINK_PORT=2333
+      - LAVALINK_PASSWORD=youshallnotpass
+      # Postgres stuff
+      - DATABASE_DIALECT=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=twm
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=twmIsAwesome
+    volumes:
+      - ./:/usr/src/app
+    restart: on-failure
+    depends_on:
+      - lavalink
+      - postgres
+```
+2. Edit the environment variables like the bot token
+3. `cd` into the folder where you placed the compose file
+```sh
+cd path/to/the/folder
+```
+4. Build the container
+```sh
+docker-compose up -d
+```
+###### The `-d` flag means "detached" which will run the container in the background.
+
+To update, run this command:
+```sh
+docker-compose up --force-recreate -d
+```
+
+If you want to provide your application.yml file for lavalink:
+1. Create a new directory in the root folder called `lavalink`
+```sh
+mkdir lavalink
+```
+2. Create a file called `applcation.yml` and fill it out according to your needs.
+```sh
+touch application.yml
+vim application.yml
+```
+
+## 🚀 Installation using the source code
+1. Clone the source code<br>
+```sh
+git clone https://github.com/Reishimanfr/The-World-Machine-Bot
+```
+2. Go into the newly created directory
+```sh
+cd The-World-Machine-Bot
+```
+3. Install dependencies
+```sh
+npm i --omit=dev
+```
+4. Setup environment variables:
+```env
 # Token for the bot to login with
-botToken: ''
-
-# Sets which type of database the bot should use. If you have a postgres database setup, it's recommended
-# to use it as it's faster than sqlite. If you don't want to set up a postgres database you can just set this
-# to "sqlite" and call it a day. The performance difference won't matter much for smaller bots.
-# Allowed values: "postgres" | "sqlite"
-database: postgres
+BOT_TOKEN=
 
 # Available options: trace, debug, info, warn, error, fatal
-# Trace is the most verbose, and fatal is the least.
-# Recommended level is info, unless you want to report a bug,
-# then you most likely want to use the debug level instead. 
-logLevel: info
+LOG_LEVEL=info
 
-# This changes if the bot should attempt to start the lavalink server automatically
-# after receiving the ClientReady event.
-autostartLavalink: false
+# This is used in the starboard script to display tenorgif correctly
+TENOR_API_KEY=null
 
-# This changes if any stdout or stderr output should be piped to the console
-# Note: This only works if autostartLavalink is set to true
-# Note 2: Stdout will be piped on the "debug" level
-# Note 3: Stderr will always be piped on the "error" level
-pipeLavalinkStdout: true
+# Time after which the bot will leave the voice channel if idling
+PLAYER_TIMEOUT=10
 
-# This sets the URL of the webhook that will send any uncaught errors to a channel
-# To disable set this to an empty string or null
-errorWebhookUrl: null
+# Available options: postgres, sqlite
+DATABASE_DIALECT=sqlite # It's recommended to use a postgres database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
 
-apiKeys:
-  # This key is used for the /tf2 command to get data from a user's profile
-  steam: null
+# You only have to change these if you set the DATABASE_DIALECT to postgres
+DATABASE_NAME=twm
+DATABASE_USERNAME=something
+DATABASE_PASSWORD=password
 
-  # This is used in the starboard script to display tenor gifs correctly
-  tenor: null
-
-# Settings to control the bot's player behavior
-player:
-  # Should the bot leave the voice channel after the queue ends?
-  leaveAfterQueueEnd: false
-
-  # Time after which the bot will be automatically disconnected from the voice channel
-  # (in minutes)
-  playerTimeout: 10
-
-  # Enables search suggestions in the /music play command when typing stuff in the field
-  # You must run the command deployment script after enabling/disabling this!
-  # Deployment script: npm run deploy
-  autocomplete: true
-
-  # Re-sends the now-playing embed after a song ends
-  resendEmbedAfterSongEnd: true
-
-  # Enables vote to skip song
-  enableSkipvote: true
-
-  # Sets the percentage of voice chat users required to vote "Yes" for the song to be skipped
-  # Values between 0 - 100 (percents). This will be ignored if enableSkipvote is set to false
-  skipvoteThreshold: 50
-
-  # Sets how many people should be in vc for skip votes to be enabled
-  # -1 -> Always initiate skip vote
-  skipvoteMemberRequirement: 3
-
+LAVALINK_HOST=127.0.0.1
+LAVALINK_PORT=2333
+LAVALINK_PASSWORD=youshallnotpass
 ```
-</details>
+4. Start the bot
+```sh
+npm start
+```
 
 ## ❓ Support
-
-Please message me on Discord (@rei.shi) or [the support server](https://discord.gg/QGeraSWsan) and ask any question you want regarding the bot. Also, be sure to check the wiki for the most common topics!
-
-## Migrating from v1?
-Check [this comprehensive guide](https://takiten.notion.site/How-to-migrate-from-v1-to-v2-a4f6e03c8a0e4f7d990a777be6b85475?pvs=4) on how to migrate from twm v1 to v2
-
-## 📦 Dependencies
-
-Required:
-
-- A [Lavalink](https://github.com/lavalink-devs/Lavalink) server
-- [Node.js](https://nodejs.org/en)
-- A [discord bot token](https://discord.com/developers/applications)
-
-
-Optional:
-- [Tenor API token](https://tenor.com/developer/dashboard) (for the starboard to be able to embed tenor gifs)
-- [Spotify client & client secret](https://developer.spotify.com/documentation/web-api): [How to add Spotify support](https://github.com/Reishimanfr/TWM-bot/wiki/%F0%9F%9F%A9-Adding-spotify-support) (Host only)
-- [Steam API key](https://steamcommunity.com/dev) (for the tf2 command to work)
-- A [postgres](https://www.postgresql.org/) database
+**[Join the support server](https://discord.gg/QGeraSWsan)**... or message me on discord directly! (@rei.shi)
 
 ## ✨ Some project stats
 ![Alt](https://repobeats.axiom.co/api/embed/1a10163858d87c76196a1510e496f5c5cfb6990e.svg "Repobeats analytics image")
