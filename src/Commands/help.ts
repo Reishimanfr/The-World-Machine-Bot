@@ -1,5 +1,4 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js'
-import { embedColor } from '../Helpers/Util'
 import { Command } from '../Types/Command'
 import { clipString } from '../Funcs/ClipString'
 import { client } from '..'
@@ -16,100 +15,120 @@ const help: Command = {
 
   callback: async ({ interaction }) => {
     const mainEmbed = new EmbedBuilder()
-      .setAuthor({ name: 'The world machine | Made with 💖 by Rei!', iconURL: 'https://static.wikia.nocookie.net/omniversal-battlefield/images/2/2a/The_SUn.jpg/revision/latest?cb=20190624052404' })
-      .setDescription(`
-A open source, multi-purpose bot with music playing features.
-Commands ending with "🎵" are music commands and have special pages with additional info.
-## Configuration
-The bot can be configured in many different ways to your liking. To check out the available configurations see the \`/player-config\` and \`/starboard-config\` commands (Require server management permissions)
-## Support
-If you need help with one of the aspects of the bot feel free to **[join the support server](https://discord.gg/xBARxUqyVc)** or message me on discord directly \`(@rei.shi)\`
-Alternatively you can check out the **[bot's wiki repository](https://github.com/Reishimanfr/TWM-bot)** to check for commonly asked questions and instructions on how to setup certain features.
-## Updates and upcoming features
-If you'd like to see what gets added to the bot be sure to check the **[update logs page](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs)** on github
-To see what features I'm working on at the moment you can check out the **[Project Board](https://github.com/users/Reishimanfr/projects/5)**
-## Self-hosting
-If you'd like to self-host the bot check out the **[How to self-host](https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Self%E2%80%90hosting)** page for instructions on how to do this step by step.`)
-      .setColor(embedColor)
+      .setAuthor({
+        name: `The world machine | Made with ❤ by Rei!`,
+        iconURL: 'https://static.wikia.nocookie.net/omniversal-battlefield/images/2/2a/The_SUn.jpg/revision/latest?cb=20190624052404'
+      })
+      .setDescription(`Select a command to get help with from the menu below.
+      The 🎵 emoji indicates music commands and the 💠 emoji indicates admin-only commands.
+### ❓ Where to get help
+      If you need help with the bot feel free to **[ask for help in the support server](https://discord.gg/xBARxUqyVc)** or dm me directly \`(@rei.shi)\`
+### ✨ Support my work
+      If you'd like to support me you can **[give my bot a star on github](https://github.com/Reishimanfr/The-World-Machine-Bot)** or even **[donate me a small amount of money](https://buymeacoffee.com/reishimanfr)**!
+### 🚀 Wanna host your own instance?
+      Check out the **[GitHub repository](https://github.com/Reishimanfr/The-World-Machine-Bot)** for steps on how to host your own instance of The World Machine.
+      `.trim())
 
-    const commandOptions: StringSelectMenuOptionBuilder[] = []
+    const musicCommandsMenuOptions: StringSelectMenuOptionBuilder[] = []
+    const otherCommandsMenuOptions: StringSelectMenuOptionBuilder[] = []
 
-    for (const [name, mod] of client.commands.entries()) {
-      if (mod.helpData?.description && name) {
-        const clippedDescription = clipString({ string: mod.helpData.description, maxLength: 97, sliceEnd: '...'})
+    for (const [_, mod] of client.commands.entries()) {
+      if (!mod.helpData) continue // Ignore commands without help data
 
-        commandOptions.push(
+      if (mod.musicOptions) {
+        musicCommandsMenuOptions.push(
           new StringSelectMenuOptionBuilder()
-            .setLabel(`/${name}${mod.musicOptions ? '🎵' : ''}`)
-            .setDescription(clippedDescription)
-            .setValue(name)
+            .setLabel(`${mod.data.name}`)
+            .setDescription(clipString({ string: mod.data.description, maxLength: 95, sliceEnd: '...' }))
+            .setEmoji('🎵')
+            .setValue(mod.data.name)
+        )
+      } else {
+        otherCommandsMenuOptions.push(
+          new StringSelectMenuOptionBuilder()
+            .setLabel(`${mod.data.name}`)
+            .setDescription(clipString({ string: mod.data.description, maxLength: 95, sliceEnd: '...' }))
+            .setEmoji(Number(mod.data.default_member_permissions) === 32 ? '💠' : '🔶')
+            .setValue(mod.data.name)
         )
       }
     }
 
-    const commandsMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
+    const musicCommandsMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
       .addComponents(
         new StringSelectMenuBuilder()
-          .setPlaceholder('Select a command.')
-          .addOptions(commandOptions)
-          .setCustomId('help-menu')
+          .setPlaceholder('🎵 Select a music command')
+          .addOptions(musicCommandsMenuOptions)
+          .setCustomId('music-help-menu')
+      )
+
+    const otherCommandsMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
+      .addComponents(
+        new StringSelectMenuBuilder()
+          .setPlaceholder('🔶 Select a command')
+          .addOptions(otherCommandsMenuOptions)
+          .setCustomId('other-help-menu')
       )
 
     const response = await interaction.reply({
       embeds: [mainEmbed],
-      components: [commandsMenu],
+      components: [musicCommandsMenu, otherCommandsMenu],
       ephemeral: true
     })
 
     const collector = response.createMessageComponentCollector({
-      componentType: ComponentType.StringSelect
+      componentType: ComponentType.StringSelect,
+      idle: 180000 // 3 minutes
     })
 
-    collector.on('collect', async (option) => {
-      await option.deferUpdate()
-      collector.resetTimer()
+    collector.on('collect', async (opt) => {
+      await opt.deferUpdate()
 
-      const selectedCommand = client.commands.get(option.values[0])
-      const helpData = selectedCommand?.helpData
+      const cmd = client.commands.get(opt.values[0])
+      const data = cmd?.helpData
 
-      if (!helpData) {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setDescription('[ This command doesn\'t have any help data! ]')
-              .setColor(embedColor)
-          ]
-        })
-        return
-      }
-
-      let description = `### Description:\n${helpData.description}\n### Examples:\n${helpData.examples.join('\n')}`
-
-      if (helpData.options) {
-        description += '\n### Options:'
-
-        helpData.options.map(opt => {
-          description += `\n\`${opt.name}, ${opt.required ? 'Required' : 'Optional'}\` -> ${opt.description}`
-          return description
-        })
-      }
-
-      if (selectedCommand.musicOptions) {
-        description += `\n### Requirements:
-Requires DJ role: \`${selectedCommand.musicOptions.requiresDjRole ? '✅' : '❌'}\`
-Requires music to be playing: \`${selectedCommand.musicOptions.requiresPlaying ? '✅' : '❌'}\`
-Requires user to be in VC: \`${selectedCommand.musicOptions.requiresVc ? '✅' : '❌'}\``
-      }
+      if (!data) return // Typeguard
 
       const helpEmbed = new EmbedBuilder()
         .setAuthor({
-          name: `/${selectedCommand.data.name} command • ${interaction.guild?.name}`,
+          name: `/${cmd.data.name} command • ${interaction.guild?.name}`,
           iconURL: interaction.guild?.iconURL() ?? undefined
         })
-        .setDescription(description)
-        .setImage(helpData.image ?? null)
+        .addFields(
+          {
+            name: 'Description',
+            value: data.description
+          }
+        )
 
-      await interaction.editReply({ embeds: [helpEmbed] })
+      if (data.examples) {
+        helpEmbed.addFields({
+          name: 'Examples',
+          value: data.examples.join('\n')
+        })
+      }
+
+      if (cmd.musicOptions) {
+        const { requiresDjRole, requiresPlaying, requiresVc } = cmd.musicOptions
+
+        helpEmbed.addFields({
+          name: 'Music requirements',
+          value: `Requires DJ role: \`${requiresDjRole ? '✅' : '❌'}\`
+          Requires music to be playing: \`${requiresPlaying ? '✅' : '❌'}\`
+          Requires user to be in VC: \`${requiresVc ? '✅' : '❌'}\``.trim()
+        })
+      }
+
+      if (data.tags) {
+        helpEmbed.addFields({
+          name: 'Tags',
+          value: data.tags.join(', ')
+        })
+      }
+
+      await interaction.editReply({
+        embeds: [helpEmbed]
+      })
     })
   }
 }

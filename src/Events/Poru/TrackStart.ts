@@ -45,8 +45,9 @@ const TrackStart: Event = {
       components: [buttons]
     }
 
+    console.log(player.message)
     // Send initial message
-    if (player.message === null) {
+    if (!player.message === undefined) {
       logger.debug('Creating initial player status message')
       player.message = await channel.send(options)
       return

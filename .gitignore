@@ -5,8 +5,8 @@ data/*
 yarn.lock
 application.yml
 lavalink.jar
-
-# Only for now
-.dockerignore
-Dockerfile
+postgres-data
+lavalink
+plugins
 docker-compose.yml
+package-lock.json

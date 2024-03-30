@@ -5,7 +5,10 @@ import { readdirSync, statSync } from 'fs'
 import { join } from 'path'
 import { Event } from '../Types/Event'
 import { Command } from '../Types/Command'
+import { ServerStatsI, serverStats } from '../Models'
+import { randomBytes } from 'crypto'
 
+const NAMES = ['alpha-', 'delta-', 'gamma-', 'lambda-'] as const
 const COMMANDS_PATH = join(__dirname, '../Commands')
 const CLIENT_EVENTS_PATH = join(__dirname, '../Events/Bot')
 const PORU_EVENTS_PATH = join(__dirname, '../Events/Poru')
@@ -50,7 +53,7 @@ class Bot extends Client<true> {
     for (let i = 0; i < this.lavalinkNodesAmount; i++) {
       this.nodes.push({
         host: process.env.LAVALINK_HOST,
-        name: `local-${i}`,
+        name: NAMES[Math.floor(Math.random() * NAMES.length)] + randomBytes(2).toString('hex'),
         password: process.env.LAVALINK_PASSWORD,
         port: Number(process.env.LAVALINK_PORT),
       })

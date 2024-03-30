@@ -10,7 +10,6 @@ const PlayerDestroy: Event = {
     const message = await player.message?.fetch()
       .catch(() => null)
 
-
     if (!message) return
 
     const embed = await player.messageManger.createPlayerEmbed()

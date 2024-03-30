@@ -3,10 +3,10 @@ import { Response as LavalinkResponse, LoadType, Player, Response, Track } from 
 import { logger } from './Logger'
 import { Segment } from 'sponsorblock-api'
 import axios from 'axios'
-import { formatSeconds } from '../Funcs/FormatSeconds'
 import constructProgressBar from '../Funcs/ProgressBarConstructor'
 import { playerGifUrl, inactiveGifUrl, embedColor } from './Util'
 import { PlayerSettingsI } from '../Models'
+import { TimeFormatter } from '../Classes/TimeFormatter'
 
 const TranslateSponsorBlockNames = {
   filler: 'Filler',
@@ -117,6 +117,7 @@ export class MessageManager {
    * Construct a music player state embed
    */
   public async createPlayerEmbed(): Promise<Array<EmbedBuilder>> {
+    const formatter = new TimeFormatter()
     const player = this.player
     const info = player.currentTrack.info
 
@@ -126,17 +127,17 @@ export class MessageManager {
 
     const progressBar = constructProgressBar(info.length, player.position, player)
     // These are used for the user-readable progress notation under the progress bar
-    const songLength = formatSeconds(info.length / 1000)
+    const songLength = formatter.duration(info.length / 1000)
 
     // Here we round the number to the nearest one divisible by 5 (for more consistency)
     // unless the song finished playing. For exmaple 14 = 15 or 12 = 10
-    let playerPosition = formatSeconds(info.length)
+    let playerPosition = formatter.duration(info.length)
 
     if (player.position < info.length) {
-      playerPosition = formatSeconds(Math.round((player.position / 1000) / 5) * 5)
+      playerPosition = formatter.duration(Math.round((player.position / 1000) / 5) * 5)
     }
 
-    const description = `By: **${info.author}**${info.isStream ? '' : `\n\n${progressBar}\n${playerPosition}/${songLength}`}\n\n:information_source: Check \`/help\` to get started!`
+    const description = `By: **${info.author}**\nUsing node: **${player.node.name}**${info.isStream ? '' : `\n\n${progressBar}\n${playerPosition}/${songLength}`}\n\n:information_source: Check \`/help\` to get started!`
     const queueOrPlaying = (player.queue.length > 0)
       ? `There ${player.queue.length === 1 ? 'is one song' : `are ${player.queue.length} songs`} in the queue`
       : player.isPaused ? 'Paused' : 'Now Playing' + '...'
@@ -164,7 +165,7 @@ export class MessageManager {
     const sponsoredPartsStrings: Array<string> = []
 
     for (const part of sponsoredSegments) {
-      sponsoredPartsStrings.push(`**${TranslateSponsorBlockNames[part.category]}** from \`${formatSeconds(Math.trunc(part.startTime))}\` to \`${formatSeconds(Math.trunc(part.endTime))}\``)
+      sponsoredPartsStrings.push(`**${TranslateSponsorBlockNames[part.category]}** from \`${formatter.duration(Math.trunc(part.startTime))}\` to \`${formatter.duration(Math.trunc(part.endTime))}\``)
     }
 
     if (sponsoredPartsStrings.length > 0) {
@@ -274,48 +275,6 @@ export class PlayerController {
   }
 
   /**
-   * Resolves a search query or url and appends the result if it's a track or search result
-   */
-  public async resolveQueryOrUrl(query: string, requester: GuildMember | User): Promise<[LoadType, Response]> {
-    const result = await this.player.poru.resolve({
-      query,
-      source: 'ytsearch',
-      requester: {
-        username: requester.displayName,
-        id: requester.id,
-        avatar: requester.displayAvatarURL()
-      }
-    })
-
-    const loadType = result.loadType
-
-    if (loadType === 'search' || loadType === 'track') {
-      const track = result.tracks[0]
-
-      this.player.queue.add(track)
-      return [loadType, result]
-    }
-
-    // ['LOAD_FAILED', 'NO_MATCHES', 'PLAYLIST_LOADED']
-    return [loadType, result]
-  }
-
-  /**
-   * Adds all songs from a playlist to the player queue
-   */
-  public async loadPlaylist(result: LavalinkResponse) {
-    if (result.loadType !== 'playlist') {
-      throw new Error(`Expected PLAYLIST_LOADED load type, got ${result.loadType} instead.`)
-    }
-
-    const tracks = result.tracks
-
-    tracks.forEach(track => {
-      this.player.queue.add(track)
-    })
-  }
-
-  /**
    * Sets up a player timeout that destroys the player after 10 seconds unless cancelled
    */
   public async setupPlayerTimeout() {
@@ -390,6 +349,8 @@ export class PlayerController {
 
     if (!dmChannel) return SaveStatus.DmChannelFailure
 
+    const formatter = new TimeFormatter()
+
     const savedFrom = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
         new ButtonBuilder()
@@ -408,8 +369,8 @@ export class PlayerController {
       .setDescription(`
 * **[${info.title} - ${info.author}](${info.uri})**
 * Source: **${info.sourceName.charAt(0).toUpperCase() + info.sourceName.slice(1)}** ${this.sourceIcons[info.sourceName] ?? ''}
-* Length: **${formatSeconds(info.length / 1000)}**
-* Saved at: **~${formatSeconds(this.player.position / 1000)}**`)
+* Length: **${formatter.duration(info.length / 1000)}**
+* Saved at: **~${formatter.duration(this.player.position / 1000)}**`)
       .setImage(image ?? null)
       .setColor(embedColor)
 
@@ -435,10 +396,11 @@ export class QueueManager {
    */
   private formatQueueField(track: Track, iteration: number) {
     const info = track.info
+    const formatter = new TimeFormatter()
 
     const linkedTitleAndAuthor = `\`${iteration}\`: **[${info.title} - ${info.author}](${info.uri})**`
 
-    return `${linkedTitleAndAuthor}\nAdded by <@${info.requester.id}> | Duration: \`${formatSeconds(info.length / 1000)}\`\n\n`
+    return `${linkedTitleAndAuthor}\nAdded by <@${info.requester.id}> | Duration: \`${formatter.duration(info.length / 1000)}\`\n\n`
   }
 
   /**

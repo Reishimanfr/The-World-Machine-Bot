@@ -52,7 +52,6 @@ const picture: Command = {
 
   helpData: {
     description: 'Sends cute pictures of a selected animal',
-    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175081409497534534/image.png',
     examples: [
       `> **Send pictures of cats**
       \`\`\`/picture

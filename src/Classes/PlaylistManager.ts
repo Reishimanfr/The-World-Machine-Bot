@@ -2,9 +2,9 @@ import { ActionRowBuilder, Attachment, AttachmentBuilder, EmbedBuilder, StringSe
 import { client } from '..'
 import { playlists } from '../Models'
 import { Track } from 'poru'
-import { formatSeconds } from '../Funcs/FormatSeconds'
 import axios from 'axios'
 import { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import { TimeFormatter } from './TimeFormatter'
 
 export interface Playlist {
   name: string
@@ -127,6 +127,7 @@ class PlaylistManager {
    * Generates a embed of all tracks in a playlist
    */
   public async generatePlaylistEmbed(playlist: Playlist, iconUrl?: string): Promise<[PlaylistResponse, Array<EmbedBuilder>?, Error?]> {
+    const formatter = new TimeFormatter()
     try {
       if (playlist.tracks === null) {
         return [
@@ -152,7 +153,7 @@ class PlaylistManager {
             ]]
         } else {
           for (let i = 0; i < tracks.length; i++) {
-            tracksStrings.push(`\`#${i + 1}\`: **[${tracks[i].info.title} - ${tracks[i].info.author}](${tracks[i].info.uri})** - ${formatSeconds(tracks[i].info.length / 1000)}`)
+            tracksStrings.push(`\`#${i + 1}\`: **[${tracks[i].info.title} - ${tracks[i].info.author}](${tracks[i].info.uri})** - ${formatter.duration(tracks[i].info.length / 1000)}`)
           }
 
           const embeds: Array<EmbedBuilder> = []
@@ -354,6 +355,7 @@ class PlaylistManager {
    * Generates embeds for all playlists
    */
   public async list(userId: string): Promise<[Array<EmbedBuilder>?, Error?]> {
+    const formatter = new TimeFormatter()
     const [allPlaylists, error] = await this.getAllPlaylists(userId)
 
     if (!allPlaylists) return [undefined, error]
@@ -372,7 +374,7 @@ class PlaylistManager {
           const tracks = await client.poru.decodeTracks(playlist.tracks.split(' '), client.poru.leastUsedNodes[0]) as Array<Track>
 
           for (const track of tracks) {
-            tracksStrings.push(`[${track.info.title} - ${track.info.author}](${track.info.uri}) - (${formatSeconds(track.info.length / 1000)})`)
+            tracksStrings.push(`[${track.info.title} - ${track.info.author}](${track.info.uri}) - (${formatter.duration(track.info.length / 1000)})`)
           }
         }
 
@@ -380,7 +382,7 @@ class PlaylistManager {
           new EmbedBuilder()
             .setAuthor({ name: `Playlist • ${playlist.name}` })
             .setDescription(tracksStrings.join('\n'))
-            .setFooter({ text: `Length: ${formatSeconds(playlist.length)} • Page ${idx}/${allPlaylists.length}` })
+            .setFooter({ text: `Length: ${formatter.duration(playlist.length)} • Page ${idx}/${allPlaylists.length}` })
         )
 
         idx++

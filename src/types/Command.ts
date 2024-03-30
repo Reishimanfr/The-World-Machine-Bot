@@ -8,19 +8,19 @@ export interface Command<T = true> {
 
   helpData?: {
     description: string
-    examples: Array<string>
-    image?: string
-    options?: Array<{
+    examples?: string[]
+    tags?: string[]
+    options?: {
       name: string
       description: string
       required: boolean
-    }>
+    }[]
   }
 
   // Permissions
   permissions: {
-    user?: Array<PermissionResolvable>
-    bot?: Array<PermissionResolvable>
+    user?: PermissionResolvable[]
+    bot?: PermissionResolvable[]
   }
 
   musicOptions?: {

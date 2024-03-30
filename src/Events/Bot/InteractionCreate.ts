@@ -10,6 +10,7 @@ import { showQueue } from './Buttons/showQueue'
 import { skip } from './Buttons/skip'
 import { togglePlayback } from './Buttons/togglePlayback'
 import { combineConfig } from '../../Funcs/CombinePlayerConfig'
+import { serverStats } from '../../Models'
 
 const InteractionMap = {
   [InteractionType.ApplicationCommandAutocomplete]: Autocomplete,
@@ -21,6 +22,12 @@ const InteractionCreate: Event = {
   name: Events.InteractionCreate,
   once: false,
   execute: async (interaction: Interaction) => {
+    const [record] = await serverStats.findOrCreate({
+      where: { guildId: interaction.guildId },
+      defaults: { guildId: interaction.guildId, lastActive: new Date() }
+    })
+
+    record.update({ lastActive: new Date() })
 
     const handler = InteractionMap[interaction.type]
 

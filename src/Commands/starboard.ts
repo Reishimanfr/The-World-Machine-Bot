@@ -483,7 +483,6 @@ const starboard: Command = {
 
   helpData: {
     description: 'Shows the current configuration of the starboard and allows you to change it.\n### Note:\nThe starboard feature was covered more in-depth in the [github repository](https://github.com/rei-shi/The-World-Machine).',
-    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1175086512958873600/Discord_bx7OlzKNHT.png',
     examples: ['```/starboard-config```']
   },
 

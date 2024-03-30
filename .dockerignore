@@ -1,0 +1,10 @@
+node_modules
+.dockerignore
+.github
+.env.example
+.eslintrs.json
+lavalink.jar
+LICENSE
+package-lock.json
+README.md
+yarn.lock

@@ -1,7 +1,8 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { Command } from '../Types/Command'
 import axios from 'axios'
-import FormatTime from '../Funcs/FormatTime'
+import { TimeFormatter } from '../Classes/TimeFormatter'
+import { NodeStats } from 'poru'
 
 function formatBlock(string: string): `\`\`\`${string}\`\`\`` {
   return `\`\`\`${string}\`\`\``
@@ -18,6 +19,7 @@ const about: Command<false> = {
   },
 
   callback: async ({ interaction, client }) => {
+    const formatter = new TimeFormatter()
     const fetchUser = await axios.get('https://discord.com/api/users/844684172421496882', {
       headers: { 'Authorization': `Bot ${client.token}` }
     })
@@ -29,12 +31,18 @@ const about: Command<false> = {
     const musicCommands = client.commands.filter(c => c.musicOptions).size
     const user = fetchUser.data
 
+    const node = client.poru.leastUsedNodes[0]
+    const lavalinkStats = await client.poru.getLavalinkStatus(node.name) as NodeStats
+
+    const nodeNames: string[] = []
+    client.poru.nodes.forEach(n => nodeNames.push(n.name))
+
     const embed = new EmbedBuilder()
       .setAuthor({
         name: 'Some info about the bot and it\'s creator'
       })
       .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
-      .setDescription(`Hello! I'm **${user.username}**. Thanks for using my bot!\nI'm a small, aspiring programmer from poland that aims to provide the fastest and easiest to use applications that I can possibly deliver!\nIf you want to see any other projects I've made check out my **[GitHub profile](https://github.com/reishimanfr)**\nIf you'd like to sponsor my work for just 1$ check my **[buy me a coffee page](https://buymeacoffee.com/reishimanfr)**!\n### Some stats related to the bot below:`)
+      .setDescription(`Hello! I'm **${user.username}**. Thanks for using my bot!\nI'm a small, aspiring programmer from poland that aims to provide the fastest and easiest to use applications that I can possibly deliver!\nIf you want to see any other projects I've made check out my **[GitHub profile](https://github.com/reishimanfr)**\nIf you'd like to sponsor my work for just 1$ check my **[buy me a coffee page](https://buymeacoffee.com/reishimanfr)**!\n### ✨ Some stats related to the bot below:`)
       .setFields([
         {
           name: '🌐 Servers',
@@ -47,22 +55,22 @@ const about: Command<false> = {
           inline: true
         },
         {
-          name: '⚡ Currently active players',
-          value: `${formatBlock(String(client.poru.players.size))}`
+          name: 'Currently active nodes',
+          value: `${formatBlock(nodeNames.join(', '))}`
         },
         {
-          name: '📋 Available (/) commands',
-          value: `${formatBlock(String(client.commands.size))}`,
+          name: 'CPU usage (lavalink)',
+          value: `${formatBlock((lavalinkStats.cpu.lavalinkLoad).toFixed(0))}`,
           inline: true
         },
         {
-          name: '🎶 Music commands',
-          value: `${formatBlock(String(musicCommands))}`,
+          name: 'RAM usage (lavalink)',
+          value: `${formatBlock((lavalinkStats.memory.used / (1024 ** 2)).toFixed(2) + 'MB')}`,
           inline: true
         },
         {
           name: '⌚ Uptime',
-          value: `${formatBlock(FormatTime(Math.floor(client.uptime / 1000)))}`
+          value: `${formatBlock(formatter.uptime(Math.floor(client.uptime / 1000)))}`
         }
       ])
       .setColor(user.banner_color)

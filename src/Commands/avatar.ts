@@ -23,7 +23,6 @@ const avatar: Command = {
 
   helpData: {
     description: 'Gets the avatar of a selected user.',
-    image: 'https://cdn.discordapp.com/attachments/1169390259411369994/1174770707578761276/image.png',
     examples: [
       `> **Get the avatar of a server member**
       \`\`\`/avatar
