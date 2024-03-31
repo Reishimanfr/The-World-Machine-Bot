@@ -1,4 +1,3 @@
-import constructProgressBar from '../../Funcs/ProgressBarConstructor'
 import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
 import { inactiveGifUrl } from '../../Helpers/Util'
@@ -22,9 +21,9 @@ const QueueEnd: Event = {
 
     if (!message) return
 
-    embed.at(0)?.setDescription(`${descriptionSplit?.[0] ?? ''}\n\n${constructProgressBar(1, 1, player)}\nSong ended.`)
+    embed.at(0)?.setDescription(`${descriptionSplit?.[0] ?? ''}`)
     embed.at(0)?.setAuthor({
-      name: 'Waiting for another song...',
+      name: 'Idling...⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
       iconURL: inactiveGifUrl
     })
 

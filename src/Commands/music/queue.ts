@@ -33,14 +33,14 @@ const queue: Command<true> = {
     const embeds = player.queueManager.createQueueEmbed()
 
     if (!embeds?.length) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'Something went wrong.',
         ephemeral: true
       })
     }
 
     if (embeds.length === 1) {
-      return await interaction.reply({
+      return interaction.reply({
         embeds: [...embeds],
         ephemeral: true
       })

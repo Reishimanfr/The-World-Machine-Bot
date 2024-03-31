@@ -29,7 +29,7 @@ const skip: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     if (interaction.channel?.type !== ChannelType.GuildText) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'This command must be ran in a text channel so the bot can send a voting message.',
         ephemeral: true
       })
@@ -38,14 +38,14 @@ const skip: Command<true> = {
     const member = await interaction.guild?.members.fetch(interaction.user.id)
 
     if (!member?.voice.channel) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'You must be in a voice channel to use this command.',
         ephemeral: true
       })
     }
 
     if (player.votingActive) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'There\'s a vote skip in progress already!',
         ephemeral: true
       })

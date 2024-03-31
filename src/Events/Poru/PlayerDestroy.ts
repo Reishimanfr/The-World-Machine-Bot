@@ -12,7 +12,7 @@ const PlayerDestroy: Event = {
 
     if (!message) return
 
-    const embed = await player.messageManger.createPlayerEmbed()
+    const embed = await player.messageManger.createPlayerEmbed(true)
     const buttons = player.messageManger.createPlayerButtons(true)
 
     embed.at(0)!.setAuthor({

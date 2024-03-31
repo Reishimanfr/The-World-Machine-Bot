@@ -79,7 +79,7 @@ const seek: Command<true> = {
 
     // You never know
     if (!player.currentTrack.info.isSeekable) {
-      return await interaction.reply({
+      return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription('[ This track is not seekable. ]')
@@ -90,7 +90,7 @@ const seek: Command<true> = {
     }
 
     if (!player.isPlaying) {
-      return await interaction.reply({
+      return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription('[ Nothing is playing right now. ]')
@@ -115,7 +115,7 @@ const seek: Command<true> = {
       responseString = `Seeked ${seconds.slice(1)} ${direction === 1 ? 'forward' : 'backwards'
       }`
     } else {
-      return await interaction.reply({
+      return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setDescription('[ Invalid timestamp. ]')

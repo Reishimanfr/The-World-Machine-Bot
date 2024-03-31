@@ -36,8 +36,7 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error(reason, promise)
 })
 
-client.initialize()
-client.login(process.env.BOT_TOKEN)
+client.initialize(process.env.BOT_TOKEN)
 
 // This is ran every day and leaves inactive servers due to the
 // 100 guilds limit set for unverified bots.
@@ -50,6 +49,8 @@ cron.schedule('0 0 * * *', async () => {
       where: { guildId: guild.id },
       defaults: { guildId: guild.id, lastActive: new Date() }
     })
+
+    if (record.getDataValue('guildId') === `${client.user.id}-emojis`) continue // Don't leave it's own server lmao
 
     const now = new Date()
     const nowPlusMonths = now.setMonth(now.getMonth() + 3)

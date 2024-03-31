@@ -51,7 +51,7 @@ const skipTo: Command<true> = {
     if (position === -1) return
 
     if (!player.queue.at(position - 1)) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'There isn\'t a song in the position you specified.',
         ephemeral: true
       })
@@ -60,7 +60,7 @@ const skipTo: Command<true> = {
     const member = await interaction.guild?.members.fetch(interaction.user.id)
 
     if (!member?.voice.channel) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'You must be in a voice channel to use this command.',
         ephemeral: true
       })
@@ -71,7 +71,7 @@ const skipTo: Command<true> = {
 
     if (requiredVotes > 1) {
       if (player.votingActive) {
-        return await interaction.reply({
+        return interaction.reply({
           content: 'There\'s a voting in progress already!',
           ephemeral: true
         })

@@ -10,7 +10,6 @@ export type PlayerSettingsI = {
   voteSkipMembers: number
   requireDjRole: boolean
   djRoleId: string | null
-  useLegacyProgressBar: boolean
 }
 
 export const defaultConfig: PlayerSettingsI = {
@@ -22,7 +21,6 @@ export const defaultConfig: PlayerSettingsI = {
   voteSkipMembers: 3,
   requireDjRole: true,
   djRoleId: null,
-  useLegacyProgressBar: true
 } as const
 
 export const PlayerSettings = sequelize.define('playerSettings', {
@@ -62,9 +60,5 @@ export const PlayerSettings = sequelize.define('playerSettings', {
   voteSkipThreshold: {
     type: DataTypes.INTEGER,
     defaultValue: defaultConfig.voteSkipThreshold
-  },
-  useLegacyProgressBar: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: defaultConfig.useLegacyProgressBar
   }
 })

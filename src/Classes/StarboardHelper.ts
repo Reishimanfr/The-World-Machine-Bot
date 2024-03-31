@@ -12,7 +12,7 @@ import {
   ReactionEmoji
 } from 'discord.js'
 import { clipString } from '../Funcs/ClipString'
-import { starboardConfig, starboardEntries } from '../Models'
+import { serverStats, starboardConfig, starboardEntries } from '../Models'
 import { logger } from '../Helpers/Logger'
 import { client } from '..'
 
@@ -236,6 +236,14 @@ export class StarboardHelper {
     const messageDataSplit = await dbEntry?.getDataValue('botMessageUrl').split('/')
     const messageId = messageDataSplit?.length ? messageDataSplit[messageDataSplit?.length - 1] : null
     const entryMessage = messageId ? (await boardChannel.messages.fetch(messageId) ?? null) : null
+
+    // Basically we confirmed the server uses the starboard by now so it's fine to reset the timeout
+    const [timeoutRecord] = await serverStats.findOrCreate({
+      where: { guildId: reaction.message.guildId },
+      defaults: { guildId: reaction.message.guildId, lastActive: new Date() }
+    })
+
+    timeoutRecord.update({ lastActive: new Date()})
 
     if (!entryMessage) {
       const [member, count, fields, embedImage] = await Promise.all([

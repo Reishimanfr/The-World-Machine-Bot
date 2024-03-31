@@ -2,16 +2,6 @@ import { ExtPlayer, MessageManager } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
 import { Event } from '../../Types/Event'
 
-// ======================================================================= //
-// ⚠️⚠️⚠️ WARNING ⚠️⚠️⚠️                                                //
-// IF YOU'RE HERE THIS PROBABLY MEANS YOU'RE TRYING TO CHANGE SOMETHING    //
-// THAT YOU REALLY SHOULDN'T                                               //
-//                                                                         //
-// DO NOT CHANGE THE LAVALINK UPDATE TICKS THRESHOLD AS THIS WOULD BREAK   //
-// BOTH SPONSORBLOCK AND ANTI-API SPAMMING MEASURES                        //
-// GO TO YOUR APPLICATION.YML FILE AND SET THE UPDATE RATE TO 15 SECONDS   //
-// AND LEAVE THIS CODE ALONE!                                              //
-// ======================================================================= //
 const PlayerUpdate: Event = {
   name: 'playerUpdate',
   once: false,

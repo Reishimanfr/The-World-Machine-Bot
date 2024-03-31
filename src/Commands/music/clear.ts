@@ -24,7 +24,7 @@ const clear: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     if (player.queue.length <= 0) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'Nothing to clear.',
         ephemeral: true
       })

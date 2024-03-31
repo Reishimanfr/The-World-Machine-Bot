@@ -7,6 +7,7 @@ import constructProgressBar from '../Funcs/ProgressBarConstructor'
 import { playerGifUrl, inactiveGifUrl, embedColor } from './Util'
 import { PlayerSettingsI } from '../Models'
 import { TimeFormatter } from '../Classes/TimeFormatter'
+import { readFileSync } from 'fs'
 
 const TranslateSponsorBlockNames = {
   filler: 'Filler',
@@ -25,6 +26,10 @@ export enum SaveStatus {
   'Success'
 }
 
+export interface PlayerIconsI {
+  [key: string]: string
+}
+
 export class ExtPlayer extends Player {
   private $message: Message | undefined
   private $pauseEditing: boolean
@@ -32,11 +37,29 @@ export class ExtPlayer extends Player {
   private $settings: PlayerSettingsI
   private $voteSkipActive = false
   private $sponsorSegments: Array<Segment>
+  private $icons: PlayerIconsI
+  private $serverMuted: boolean
 
   // Managers
   public messageManger: MessageManager
   public queueManager: QueueManager
   public controller: PlayerController
+
+  get serverMuted() {
+    return this.$serverMuted
+  }
+
+  set serverMuted(bool: boolean) {
+    this.$serverMuted = bool
+  }
+
+  get icons() {
+    return this.$icons
+  }
+
+  set icons(data: PlayerIconsI) {
+    this.$icons = data
+  }
 
   get sponsorSegments(): Array<Segment> {
     return this.$sponsorSegments
@@ -53,6 +76,7 @@ export class ExtPlayer extends Player {
   set message(message: Message) {
     this.$message = message
   }
+
   get pauseEditing() {
     return this.$pauseEditing
   }
@@ -88,14 +112,6 @@ export class ExtPlayer extends Player {
 
 export class MessageManager {
   private readonly player: ExtPlayer
-  private readonly icons = {
-    play: '<:play:1175222722788331641>',
-    pause: '<:pause:1175222719726497874>',
-    queue: '<:queue:1175222726420594738>',
-    skip: '<:skip:1175222721865597018>',
-    loop: '<:loop:1175222728010252450>',
-    save: '<:save:1175222724143091713>'
-  }
 
   constructor(player: ExtPlayer) {
     this.player = player
@@ -116,7 +132,7 @@ export class MessageManager {
   /**
    * Construct a music player state embed
    */
-  public async createPlayerEmbed(): Promise<Array<EmbedBuilder>> {
+  public async createPlayerEmbed(fullProgressBar?: boolean): Promise<Array<EmbedBuilder>> {
     const formatter = new TimeFormatter()
     const player = this.player
     const info = player.currentTrack.info
@@ -125,7 +141,7 @@ export class MessageManager {
       ? await this.fetchSpotifyThumbnail(info.identifier)
       : info.artworkUrl
 
-    const progressBar = constructProgressBar(info.length, player.position, player)
+    const progressBar = constructProgressBar(player, fullProgressBar)
     // These are used for the user-readable progress notation under the progress bar
     const songLength = formatter.duration(info.length / 1000)
 
@@ -137,12 +153,14 @@ export class MessageManager {
       playerPosition = formatter.duration(Math.round((player.position / 1000) / 5) * 5)
     }
 
-    const description = `By: **${info.author}**\nUsing node: **${player.node.name}**${info.isStream ? '' : `\n\n${progressBar}\n${playerPosition}/${songLength}`}\n\n:information_source: Check \`/help\` to get started!`
+    const description = `By: **${info.author}**${info.isStream ? '' : `\n\n${progressBar}\n${playerPosition}/${songLength}`}\n\n:information_source: Check \`/help\` to get started!`
     const queueOrPlaying = (player.queue.length > 0)
       ? `There ${player.queue.length === 1 ? 'is one song' : `are ${player.queue.length} songs`} in the queue`
       : player.isPaused ? 'Paused' : 'Now Playing' + '...'
 
     const returnArray: Array<EmbedBuilder> = []
+
+    console.log(info.requester)
 
     returnArray.push(
       new EmbedBuilder()
@@ -199,32 +217,32 @@ export class MessageManager {
     return new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
         new ButtonBuilder()
-          .setCustomId('songcontrol-showQueue')
-          .setEmoji(this.icons.queue)
+          .setCustomId('queue')
+          .setEmoji(this.player.icons.queue)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.queue ?? disableAll),
 
         new ButtonBuilder()
-          .setCustomId('songcontrol-togglePlayback')
-          .setEmoji(this.player.isPaused ? this.icons.play : this.icons.pause)
+          .setCustomId('togglePlayback')
+          .setEmoji(this.player.isPaused ? this.player.icons.play : this.player.icons.pause)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.playback ?? disableAll),
 
         new ButtonBuilder()
-          .setCustomId('songcontrol-skip')
-          .setEmoji(this.icons.skip)
+          .setCustomId('skip')
+          .setEmoji(this.player.icons.skip)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.skip ?? this.player.loop === 'TRACK' ? true : disableAll),
 
         new ButtonBuilder()
-          .setCustomId('songcontrol-loop')
-          .setEmoji(this.icons.loop)
+          .setCustomId('loop')
+          .setEmoji(this.player.icons.loop)
           .setStyle(loopColor[this.player.loop])
           .setDisabled(overrides?.loop ?? disableAll),
 
         new ButtonBuilder()
-          .setCustomId('songcontrol-save')
-          .setEmoji(this.icons.save)
+          .setCustomId('save')
+          .setEmoji(this.player.icons.save)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.save ?? disableAll)
       )
@@ -251,27 +269,10 @@ export class MessageManager {
 export class PlayerController {
   private readonly player: ExtPlayer
   private readonly messageManager: MessageManager
-  private readonly sourceIcons = {
-    spotify: '<:spotify:1171916955268169778>',
-    youtube: '<:youtuberemovebgpreview:1171917891059331103>',
-    soundcloud: '<:soundcloud:1171916943192752199>'
-  }
 
   constructor(player: ExtPlayer) {
     this.player = player
     this.messageManager = new MessageManager(player)
-  }
-
-  /**
-   * Toggles the player playback
-   * @param override Set a override to ignore toggling and instead set the value to override
-   */
-  public togglePlayback(override?: boolean) {
-    if (override !== undefined) {
-      this.player.pause(override)
-    } else {
-      this.player.pause(!this.player.isPaused)
-    }
   }
 
   /**
@@ -280,29 +281,11 @@ export class PlayerController {
   public async setupPlayerTimeout() {
     const playerTimeout = Number(process.env.PLAYER_TIMEOUT) * 60 * 1000
 
-    // Returns if the playerTimeout is set to 0 or less
     if (playerTimeout <= 0) return
 
     // Creates a timeout and binds it to the player.timeout property
     this.player.timeout = setTimeout(async () => {
       this.player.destroy()
-
-      const message = await this.player.message?.fetch()
-        .catch(() => undefined)
-
-      if (!message) return
-
-      const embed = await this.messageManager.createPlayerEmbed()
-
-      embed[0].setAuthor({
-        name: 'The player has timed out.',
-        iconURL: inactiveGifUrl
-      })
-
-      await message.edit({
-        embeds: [...embed],
-        components: [this.messageManager.createPlayerButtons(true)]
-      })
     }, playerTimeout)
   }
 
@@ -368,7 +351,7 @@ export class PlayerController {
       .setAuthor({ name: `Originally requested by ${info.requester.username}`, iconURL: info.requester.avatar })
       .setDescription(`
 * **[${info.title} - ${info.author}](${info.uri})**
-* Source: **${info.sourceName.charAt(0).toUpperCase() + info.sourceName.slice(1)}** ${this.sourceIcons[info.sourceName] ?? ''}
+* Source: **${info.sourceName.charAt(0).toUpperCase() + info.sourceName.slice(1)}** ${this.player.icons[info.sourceName] ?? ''}
 * Length: **${formatter.duration(info.length / 1000)}**
 * Saved at: **~${formatter.duration(this.player.position / 1000)}**`)
       .setImage(image ?? null)

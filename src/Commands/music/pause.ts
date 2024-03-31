@@ -23,13 +23,14 @@ const pause: Command<true> = {
   },
 
   callback: async ({ interaction, player }) => {
-    player.controller.togglePlayback()
-    player.messageManger.updatePlayerMessage()
+    player.pause(!player.isPaused)
 
-    // a.k.a. reply with nothing and delete shortly after
-    await interaction.deferReply({ ephemeral: true })
-      .then(_ => _.delete()
-        .catch(() => {}))
+    interaction.reply({
+      content: `${player.isPaused ? 'Resumed.' : 'Paused.'}`,
+      ephemeral: true
+    })
+
+    player.messageManger.updatePlayerMessage()
   }
 }
 

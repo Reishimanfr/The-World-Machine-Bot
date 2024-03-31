@@ -80,7 +80,11 @@ const play: Command = {
 
     const fullResponse = await client.poru.resolve({
       query: query,
-      requester: member,
+      requester: {
+        username: member.user.displayName,
+        avatar: member.displayAvatarURL(),
+        id: member.user.id
+      },
       source: 'ytmsearch'
     })
 
@@ -182,16 +186,11 @@ const play: Command = {
       ])
     }
 
-    console.log(Date.now(), lastUpdate)
-
     if (Date.now() - lastUpdate > 600) {
       lastUpdate = Date.now()
 
       const tracks: any[] = []
-
       const formatter = new TimeFormatter()
-
-      console.log('continuing')
 
       const resolveAndPush = async (source: string, prefix: string): Promise<void> => {
         const resolve = await client.poru.resolve({ query, source })

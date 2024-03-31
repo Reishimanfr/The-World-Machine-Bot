@@ -4,11 +4,6 @@ import { logger } from '../../Helpers/Logger'
 import { client } from '../..'
 import { ExtPlayer, } from '../../Helpers/ExtendedPlayer'
 import { embedColor } from '../../Helpers/Util'
-import { loop } from './Buttons/loop'
-import { save } from './Buttons/save'
-import { showQueue } from './Buttons/showQueue'
-import { skip } from './Buttons/skip'
-import { togglePlayback } from './Buttons/togglePlayback'
 import { combineConfig } from '../../Funcs/CombinePlayerConfig'
 import { serverStats } from '../../Models'
 
@@ -57,69 +52,47 @@ async function Autocomplete(interaction: AutocompleteInteraction) {
 }
 
 async function Button(interaction: ButtonInteraction) {
-  if (!interaction.guild || !interaction.customId.startsWith('songcontrol')) return
+  if (!interaction.guild) return
 
-  const buttonMap = {
-    showQueue,
-    togglePlayback,
-    skip,
-    loop,
-    save
-  }
+  const button = client.musicButtons.find(b => b.name === interaction.customId)
+
+  if (!button) return
 
   const player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
   const member = await interaction.guild.members.fetch(interaction.user.id)
 
   if (!player) {
-    return await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ This player isn\'t active anymore. ]')
-          .setColor(embedColor)
-      ],
+    return interaction.reply({
+      content: 'This player isn\'t active anymore.',
       ephemeral: true
     })
   }
 
   if (!member.voice.channel) {
-    return await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription('[ You must be in a voice channel to use this. ]')
-          .setColor(embedColor)
-      ],
+    return interaction.reply({
+      content: 'You must be in a voice channel to use this.',
       ephemeral: true
     })
   }
 
   if (member.voice.channelId !== interaction.guild.members.me?.voice.channelId) {
-    return await interaction.reply({
+    return interaction.reply({
       content: 'You must be in the same voice channel to use this.',
       ephemeral: true
     })
   }
 
-  const action = interaction.customId.split('-')[1]
-  const handler = buttonMap[action]
-
-  const args = {
-    interaction,
-    player,
-    client
-  }
-
-  // Shouldn't happen
-  if (!player.isPlaying && !player.isPaused) {
-    return await interaction.reply({
-      content: 'Nothing is playing right now.',
+  if (button.musicOptions.requiresDjRole && player.settings.djRoleId && !member.roles.cache.find(role => role.id === player.settings.djRoleId)) {
+    return interaction.reply({
+      content: `You must have the <@&${player.settings.djRoleId}> role to use this.`,
       ephemeral: true
     })
   }
 
   try {
-    await handler(args)
+    button.run({ interaction, player, client })
   } catch (error) {
-    logger.error(`Failed to process button ${interaction.customId}: ${error}`)
+    logger.error(`Button ${button.name} failed with error: ${error.stack}`)
   }
 }
 
@@ -129,7 +102,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
 
   if (!cmd) {
     logger.warn(`File for command ${interaction.commandName} doesn't exist!`)
-    return await interaction.reply({
+    return  interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setDescription('[ This command doesn\'t exist. ]')
@@ -177,7 +150,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
 
     // Member is not in voice channel
     if (options.requiresVc && !member?.voice.channel?.id) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'You must be in a voice channel to use this command.',
         ephemeral: true
       })
@@ -185,14 +158,14 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
 
     // Member is not in the same voice channel as bot
     if (options.requiresVc && player && member?.voice.channel?.id !== player?.voiceChannel) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'You must be in the same voice channel as me to use this command.',
         ephemeral: true
       })
     }
 
     if (options.requiresPlaying && (!player?.isPlaying)) {
-      return await interaction.reply({
+      return interaction.reply({
         content: 'You can\'t use this command while nothing is playing.',
         ephemeral: true
       })
@@ -200,7 +173,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
 
     // Member doesn't have the DJ role
     if (options.requiresDjRole && config.requireDjRole && !member?.roles.cache.find(role => role.id === config.djRoleId) && config.djRoleId) {
-      return await interaction.reply({
+      return interaction.reply({
         content: `You must have the <@&${config.djRoleId}> role to use this command.`,
         ephemeral: true
       })
