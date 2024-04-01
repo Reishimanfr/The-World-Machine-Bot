@@ -50,7 +50,9 @@ cron.schedule('0 0 * * *', async () => {
       defaults: { guildId: guild.id, lastActive: new Date() }
     })
 
-    if (record.getDataValue('guildId') === `${client.user.id}-emojis`) continue // Don't leave it's own server lmao
+    // Don't leave it's own server lmao
+    const ownServer = guilds.find(g => g.name.endsWith('-emojis'))
+    if (record.getDataValue('guildId') === ownServer?.id) continue 
 
     const now = new Date()
     const nowPlusMonths = now.setMonth(now.getMonth() + 3)

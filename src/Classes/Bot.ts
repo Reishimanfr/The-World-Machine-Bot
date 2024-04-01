@@ -7,6 +7,7 @@ import { Event } from '../Types/Event'
 import { Command } from '../Types/Command'
 import { setTimeout } from 'timers/promises'
 import { Button } from '../Types/Button'
+require('dotenv').config()
 
 const COMMANDS_PATH = join(__dirname, '../Commands')
 const CLIENT_EVENTS_PATH = join(__dirname, '../Events/Bot')
@@ -51,42 +52,73 @@ class Bot extends Client<true> {
   }
 
   public async createIcons() {
-    const guilds = await this.guilds.fetch()
-
-    // No need to do anything since the guild exists already.
-    if (guilds.find(g => g.name === `${this.user.id}-emojis`)) return logger.debug(`Custom emojis guild already exists.`)
-
-    logger.warn(`In 10 seconds the bot will create a empty server to store custom emojis in. If you do not want this happening press ctrl+c, go to the .env file and set CREATE_CUSTOM_EMOJI_GUILD = false`)
-    logger.warn(`\n=================================\n=== WAIT FOR THIS TO FINISH BEFORE RUNNING ANY COMMANDS ===\n=================================`)
-    await setTimeout(10000)
-
-    const assetFiles = readdirSync(join(__dirname, '../Assets'))
-      .filter(file => file.endsWith('.png'))
-
-    const guild = await this.guilds.create({ name: `${this.user.id}-emojis`, channels: [{ name: 'general' }] })
-
-    logger.debug(`Emojis guild created. Adding emojis now...`)
-
-    let icons = {}
-
-    for (const asset of assetFiles) {
-      const name = asset.split('.')[0]
-
-      const emoji = await guild.emojis.create({
-        attachment: readFileSync(join(__dirname, `../Assets/${asset}`)),
-        name: name
-      })
-
-      icons[name] = emoji.toString()
-      logger.debug(`Added emoji -> ${name} (${emoji.toString()})`)
+    console.log(process.env.CUSTOM_EMOJIS_GUILD_ID)
+    if (!process.env.CUSTOM_EMOJIS_GUILD_ID) {
+      logger.fatal(`You haven't provided a guild ID to store custom emojis in. Please create a new empty guild and pass it's ID inside of the .env file in the CUSTOM_EMOJIS_GUILD_ID property.`)
+      process.exit(1)
     }
 
+    const guilds = await this.guilds.fetch()
+    const emojisGuild = await guilds.find(g => g.id === process.env.CUSTOM_EMOJIS_GUILD_ID)?.fetch()
+
+    if (!emojisGuild) {
+      logger.fatal(`Failed to fetch server with ID ${process.env.CUSTOM_EMOJIS_GUILD_ID}. Did you add the bot to the newly created guild?`)
+      process.exit(1)
+    }
+
+    const botPerms = emojisGuild.members.me?.permissions
+
+    if (!botPerms?.has('ManageEmojisAndStickers')) {
+      logger.fatal(`I'm missing the manager emojis and stickers permission`)
+      process.exit(1)
+    }
+
+    const emojis = emojisGuild.emojis.cache
+    const assets = readdirSync(join(__dirname, '../Assets'))
+      .filter(f => f.endsWith('.png'))
+
+    if (emojis.size === assets.length) return logger.debug(`Emojis guild already exists.`)
+
+    if (emojis.size > 0) {
+      logger.warn(`In 15 seconds the bot will start deleting all emojis from server ${emojisGuild.name} (${emojisGuild.id}). If you do not want this to happen press ctrl+c and change the CUSTOM_EMOJIS_GUILD_ID property in the .env file.`)
+      await setTimeout(15000)
+  
+      logger.warn(`Deleting all emojis from ${emojisGuild.name} (${emojisGuild.id})`)
+  
+      for (const [_, emoji] of emojis) {
+        await setTimeout(250) // To send less spam requests
+        await emoji.delete()
+          .then(_ => logger.debug(`Deleted emoji -> ${emoji.name} (${emoji.toString()})`))
+          .catch(error => logger.error(`Failed to delete emoji -> ${emoji.name} (${emoji.toString()}): ${error.stack}`)) 
+      }
+    }
+
+    logger.warn(`Adding ${assets.length} emojis to ${emojisGuild.name} (${emojisGuild.id}) now...`)
+
+    let emojisData = {}
+
+    for (const file of assets) {
+      const fullPath = join(__dirname, `../Assets/${file}`)
+
+      await emojisGuild.emojis.create({
+        attachment: fullPath,
+        name: file.split('.')[0] // Remove extension
+      })
+      .then(_ => {
+        logger.debug(`Created emoji -> ${_.name} (${_.toString()})`)
+        emojisData[file.split('.')[0]] = _.toString()
+      })
+      .catch(error => {
+        logger.error(`Failed to create emoji from file ${file}: ${error.stack}`)
+        emojisData[file.split('.')[0]] = '⚠' // I never tested this :3
+      })
+    }
+
+    writeFileSync(join(__dirname, '../../icons.json'), JSON.stringify(emojisData, null, 2), 'utf-8')
+
     logger.debug(`All done! Saving new emoji data to icons.json now...`)
-
-    writeFileSync(join(__dirname, '../../icons.json'), JSON.stringify(icons, null, 2), 'utf-8')
-
     logger.info(`Icon file saved.`)
-    logger.info(`\n=================================\n=== You can use the bot now ===\n=================================`)
+    logger.info(`You can use the bot as normal now!`)
   }
 
   public async initialize(token: string) {

@@ -53,8 +53,6 @@ function constructProgressBar(player: ExtPlayer, full?: boolean) {
     return `${BEGIN['0.00']}${CENTER['0'].repeat(8)}${END['0']}`
   }
 
-  console.log(full)
-
   if (songProgress >= 1 || full) {
     return `${BEGIN['0.1']}${CENTER['10'].repeat(8)}${END['10']}`
   }

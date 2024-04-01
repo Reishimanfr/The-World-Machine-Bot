@@ -1,3 +1,4 @@
+import { setTimeout } from 'timers/promises'
 import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
 import { inactiveGifUrl } from '../../Helpers/Util'
@@ -15,12 +16,15 @@ const PlayerDestroy: Event = {
     const embed = await player.messageManger.createPlayerEmbed(true)
     const buttons = player.messageManger.createPlayerButtons(true)
 
-    embed.at(0)!.setAuthor({
-      name: 'Session ended.',
+    const descriptionSplit = embed.at(0)?.data.description?.split('\n')
+    embed.at(0)?.setDescription(`${descriptionSplit?.[0] ?? ''}`)
+    embed.at(0)?.setAuthor({
+      name: 'Goodbye...⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
       iconURL: inactiveGifUrl
     })
 
     try {
+      await setTimeout(1000)
       await message.edit({
         embeds: [embed.at(0)!],
         components: [buttons]

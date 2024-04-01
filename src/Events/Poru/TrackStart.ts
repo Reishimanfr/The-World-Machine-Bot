@@ -62,8 +62,7 @@ const TrackStart: Event = {
         !firstMessage.embeds.length ||
         !firstMessage.embeds.at(0)?.footer?.text.startsWith('Requested by')
       ) {
-        const message = await player.message?.fetch()
-          .catch(() => null)
+        const message = await player.message.fetch().catch(() => null)
 
         if (message?.deletable) {
           await message.delete()
@@ -75,12 +74,9 @@ const TrackStart: Event = {
     }
 
     if (player.message) {
-      const message = await player.message.fetch()
-        .catch(() => null)
+      const message = await player.message.fetch().catch(() => null)
 
-      if (message) {
-        await message.edit(options)
-      }
+      if (message) await message.edit(options)
     }
 
     player.pauseEditing = false

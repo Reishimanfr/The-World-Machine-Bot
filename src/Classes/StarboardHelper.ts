@@ -41,10 +41,10 @@ export class StarboardHelper {
   private formatReactionString(
     reactionEmoji: ReactionEmoji | GuildEmoji
   ): string {
-    let formattedEmoji = reactionEmoji.animated ? '<a:' : '<:'
+    let formattedEmoji = reactionEmoji.animated ? '<a:' : ''
     
     formattedEmoji += reactionEmoji.id
-      ? `${reactionEmoji.name}:${reactionEmoji.id}>`
+      ? `<:${reactionEmoji.name}:${reactionEmoji.id}>`
       : this.reaction.emoji.name ?? 'Error!'
 
     return formattedEmoji
@@ -181,7 +181,7 @@ export class StarboardHelper {
     return fields
   }
 
-  public async main(): Promise<unknown> {
+  public async main() {
     // Fetch the reaction if it's partial
     const reaction = this.reaction.partial
       ? await this.reaction.fetch()
@@ -233,10 +233,6 @@ export class StarboardHelper {
 
     const dbEntry = await starboardEntries.findOne({ where: { starredMessageUrl: reaction.message.url } })
 
-    const messageDataSplit = await dbEntry?.getDataValue('botMessageUrl').split('/')
-    const messageId = messageDataSplit?.length ? messageDataSplit[messageDataSplit?.length - 1] : null
-    const entryMessage = messageId ? (await boardChannel.messages.fetch(messageId) ?? null) : null
-
     // Basically we confirmed the server uses the starboard by now so it's fine to reset the timeout
     const [timeoutRecord] = await serverStats.findOrCreate({
       where: { guildId: reaction.message.guildId },
@@ -245,12 +241,10 @@ export class StarboardHelper {
 
     timeoutRecord.update({ lastActive: new Date()})
 
-    if (!entryMessage) {
+    if (dbEntry === null) {
       const [member, count, fields, embedImage] = await Promise.all([
         reaction.message.guild?.members.fetch(reaction.message.author!.id),
-        starboardEntries.count({
-          where: { guildId: reaction.message.guildId },
-        }),
+        starboardEntries.count({ where: { guildId: reaction.message.guildId } }),
         this.setFields(),
         this.setImage(reaction),
       ])
@@ -301,11 +295,16 @@ export class StarboardHelper {
         }
 
         await starboardEntries.create(data)
-
       } catch (error) {
         logger.error(`Failed to send starboard message: ${error.stack}`)
       }
-    } else if (entryMessage) {
+    } else {
+      const messageDataSplit = await dbEntry?.getDataValue('botMessageUrl').split('/')
+      const messageId = messageDataSplit?.length ? messageDataSplit[messageDataSplit?.length - 1] : null
+      const entryMessage = messageId ? (await boardChannel.messages.fetch(messageId) ?? null) : null
+
+      if (!entryMessage) return
+
       const embed = EmbedBuilder.from(entryMessage.embeds.at(0)!)
         .setDescription(reactionStrings.join(' • '))
 

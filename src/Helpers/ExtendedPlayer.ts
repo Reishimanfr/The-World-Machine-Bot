@@ -73,7 +73,7 @@ export class ExtPlayer extends Player {
     return this.$message
   }
 
-  set message(message: Message) {
+  set message(message: Message | undefined) {
     this.$message = message
   }
 
@@ -160,12 +160,10 @@ export class MessageManager {
 
     const returnArray: Array<EmbedBuilder> = []
 
-    console.log(info.requester)
-
     returnArray.push(
       new EmbedBuilder()
         .setAuthor({
-          name: info.isStream ? '🔴🎥 Playing a livestream' :  queueOrPlaying,
+          name: info.isStream ? '🔴🎥 Playing a livestream' : queueOrPlaying,
           iconURL: this.player.isPlaying ? playerGifUrl : inactiveGifUrl
         })
         .setTitle(info.title)
@@ -214,35 +212,45 @@ export class MessageManager {
       QUEUE: ButtonStyle.Danger
     }
 
+    const pattern = /<:_:(\d+)>/
+
+    // Used to extract IDs from the emoji strings
+    const icons = Object.fromEntries(
+      Object.entries(this.player.icons).map(([key, value]) => {
+        const matchArray = value.match(pattern)
+        return [key, matchArray![1]]
+      })
+    )
+
     return new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
         new ButtonBuilder()
           .setCustomId('queue')
-          .setEmoji(this.player.icons.queue)
+          .setEmoji(icons.queue)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.queue ?? disableAll),
 
         new ButtonBuilder()
           .setCustomId('togglePlayback')
-          .setEmoji(this.player.isPaused ? this.player.icons.play : this.player.icons.pause)
+          .setEmoji(this.player.isPaused ? icons.play : icons.pause)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.playback ?? disableAll),
 
         new ButtonBuilder()
           .setCustomId('skip')
-          .setEmoji(this.player.icons.skip)
+          .setEmoji(icons.skip)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.skip ?? this.player.loop === 'TRACK' ? true : disableAll),
 
         new ButtonBuilder()
           .setCustomId('loop')
-          .setEmoji(this.player.icons.loop)
+          .setEmoji(icons.loop)
           .setStyle(loopColor[this.player.loop])
           .setDisabled(overrides?.loop ?? disableAll),
 
         new ButtonBuilder()
           .setCustomId('save')
-          .setEmoji(this.player.icons.save)
+          .setEmoji(icons.save)
           .setStyle(ButtonStyle.Primary)
           .setDisabled(overrides?.save ?? disableAll)
       )
@@ -276,10 +284,10 @@ export class PlayerController {
   }
 
   /**
-   * Sets up a player timeout that destroys the player after 10 seconds unless cancelled
+   * Sets up a player timeout that destroys the player after some time
    */
-  public async setupPlayerTimeout() {
-    const playerTimeout = Number(process.env.PLAYER_TIMEOUT) * 60 * 1000
+  public async setupPlayerTimeout(timeoutOverride?: number) {
+    const playerTimeout = timeoutOverride ?? Number(process.env.PLAYER_TIMEOUT) * 60 * 1000
 
     if (playerTimeout <= 0) return
 

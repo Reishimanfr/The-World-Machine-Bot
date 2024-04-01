@@ -5,7 +5,7 @@ declare global {
       LOG_LEVEL: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
       TENOR_API_KEY: string
 
-      CREATE_CUSTOM_EMOJI_GUILD: boolean
+      CUSTOM_EMOJIS_GUILD_ID: string
 
       DATABASE_DIALECT: 'sqlite' | 'postgres'
       DATABASE_HOST: string

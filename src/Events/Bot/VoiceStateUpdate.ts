@@ -27,7 +27,7 @@ const UpdateVoiceState: Event = {
 
     // Everyone left voice
     if (membersWithoutBots.size === 0) {
-      player.controller.setupPlayerTimeout()
+      player.controller.setupPlayerTimeout(60000) // 1 minute for someone to join
     } else {
       player.controller.cancelPlayerTimeout() 
     }
