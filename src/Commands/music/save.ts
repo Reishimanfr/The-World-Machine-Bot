@@ -23,16 +23,15 @@ const save: Command<true> = {
   },
 
   callback: async ({ interaction, player }) => {
-    if (!interaction.guild) return
     await interaction.deferReply({ ephemeral: true })
 
     const member = await interaction.guild.members.fetch(interaction.user.id)
     const status = await player.controller.saveTrack(member, interaction.guild)
 
     const replies = {
-      [SaveStatus.NotPlaying]: 'Nothing is playing right now.',
-      [SaveStatus.DmChannelFailure]: 'I can\'t send you a DM.',
-      [SaveStatus.Success]: 'Song saved to DMs!'
+      [SaveStatus.NotPlaying]: '`❌` - Nothing is playing right now.',
+      [SaveStatus.DmChannelFailure]: '`❌` - I can\'t send you a DM.',
+      [SaveStatus.Success]: '`✅` - Song saved to DMs!'
     }
 
     interaction.editReply({

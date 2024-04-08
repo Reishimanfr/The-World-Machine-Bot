@@ -26,7 +26,7 @@ const pause: Command<true> = {
     player.pause(!player.isPaused)
 
     interaction.reply({
-      content: `${player.isPaused ? 'Resumed.' : 'Paused.'}`,
+      content: `${player.isPaused ? '`▶` - Resumed.' : '`⏸` - Paused.'}`,
       ephemeral: true
     })
 

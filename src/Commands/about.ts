@@ -28,7 +28,6 @@ const about: Command<false> = {
       .map(g => g.memberCount)
       .reduce((prev, cur) => prev + cur)
 
-    const musicCommands = client.commands.filter(c => c.musicOptions).size
     const user = fetchUser.data
 
     const node = client.poru.leastUsedNodes[0]
@@ -38,9 +37,7 @@ const about: Command<false> = {
     client.poru.nodes.forEach(n => nodeNames.push(n.name))
 
     const embed = new EmbedBuilder()
-      .setAuthor({
-        name: 'Some info about the bot and it\'s creator'
-      })
+      .setAuthor({ name: 'Some info about the bot and it\'s creator' })
       .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
       .setDescription(`Hello! I'm **${user.username}**. Thanks for using my bot!\nI'm a small, aspiring programmer from poland that aims to provide the fastest and easiest to use applications that I can possibly deliver!\nIf you want to see any other projects I've made check out my **[GitHub profile](https://github.com/reishimanfr)**\nIf you'd like to sponsor my work for just 1$ check my **[buy me a coffee page](https://buymeacoffee.com/reishimanfr)**!\n### ✨ Some stats related to the bot below:`)
       .setFields([

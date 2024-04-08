@@ -1,5 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { embedColor } from '../../Helpers/Util'
+import { SlashCommandBuilder } from 'discord.js'
 import { Command } from '../../Types/Command'
 
 const remove: Command<true> = {
@@ -75,13 +74,7 @@ const remove: Command<true> = {
     }
 
     await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription(
-            `[ Removed position(s) \`${input}\` from the queue. ]`
-          )
-          .setColor(embedColor)
-      ],
+      content: `\`✅\` - Track(s) \`#${input}\` removed from queue.`,
       ephemeral: true
     })
 

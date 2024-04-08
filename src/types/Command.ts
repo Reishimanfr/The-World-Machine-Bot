@@ -6,6 +6,8 @@ export interface Command<T = true> {
   // Command data
   data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder
 
+  disabled?: boolean
+
   helpData?: {
     description: string
     examples?: string[]
@@ -34,9 +36,9 @@ export interface Command<T = true> {
 
   // Callback functions
   callback: (args: Readonly<{
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction<'cached'>
     client: Bot
     player: T extends true ? ExtPlayer : null
   }>) => any
-  autocomplete?: (interaction: AutocompleteInteraction) => any
+  autocomplete?: (interaction: AutocompleteInteraction<'cached'>) => any
 }

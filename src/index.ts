@@ -51,8 +51,7 @@ cron.schedule('0 0 * * *', async () => {
     })
 
     // Don't leave it's own server lmao
-    const ownServer = guilds.find(g => g.name.endsWith('-emojis'))
-    if (record.getDataValue('guildId') === ownServer?.id) continue 
+    if (record.getDataValue('guildId') === process.env.CUSTOM_EMOJIS_GUILD_ID) continue 
 
     const now = new Date()
     const nowPlusMonths = now.setMonth(now.getMonth() + 3)

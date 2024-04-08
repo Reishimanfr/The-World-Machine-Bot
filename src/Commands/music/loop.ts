@@ -34,13 +34,13 @@ const loop: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     const loopString = {
-      NONE: 'Looping disabled',
-      TRACK: 'Looping this track',
-      QUEUE: 'Looping the queue'
+      NONE: '`🟦` - Looping disabled',
+      TRACK: '`🟩` - Looping this track',
+      QUEUE: '`🟥` - Looping the queue'
     }
 
     player.controller.toggleLoop()
-    void player.messageManger.updatePlayerMessage()
+    player.messageManger.updatePlayerMessage()
 
     await interaction.reply({
       content: loopString[player.loop],

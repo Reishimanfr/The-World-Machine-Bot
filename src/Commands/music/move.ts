@@ -29,7 +29,7 @@ const move: Command = {
 
     if (curChannel === newChannel.id) {
       return interaction.reply({
-        content: 'Can\'t move to the same channel I\'m currently in!.',
+        content: '`❌` - Can\'t move to the same channel I\'m currently in!.',
         ephemeral: true
       })
     }
@@ -40,7 +40,7 @@ const move: Command = {
 
     if (!fetchChannel.joinable) {
       return interaction.reply({
-        content: 'I can\'t join that voice channel!',
+        content: '`❌` - I can\'t join that voice channel!',
         ephemeral: true
       })
     }
@@ -48,7 +48,7 @@ const move: Command = {
     player.setVoiceChannel(fetchChannel.id)
 
     interaction.reply({
-      content: `Moved to channel <#${fetchChannel.id}>!\n:information_source: Notice: music playback has been paused. Resume it using the \`/pause\` command when you're ready!`,
+      content: `\`✅\` - Moved to channel <#${fetchChannel.id}>!\n:information_source: Notice: music playback has been paused. Resume it using the \`/resume\` command when you're ready!`,
       ephemeral: true
     })
   }

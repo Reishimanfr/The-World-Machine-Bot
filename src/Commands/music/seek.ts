@@ -1,39 +1,18 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { embedColor } from '../../Helpers/Util'
+import { SlashCommandBuilder } from 'discord.js'
 import { Command } from '../../Types/Command'
 
-// Check if string is in HH?:MM:SS format
-function validateTimestamp (timestamp: string): boolean {
-  const parts = timestamp.split(':')
+function convertToSeconds(timestamp: string): number {
+  const match = timestamp.match(/^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$/)
 
-  if (![3, 2].includes(parts.length)) return false
+  console.log(match)
 
-  return true
-}
+  if (match === null) return -1
 
-function convertToSeconds (timestamp: string): number {
-  const parts = timestamp.split(':')
-  if (parts.length === 2) {
-    // If the timestamp is in "MM:SS" format, assume hours part is 0.
-    parts.unshift('0')
-  } else if (parts.length !== 3) {
-    return 0
-  }
+  const hours = parseInt(match[1])
+  const minutes = parseInt(match[2])
+  const seconds = parseInt(match[3])
 
-  const hours = parseInt(parts[0])
-  const minutes = parseInt(parts[1])
-  const seconds = parseInt(parts[2])
-
-  if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-    return 0
-  }
-
-  if (hours < 0 || minutes < 0 || seconds < 0 || minutes > 59 || seconds > 59) {
-    return 0
-  }
-
-  const totalSeconds = hours * 3600 + minutes * 60 + seconds
-  return totalSeconds
+  return (!isNaN(hours) ? hours * 3600 : 0) + (!isNaN(minutes) ? minutes * 60 : 0) + seconds
 }
 
 const seek: Command<true> = {
@@ -54,6 +33,10 @@ const seek: Command<true> = {
       `> **Seek to a specific timestamp (HH:MM:SS or MM:SS format)**
       \`\`\`/seek
       time: 2:30\`\`\``,
+
+      `> **Seek to the 15th second**
+      \`\`\`/seek
+      time: 15\`\`\``,
 
       `> **Seek 15 seconds forward**
       \`\`\`/seek
@@ -79,58 +62,56 @@ const seek: Command<true> = {
 
     // You never know
     if (!player.currentTrack.info.isSeekable) {
-      return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ This track is not seekable. ]')
-            .setColor(embedColor)
-        ],
+      return interaction.reply({ 
+        content: '`❌` - This track isn\'t seekable.',
         ephemeral: true
       })
     }
 
-    if (!player.isPlaying) {
+    if (player.currentTrack.info.isStream) {
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Nothing is playing right now. ]')
-            .setColor(embedColor)
-        ]
+        content: '`❌` - Seeking live streams isn\'t supported yet.',
+        ephemeral: true
       })
     }
 
-    const seconds = interaction.options.getString('time', true)
+    const timestamp = interaction.options.getString('time', true)
+    const timestampToSeconds = convertToSeconds(timestamp)
 
-    let pos: number
-    let responseString: string
+    console.log(timestampToSeconds)
 
-    if (validateTimestamp(seconds)) {
-      pos = convertToSeconds(seconds) * 1000
-      responseString = `Seeked to ${seconds}`
-    } else if (['+', '-'].includes(seconds.charAt(0))) {
-      const direction = seconds.startsWith('-') ? -1 : 1
-      const time = parseInt(seconds.slice(1)) * 1000
+    if (timestamp.startsWith('+') || timestamp.startsWith('-')) {
+      const direction = timestamp.startsWith('-') ? -1 : 1
+      const seconds = Number(timestamp.substring(1)) // Remove the first character
+    
+      if (isNaN(seconds)) {
+        return interaction.reply({
+          content: '`❌` - Invalid time format. Must be `-<seconds>` or `+<seconds>`',
+          ephemeral: true
+        })
+      }
 
-      pos = player.position + direction * time
-      responseString = `Seeked ${seconds.slice(1)} ${direction === 1 ? 'forward' : 'backwards'
-      }`
+      const playerPos = player.position / 1000
+      const newPosition = playerPos + (seconds * direction)
+      player.seekTo(newPosition * 1000)
+
+      return interaction.reply({
+        content: `\`✅\` - Seeked by \`${seconds}s\` ${direction === 1 ? 'forward': 'backwards'}.`,
+        ephemeral: true
+      })
+    } else if (timestampToSeconds !== -1) {
+      player.seekTo(timestampToSeconds * 1000)
+
+      return interaction.reply({
+        content: `\`✅\`- Seeked to \`${timestamp}\`.`,
+        ephemeral: true
+      })
     } else {
       return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription('[ Invalid timestamp. ]')
-            .setColor(embedColor)
-        ],
+        content: '`❌` - Invalid timestamp provided. Must be in format `HH:MM:SS`, `MM:SS`, `-<seconds>` or `+<seconds>`.',
         ephemeral: true
       })
     }
-
-    player.seekTo(pos)
-
-    await interaction.reply({
-      content: responseString,
-      ephemeral: true
-    })
   }
 }
 

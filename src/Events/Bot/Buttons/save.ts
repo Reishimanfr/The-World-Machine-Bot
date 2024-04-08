@@ -9,7 +9,6 @@ const save: Button = {
   },
 
   run: async ({ interaction, player }) => {
-    if (!interaction.guild) return
     await interaction.deferReply({ ephemeral: true })
   
     const member = await interaction.guild.members.fetch(interaction.user.id)

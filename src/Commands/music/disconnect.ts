@@ -15,7 +15,7 @@ const disconnect: Command<true> = {
 
   data: new SlashCommandBuilder()
     .setName('disconnect')
-    .setDescription('Destroys the player and disconnects the bot.'),
+    .setDescription('Disconnects the bot from the voice channel and ends the session.'),
 
   helpData: {
     description: 'Disconnects the bot from voice channel ending the session.',
@@ -24,10 +24,7 @@ const disconnect: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     player.disconnect()
-
-    await interaction.reply({
-      content: 'The bot has been disconnected.'
-    })
+    await interaction.reply('`✅` - The bot has been disconnected from voice channel.')
   }
 }
 

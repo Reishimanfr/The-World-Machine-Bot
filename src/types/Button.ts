@@ -13,7 +13,7 @@ export interface Button {
     requiresDjRole?: boolean
   }
   run: (args: {
-    interaction: ButtonInteraction,
+    interaction: ButtonInteraction<'cached'>,
     player: ExtPlayer,
     client: Bot
   }) => Promise<any>

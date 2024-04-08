@@ -25,7 +25,7 @@ const queue: Command<true> = {
   callback: async ({ interaction, player }) => {
     if (!player.queue.length) {
       return interaction.reply({
-        content: 'The queue is empty.',
+        content: '`❌` - The queue is empty.',
         ephemeral: true
       })
     }
@@ -34,7 +34,7 @@ const queue: Command<true> = {
 
     if (!embeds?.length) {
       return interaction.reply({
-        content: 'Something went wrong.',
+        content: '`⚠` - Something went wrong.',
         ephemeral: true
       })
     }
@@ -66,7 +66,7 @@ const queue: Command<true> = {
 
     if (!embeds[page]) {
       return interaction.reply({
-        content: 'Something went wrong while running this command!',
+        content: '`⚠` - Embed page doesn\'t exist',
         ephemeral: true
       })
     }

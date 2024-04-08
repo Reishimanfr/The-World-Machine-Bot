@@ -29,29 +29,18 @@ const nowPlaying: Command<true> = {
 
     if (!channel.isTextBased()) {
       return interaction.reply({
-        content: 'You have to use this command in a text channel.',
+        content: '`❌` - You have to use this command in a text channel.',
         ephemeral: true
       })
     }
 
-    if (channel.isDMBased()) {
-      return interaction.reply({
-        content: 'You can\'t use this command in DMs.'
-      })
-    }
+    if (channel.isDMBased()) return // Impossible case since all / commands are disabled in DMs
 
     const permissions = channel.permissionsFor(client.user.id)
 
-    if (permissions === null) {
+    if (!permissions?.has('SendMessages')) {
       return interaction.reply({
-        content: 'Something went wrong while checking bot permissions.',
-        ephemeral: true
-      })
-    }
-
-    if (!permissions.has('SendMessages')) {
-      return interaction.reply({
-        content: 'I can\'t send messages in this channel.',
+        content: '`❌` - I can\'t send messages in this channel.',
         ephemeral: true
       })
     }
@@ -60,7 +49,7 @@ const nowPlaying: Command<true> = {
       .catch(() => { })
 
     interaction.reply({
-      content: 'The now playing message has been re-sent.',
+      content: '`✅` - The now playing message has been re-sent.',
       ephemeral: true
     })
 

@@ -27,26 +27,30 @@ const skip: Command<true> = {
     examples: ['```/skip```']
   },
 
-  callback: async ({ interaction, player }) => {
-    if (interaction.channel?.type !== ChannelType.GuildText) {
+  callback: async ({ interaction, player, client }) => {
+    if (!interaction.channel?.isTextBased()) {
       return interaction.reply({
-        content: 'This command must be ran in a text channel so the bot can send a voting message.',
+        content: '`❌` - This command must be ran in a text channel so the bot can send a voting message.',
+        ephemeral: true
+      })
+    }
+
+    const permissions = interaction.channel.permissionsFor(client.user.id)
+
+    if (!permissions?.has('SendMessages')) {
+      return interaction.reply({
+        content: '`❌` - I can\'t send messages in this channel.',
         ephemeral: true
       })
     }
 
     const member = await interaction.guild?.members.fetch(interaction.user.id)
 
-    if (!member?.voice.channel) {
-      return interaction.reply({
-        content: 'You must be in a voice channel to use this command.',
-        ephemeral: true
-      })
-    }
+    if (!member?.voice.channel) return // Typeguard 
 
     if (player.votingActive) {
       return interaction.reply({
-        content: 'There\'s a vote skip in progress already!',
+        content: '`❌` - There\'s a vote skip in progress already!',
         ephemeral: true
       })
     }
@@ -56,7 +60,7 @@ const skip: Command<true> = {
 
     if (requiredVotes > 1) {
       await interaction.reply({
-        content: 'Waiting for members to place their votes...',
+        content: '`⌛` - Waiting for members to place their votes...',
         ephemeral: true
       })
 
@@ -66,7 +70,7 @@ const skip: Command<true> = {
         interaction,
         reason: 'Wants to skip the current song',
         requiredVotes,
-        voiceText: interaction.channel,
+        voiceText: interaction.channel as any,
         voiceChannel: member.voice.channel,
         time: 60000
       })
@@ -75,25 +79,25 @@ const skip: Command<true> = {
 
       switch (status) {
         case VoteStatus.Success: {
-          interaction.editReply(`Song **${player.currentTrack.info.title}** skipped.`)
+          interaction.editReply(`\`✅\` - Song **${player.currentTrack.info.title}** skipped.`)
           player.stop()
           break
         }
 
         case VoteStatus.Failure: {
-          interaction.editReply('Other members didn\'t agree to skip the current song.')
+          interaction.editReply('`❌` - Other members didn\'t agree to skip the current song.')
           break
         }
 
         case VoteStatus.Error: {
           logger.error(`Failed to finish skip voting: ${error?.stack}`)
-          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+          interaction.editReply(`\`⚠\` - Voting failed with an error (report this!): \`\`\`${error?.stack}\`\`\``)
           break
         }
       }
     } else {
       interaction.reply({
-        content: `Song **${player.currentTrack.info.title}** skipped.`,
+        content: `\`✅\` - Song **${player.currentTrack.info.title}** skipped.`,
         ephemeral: true
       })
       player.stop()

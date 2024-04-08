@@ -30,7 +30,7 @@ const volume: Command<true> = {
     await player.setVolume(volume)
     
     interaction.reply({
-      content: `Volume set to \`${volume}%\``,
+      content: `\`✅\` - Volume set to \`${volume}%\``,
       ephemeral: true
     })
   }

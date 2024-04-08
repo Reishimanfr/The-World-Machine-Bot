@@ -1,7 +1,7 @@
-import { Client, ClientOptions, Collection } from 'discord.js'
+import { Client, ClientOptions, Collection, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js'
 import { logger } from '../Helpers/Logger'
 import { NodeGroup, Poru } from 'poru'
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'fs'
+import { readdirSync, statSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { Event } from '../Types/Event'
 import { Command } from '../Types/Command'
@@ -42,6 +42,8 @@ class Bot extends Client<true> {
 
         if (!mod) {
           logger.warn(`Module ${file} doesn't have a default export. Skipping...`)
+        } else if (mod?.disabled) {
+          logger.warn(`Ignoring disabled module ${file}.`)
         } else {
           modFiles.push(mod)
         }
@@ -52,7 +54,6 @@ class Bot extends Client<true> {
   }
 
   public async createIcons() {
-    console.log(process.env.CUSTOM_EMOJIS_GUILD_ID)
     if (!process.env.CUSTOM_EMOJIS_GUILD_ID) {
       logger.fatal(`You haven't provided a guild ID to store custom emojis in. Please create a new empty guild and pass it's ID inside of the .env file in the CUSTOM_EMOJIS_GUILD_ID property.`)
       process.exit(1)
@@ -69,7 +70,7 @@ class Bot extends Client<true> {
     const botPerms = emojisGuild.members.me?.permissions
 
     if (!botPerms?.has('ManageEmojisAndStickers')) {
-      logger.fatal(`I'm missing the manager emojis and stickers permission`)
+      logger.fatal(`I'm missing the manage emojis and stickers permission. Please give me the required permissions.`)
       process.exit(1)
     }
 
@@ -80,43 +81,37 @@ class Bot extends Client<true> {
     if (emojis.size === assets.length) return logger.debug(`Emojis guild already exists.`)
 
     if (emojis.size > 0) {
-      logger.warn(`In 15 seconds the bot will start deleting all emojis from server ${emojisGuild.name} (${emojisGuild.id}). If you do not want this to happen press ctrl+c and change the CUSTOM_EMOJIS_GUILD_ID property in the .env file.`)
-      await setTimeout(15000)
-  
-      logger.warn(`Deleting all emojis from ${emojisGuild.name} (${emojisGuild.id})`)
-  
-      for (const [_, emoji] of emojis) {
-        await setTimeout(250) // To send less spam requests
-        await emoji.delete()
-          .then(_ => logger.debug(`Deleted emoji -> ${emoji.name} (${emoji.toString()})`))
-          .catch(error => logger.error(`Failed to delete emoji -> ${emoji.name} (${emoji.toString()}): ${error.stack}`)) 
-      }
+      logger.fatal(`Guild ${emojisGuild.name} (${emojisGuild.id}) already has emojis in it. Please remove all emojis or create a new empty server.`)
+      process.exit(1)
     }
 
-    logger.warn(`Adding ${assets.length} emojis to ${emojisGuild.name} (${emojisGuild.id}) now...`)
+    logger.warn(`Adding ${assets.length} emojis to ${emojisGuild.name} (${emojisGuild.id}) in 10 seconds...`)
+    await setTimeout(10000)
 
     let emojisData = {}
 
     for (const file of assets) {
       const fullPath = join(__dirname, `../Assets/${file}`)
 
+      await setTimeout(100) // To spam the api less
+      const name = file.split('.')[0] // Remove extension
+
       await emojisGuild.emojis.create({
         attachment: fullPath,
-        name: file.split('.')[0] // Remove extension
+        name: name
       })
       .then(_ => {
         logger.debug(`Created emoji -> ${_.name} (${_.toString()})`)
-        emojisData[file.split('.')[0]] = _.toString()
+        emojisData[name] = _.toString()
       })
       .catch(error => {
-        logger.error(`Failed to create emoji from file ${file}: ${error.stack}`)
-        emojisData[file.split('.')[0]] = '⚠' // I never tested this :3
+        logger.error(`Failed to create emoji from file ${file} falling back to default icon: ${error.stack}`)
+        emojisData[name] = '⚠' // I never tested this :3
       })
     }
 
     writeFileSync(join(__dirname, '../../icons.json'), JSON.stringify(emojisData, null, 2), 'utf-8')
 
-    logger.debug(`All done! Saving new emoji data to icons.json now...`)
     logger.info(`Icon file saved.`)
     logger.info(`You can use the bot as normal now!`)
   }
@@ -167,6 +162,23 @@ class Bot extends Client<true> {
     }
 
     this.createIcons()
+  }
+
+  public async registerCommands(token: string) {
+    logger.info('Registering (/) commands...')
+
+    await this.login(token)
+
+    const commandModFiles = this.loadModFiles<Command>(COMMANDS_PATH, true)
+    const jsonData: RESTPostAPIChatInputApplicationCommandsJSONBody[] = commandModFiles.map(m => m.data.setDMPermission(false).toJSON())
+
+    await new REST()
+      .setToken(token)
+      .put(Routes.applicationCommands(this.user.id), { body: jsonData })
+      .then(_ => logger.info('Success!'))
+      .catch(error => logger.error(`Failed to register (/) commands: ${error.stack}`))
+
+    process.exit()
   }
 }
 

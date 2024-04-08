@@ -51,7 +51,7 @@ const play: Command = {
   },
 
   callback: async ({ interaction, client }) => {
-    if (!interaction.guild || !interaction.channel) return // Typeguard
+    if (!interaction.channel) return // Typeguard
     await interaction.deferReply({ ephemeral: true })
 
     const member = await interaction.guild.members.fetch(interaction.user.id)
@@ -92,18 +92,18 @@ const play: Command = {
 
     switch (loadType) {
       case 'error': {
-        return interaction.editReply(`Failed to load track. Possible solutions:\n* Double-check if the URL/search query is correct\n* Make sure the video/song is available\nLavalink response data (send this to the bot's developer!):\`\`\`${JSON.stringify(fullResponse, null, 2)}\`\`\``)
+        return interaction.editReply(`\`⚠\` - Failed to load track. Possible solutions:\n* Double-check if the URL/search query is correct\n* Make sure the video/song is available\nLavalink response data (send this to the bot's developer!):\`\`\`${JSON.stringify(fullResponse, null, 2)}\`\`\``)
       }
 
       case 'empty': {
-        return interaction.editReply(`No results for \`${query}\`.`)
+        return interaction.editReply(`\`❌\` - No results for \`${query}\`.`)
       }
 
       case 'search':
       case 'track': {
         player.queue.add(tracks[0])
 
-        await interaction.editReply(`Track \`${tracks[0].info.title} - ${tracks[0].info.author}\` added to the queue.`)
+        await interaction.editReply(`\`✅\` - Track \`${tracks[0].info.title} - ${tracks[0].info.author}\` added to the queue.`)
         break
       }
 
@@ -124,7 +124,7 @@ const play: Command = {
           )
 
         const response = await interaction.reply({
-          content: `This link seems to lead to a playlist. Do you want to load it?`,
+          content: `\`❓\` - This link seems to lead to a playlist. Do you want to load it?`,
           components: [buttons]
         })
 
@@ -136,7 +136,7 @@ const play: Command = {
 
         if (button.customId === 'load') {
           await interaction.editReply({
-            content: `Playlist loaded!. **${tracks.length}** tracks were added to the queue.`,
+            content: `\`✅\` - Playlist loaded. **${tracks.length}** tracks were added to the queue.`,
             components: []
           })
 
@@ -145,7 +145,7 @@ const play: Command = {
           }
         } else {
           await interaction.editReply({
-            content: 'Playlist discarded.',
+            content: '\`❌\` - `Playlist discarded.',
             components: []
           })
         }

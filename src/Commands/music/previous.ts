@@ -14,18 +14,21 @@ const previous: Command = {
   callback: async ({ interaction, player }) => {
     if (!player.previousTrack) {
       return interaction.reply({
-        content: 'There are no previous tracks in the queue.',
+        content: '`❌` - Previous track not available.',
         ephemeral: true
       })
     }
 
     await interaction.reply({
-      content: 'Playing the previous track now.',
+      content: '`✅` - The previous track will now play.',
       ephemeral: true
     })
 
-    player.queue = [player.previousTrack, player.currentTrack, ...player.queue] as any
+    player.queue.length = 0
+    player.queue.push(player.previousTrack, ...player.queue)
     player.stop() // "skip"
+
+    if (!player.isPlaying) player.play()
   }
 }
 

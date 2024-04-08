@@ -24,7 +24,7 @@ const shuffle: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     player.queue.shuffle()
-    await interaction.reply({ content: 'Queue shuffled!', ephemeral: true })
+    await interaction.reply({ content: '`✅` - Queue shuffled!', ephemeral: true })
   }
 }
 

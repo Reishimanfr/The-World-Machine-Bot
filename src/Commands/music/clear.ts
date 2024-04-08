@@ -25,7 +25,7 @@ const clear: Command<true> = {
   callback: async ({ interaction, player }) => {
     if (player.queue.length <= 0) {
       return interaction.reply({
-        content: 'Nothing to clear.',
+        content: '`❌` - Nothing to clear.',
         ephemeral: true
       })
     }
@@ -33,7 +33,7 @@ const clear: Command<true> = {
     player.queue.length = 0
 
     await interaction.reply({
-      content: 'Queue cleared.',
+      content: '`✅` - Queue cleared.',
       ephemeral: true
     })
   }

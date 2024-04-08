@@ -52,37 +52,31 @@ const skipTo: Command<true> = {
 
     if (!player.queue.at(position - 1)) {
       return interaction.reply({
-        content: 'There isn\'t a song in the position you specified.',
+        content: '`❌` - No song in the provided position.',
         ephemeral: true
       })
     }
 
     const member = await interaction.guild?.members.fetch(interaction.user.id)
 
-    if (!member?.voice.channel) {
-      return interaction.reply({
-        content: 'You must be in a voice channel to use this command.',
-        ephemeral: true
-      })
-    }
+    if (!member?.voice.channel) return // Typeguard
 
     const nonBotMembers = member.voice.channel.members.filter(m => !m.user.bot).size
     const requiredVotes = Math.round(nonBotMembers * (player.settings.voteSkipThreshold / 100))
+    const song = player.queue.at(position - 1) as Track
 
     if (requiredVotes > 1) {
       if (player.votingActive) {
         return interaction.reply({
-          content: 'There\'s a voting in progress already!',
+          content: '`❌` - There\'s a voting in progress already!',
           ephemeral: true
         })
       }
 
       await interaction.reply({
-        content: 'Waiting for members to place their votes...',
+        content: '`⌛` - Waiting for members to place their votes...',
         ephemeral: true
       })
-
-      const song = player.queue.at(position - 1) as Track
 
       player.votingActive = true
 
@@ -99,41 +93,34 @@ const skipTo: Command<true> = {
 
       switch (status) {
         case VoteStatus.Success: {
-          interaction.editReply(`Skipped to song **${song.info.title}**.`)
+          interaction.editReply(`\`✅\` - Skipped to song \`${song.info.title}\`.`)
           player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
           player.stop()
           break
         }
 
         case VoteStatus.Failure: {
-          interaction.editReply('Other members didn\'t agree to skip to this song.')
+          interaction.editReply('`❌` - Other members didn\'t agree to skip to this song.')
           break
         }
 
         case VoteStatus.Error: {
           logger.error(`Failed to finish skipto voting: ${error?.stack}`)
-          interaction.editReply(`Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+          interaction.editReply(`\`⚠\` - Voting failed with a error: \`\`\`${error?.message}\`\`\``)
           break
         }
       }
     } else {
-      player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
       player.stop()
 
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setDescription(`[ Skipped to song **${player.queue.at(0)!.info.title}**. ]`)
-            .setColor(embedColor)
-        ],
+      interaction.reply({
+        content: `\`✅\` - Skipped to track \`${song.info.title}\`.`,
         ephemeral: true
       })
     }
   },
 
   autocomplete: async (interaction) => {
-    if (!interaction.guild) return
-
     const player = client.poru.players.get(interaction.guild.id)
     const queue = player?.queue
 

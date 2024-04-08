@@ -17,6 +17,9 @@ const InteractionCreate: Event = {
   name: Events.InteractionCreate,
   once: false,
   execute: async (interaction: Interaction) => {
+    // Typeguard because we use the guild intents
+    if (!interaction.inCachedGuild()) return 
+
     const [record] = await serverStats.findOrCreate({
       where: { guildId: interaction.guildId },
       defaults: { guildId: interaction.guildId, lastActive: new Date() }
@@ -34,12 +37,12 @@ const InteractionCreate: Event = {
     try {
       await handler(interaction)
     } catch (error) {
-      logger.error(`Interaction failed with error: ${error.stack}`)
+      console.error(`Interaction failed with error: ${error}`)
     }
   }
 }
 
-async function Autocomplete(interaction: AutocompleteInteraction) {
+async function Autocomplete(interaction: AutocompleteInteraction<'cached'>) {
   const cmd = client.commands.get(interaction.commandName)
 
   if (cmd?.autocomplete) {
@@ -51,9 +54,7 @@ async function Autocomplete(interaction: AutocompleteInteraction) {
   }
 }
 
-async function Button(interaction: ButtonInteraction) {
-  if (!interaction.guild) return
-
+async function Button(interaction: ButtonInteraction<'cached'>) {
   const button = client.musicButtons.find(b => b.name === interaction.customId)
 
   if (!button) return
@@ -97,7 +98,8 @@ async function Button(interaction: ButtonInteraction) {
 }
 
 async function CommandInteraction(interaction: ChatInputCommandInteraction) {
-  if (!interaction.guild) return
+  if (!interaction.inCachedGuild()) return
+  
   const cmd = client.commands.get(interaction.commandName)
 
   if (!cmd) {

@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 import { Model } from 'sequelize'
-import { PlayerSettings, SponsorBlockDb } from '../Models'
-import { Command } from '../Types/Command'
+import { PlayerSettings, SponsorBlockDb } from '../../Models'
+import { Command } from '../../Types/Command'
 
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold', 'sponsorBlockConfig']
 
