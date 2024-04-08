@@ -5,21 +5,18 @@
  <a href="https://discord.com/api/oauth2/authorize?client_id=1073607844265476158&permissions=3426368&scope=bot">Invite link</a> |
  <a href="https://discord.gg/9VyyCkMSFP">Support Server</a> |
  <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Features">Feature list<a/> |
-  <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> |
-  <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
+ <a href="https://github.com/Reishimanfr/TWM-bot/wiki/Gallery">Gallery</a> |
+ <a href="https://github.com/Reishimanfr/The-World-Machine-Bot/wiki/Update-logs">Update logs</a>
  
-<i>A Discord music bot made with ❤️ by Rei!</i><be>
+<i>A Discord music bot made with ❤️ by Rei!</i><br>
 
 <p align="center">
- <a href="https://nodejs.org/en/download/">
-  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white">
- </a>
- <a href="https://discord.js.org/#/">
-  <img src="https://img.shields.io/badge/Discord.js-7289DA?style=for-the-badge&logo=discord&logoColor=white">
- </a>
- <a href="https://www.docker.com/">
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
- </a>
+<a href="https://discord.com/oauth2/authorize?client_id=1073607844265476158"><img src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&label=Add%20bot&labelColor=1b1c1d&logo=discord&logoColor=white&color=4c73df" alt="Invite twm to server"></a>&nbsp;
+ <a href="https://discord.gg/9VyyCkMSFP"><img src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&label=Support%20server&labelColor=1b1c1d&logo=discord&logoColor=white&color=4c73df" alt="Support server"></a>&nbsp;
+<br>
+    <a href="https://github.com/reishimanfr/the-world-machine-bot/releases"><img src="https://img.shields.io/github/package-json/v/reishimanfr/the-world-machine-bot/main?style=for-the-badge&label=Version&labelColor=1b1c1d&logo=github&logoColor=white&color=4c73df" alt="twm bot release version"></a>&nbsp;
+  <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/reishimanfr/the-world-machine?style=for-the-badge&logo=docker&color=4c73df&labelColor=1b1c1d">
+
 </p>
 
 ## ⭐ Features
