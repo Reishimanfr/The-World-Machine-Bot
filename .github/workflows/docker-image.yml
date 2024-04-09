@@ -17,4 +17,5 @@ jobs:
 
       - name: publish
         run: |
+          docker login -u reishimanfr -p ${{ secrets.DOCKER_TOKEN }}
           docker push reishimanfr/the-world-machine:latest
