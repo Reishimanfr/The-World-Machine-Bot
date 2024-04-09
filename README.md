@@ -72,6 +72,14 @@ services:
       # to embed tenor gifs. You can safely ignore it.
       - TENOR_API_KEY=null
 
+      # Create a new empty guild and paste it's ID here. You
+      # only have to do this once.
+      - CUSTOM_EMOJIS_GUILD_ID=
+
+      # This changes if the bot should leave servers where it's
+      # been inactive for 3 months.
+      - LEAVE_INACTIVE_GUILDS=true
+
       # Don't change these unless you know what you're doing
       - LOG_LEVEL=info      
       # Lavalink stuff
