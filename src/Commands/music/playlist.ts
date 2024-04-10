@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, StringSelectMenuOptionBuilder, Message } from 'discord.js'
-import { Command } from '../Types/Command'
-import { PlaylistManager, PlaylistResponse } from '../Classes/PlaylistManager'
-import { playlists } from '../Models'
+import { Command } from '../../Types/Command'
+import { PlaylistManager, PlaylistResponse } from '../../Classes/PlaylistManager'
+import { playlists } from '../../Models'
 
 const buttons = [
   new ButtonBuilder()

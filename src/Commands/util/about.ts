@@ -1,7 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { Command } from '../Types/Command'
+import { Command } from '../../Types/Command'
 import axios from 'axios'
-import { TimeFormatter } from '../Classes/TimeFormatter'
+import { TimeFormatter } from '../../Classes/TimeFormatter'
 import { NodeStats } from 'poru'
 
 function formatBlock(string: string): `\`\`\`${string}\`\`\`` {

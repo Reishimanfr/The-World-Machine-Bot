@@ -25,7 +25,10 @@ const InteractionCreate: Event = {
       defaults: { guildId: interaction.guildId, lastActive: new Date() }
     })
 
-    record.update({ lastActive: new Date() })
+    console.log(`last active: ${record.getDataValue('lastActive')}`)
+
+    record.update({ lastActive: new Date() }, { where: { guildId: interaction.guild.id }})
+
 
     const handler = InteractionMap[interaction.type]
 

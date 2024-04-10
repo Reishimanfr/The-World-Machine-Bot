@@ -4,8 +4,6 @@ import { Command } from '../../Types/Command'
 function convertToSeconds(timestamp: string): number {
   const match = timestamp.match(/^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$/)
 
-  console.log(match)
-
   if (match === null) return -1
 
   const hours = parseInt(match[1])
@@ -77,8 +75,6 @@ const seek: Command<true> = {
 
     const timestamp = interaction.options.getString('time', true)
     const timestampToSeconds = convertToSeconds(timestamp)
-
-    console.log(timestampToSeconds)
 
     if (timestamp.startsWith('+') || timestamp.startsWith('-')) {
       const direction = timestamp.startsWith('-') ? -1 : 1

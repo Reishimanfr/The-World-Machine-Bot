@@ -39,7 +39,7 @@ export const TranslateSponsorBlockNames = {
   sponsor: 'Sponsored portion'
 } as const
 
-const music: Command = {
+const player_config: Command = {
   permissions: {
     user: ['ManageGuild'],
     bot: ['SendMessages', 'AttachFiles']
@@ -404,4 +404,4 @@ async function sponsorBlockConfig(interaction: ChatInputCommandInteraction) {
   })
 }
 
-export default music
+export default player_config

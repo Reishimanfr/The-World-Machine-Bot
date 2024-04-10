@@ -40,9 +40,7 @@ class PlaylistManager {
   public async getAllPlaylists(userId: string): Promise<[Array<Playlist>?, Error?]> {
     try {
       const allPlaylists = await playlists.findAll({
-        where: {
-          userId: userId
-        }
+        where: { userId: userId }
       })
 
       const playlistsArray: Array<Playlist> = allPlaylists.map(playlist => {

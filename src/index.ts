@@ -3,6 +3,7 @@ import { validateConfig } from './Funcs/ConfigValidator'
 import { Bot } from './Classes/Bot'
 import cron from 'node-cron'
 import { serverStats, ServerStatsI } from './Models'
+import sequelize from './Models/Connection'
 require('dotenv').config()
 
 export const client = new Bot({
@@ -41,7 +42,7 @@ client.initialize(process.env.BOT_TOKEN)
 // This is ran every day and leaves inactive servers due to the
 // 100 guilds limit set for unverified bots.
 // You can disable this through the .env file
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('*/5 * * * * *', async () => {
   const guilds = await client.guilds.fetch()
 
   for (const [_, guild] of guilds) {
@@ -54,12 +55,14 @@ cron.schedule('0 0 * * *', async () => {
     if (record.getDataValue('guildId') === process.env.CUSTOM_EMOJIS_GUILD_ID) continue 
 
     const now = new Date()
-    const nowPlusMonths = now.setMonth(now.getMonth() + 3)
     const data: ServerStatsI = record.dataValues
 
-    if (data.lastActive.getTime() >= nowPlusMonths) {
+    const date = data.lastActive
+    const threeMonthsLater = date.setMonth(date.getMonth() + 3)
+
+    if (now.getTime() >= threeMonthsLater) {
       Promise.all([
-        client.guilds.fetch(data.guildId).then(_ => _.leave()),
+        client.guilds.fetch(data.guildId).then(guild => guild.leave().catch(() => {})),
         serverStats.destroy({ where: { id: data.id } })
       ])
     }

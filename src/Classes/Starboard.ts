@@ -16,7 +16,7 @@ import { serverStats, starboardConfig, starboardEntries } from '../Models'
 import { logger } from '../Helpers/Logger'
 import { client } from '..'
 
-type ReactionOrPart = MessageReaction | PartialMessageReaction;
+type ReactionOrPart = MessageReaction | PartialMessageReaction
 
 interface ConfigOptions {
   boardId: string,
@@ -42,7 +42,7 @@ export class StarboardHelper {
     reactionEmoji: ReactionEmoji | GuildEmoji
   ): string {
     let formattedEmoji = reactionEmoji.animated ? '<a:' : ''
-    
+
     formattedEmoji += reactionEmoji.id
       ? `<:${reactionEmoji.name}:${reactionEmoji.id}>`
       : this.reaction.emoji.name ?? 'Error!'
@@ -63,20 +63,33 @@ export class StarboardHelper {
     const splitContent = content?.split(' ')
     const links: string[] = []
 
-    splitContent?.forEach((part) => {
-      AcceptedLinkHeaders.forEach((header) => {
+    for (const part of splitContent) {
+      if (part.startsWith('https://tenor.com/')) {
+        links.push(part)
+        break
+      }
+
+      for (const header of AcceptedLinkHeaders) {
         if (part.startsWith(header)) links.push(part)
-      })
-    })
+      }
+    }
 
     if (!links.length) return null
 
     for (const link of links) {
+      if (link.startsWith('https://tenor.com/')) {
+        const id = link.match(/https:\/\/tenor.com\/view\/.+-(\d+)/)![1]
+
+        const request = await axios
+          .get(`https://api.tenor.com/v1/gifs?ids=${id}&key=${process.env.TENOR_API_KEY}`)
+          .catch(error => logger.error(`Failed to fetch tenor gif in StarboardHelper.ts: ${error.stack}`))
+
+        return request?.data.results[0].media[0].gif.url || null
+      }
+
       const isImage = await this.checkIfValidImage(link)
 
-      if (isImage) {
-        return link
-      }
+      if (isImage) return link
     }
 
     return null
@@ -103,10 +116,27 @@ export class StarboardHelper {
     }
   }
 
-  private async setFields(): Promise<EmbedField[]> {
+  private async setFields(): Promise<string[]> {
     const message = this.reaction.message
+    const fields: string[] = []
 
-    const fields: EmbedField[] = []
+    if (message.reference) {
+      const reference = await message.fetchReference()
+      const refEmbed = reference.embeds[0] ?? null
+      let referenceString = ''
+
+      if (reference.content) {
+        referenceString += ` ${reference.content}`
+      } else if (refEmbed?.data?.description) {
+        referenceString += refEmbed?.data?.description
+      } else if (reference.attachments.size) {
+        referenceString = ` =Message contains attachments (${reference.attachments.size})=`
+      } else {
+        referenceString = '⚠️ Failed to fetch message reference TwT'
+      }
+
+      fields.push(`### ↩️ Replying to:\n${clipString({ string: referenceString, maxLength: 500, sliceEnd: '...' })}`)
+    }
 
     if (
       message.content ||
@@ -130,12 +160,7 @@ export class StarboardHelper {
       if (messageIsLinkOnly) {
         const split = message.content?.split('?')[0].split('/')
 
-        fields.push({
-          name: '📄 Message:',
-          value: `[${split?.pop()}](${message.content})`,
-          inline: false,
-        })
-
+        fields.push(`### 📄 Message:⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n[${split?.pop()}](${message.content})}`)
         return fields
       }
 
@@ -149,33 +174,7 @@ export class StarboardHelper {
         contentString = '⚠️ Failed to fetch message content TwT'
       }
 
-      fields.push({
-        name: '📄 Message:',
-        value: clipString({ string: contentString, maxLength: 500, sliceEnd: '...' }),
-        inline: false,
-      })
-    }
-
-    if (message.reference) {
-      const reference = await message.fetchReference()
-      const refEmbed = reference.embeds[0] ?? null
-      let referenceString = ''
-
-      if (reference.content) {
-        referenceString += ` ${reference.content}`
-      } else if (refEmbed?.data?.description) {
-        referenceString += refEmbed?.data?.description
-      } else if (reference.attachments.size) {
-        referenceString = ` =Message contains attachments (${reference.attachments.size})=`
-      } else {
-        referenceString = '⚠️ Failed to fetch message reference TwT'
-      }
-
-      fields.push({
-        name: '↩️ Replying to:',
-        value: clipString({ string: referenceString, maxLength: 500, sliceEnd: '...' }),
-        inline: false,
-      })
+      fields.push(`### 📄 Message:⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n${contentString}`)
     }
 
     return fields
@@ -224,7 +223,7 @@ export class StarboardHelper {
     if (!reactions.some((rect) => rect.count >= config.amount)) return
 
     // Format the emojis: {emoji} * {emoji}...
-    const reactionStrings: string[] = reactions.map(r => `${r.emoji}: ${r.count}`)
+    const reactionStrings: string[] = reactions.map(r => `${r.emoji} ${r.count}`)
 
     const boardChannel = await reaction.message.guild?.channels.fetch(config.boardId)
 
@@ -239,34 +238,42 @@ export class StarboardHelper {
       defaults: { guildId: reaction.message.guildId, lastActive: new Date() }
     })
 
-    timeoutRecord.update({ lastActive: new Date()})
+    timeoutRecord.update({ lastActive: new Date() })
 
     if (dbEntry === null) {
-      const [member, count, fields, embedImage] = await Promise.all([
+      const [member, fields, embedImage] = await Promise.all([
         reaction.message.guild?.members.fetch(reaction.message.author!.id),
-        starboardEntries.count({ where: { guildId: reaction.message.guildId } }),
         this.setFields(),
         this.setImage(reaction),
       ])
 
       const embed = new EmbedBuilder()
         .setAuthor({
-          name: `Entry #${count == 0 ? 1 : count}`,
-          iconURL: reaction.message.guild?.iconURL() ?? undefined,
+          name: reaction.message.author?.displayName ?? '⚠ Failed to get author\'s name TwT',
+          iconURL: reaction.message.author?.displayAvatarURL() ?? undefined,
         })
-        .setColor(member?.displayHexColor ?? null)
-        .setThumbnail(member?.displayAvatarURL({ extension: 'png' }) ?? null)
-        .setDescription(reactionStrings.join(' • '))
-        .addFields(fields)
+        .setColor(member?.displayHexColor ?? '#2b2d31')
+        .setDescription(fields.join('\n'))
         .setImage(embedImage)
-        .setTimestamp()
 
       const buttons: Array<ButtonBuilder> = [
         new ButtonBuilder()
-          .setLabel('Jump to message')
+          .setLabel('Message')
           .setStyle(ButtonStyle.Link)
           .setURL(reaction.message.url)
       ]
+
+      const messageRef = await reaction.message.fetchReference()
+        .catch(() => { })
+
+      if (messageRef) {
+        buttons.push(
+          new ButtonBuilder()
+            .setLabel('Reference')
+            .setStyle(ButtonStyle.Link)
+            .setURL(messageRef.url)
+        )
+      }
 
       const refButton = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(buttons)
@@ -282,6 +289,7 @@ export class StarboardHelper {
         const res = await boardChannel.send({
           embeds: [embed],
           components: [refButton],
+          content: '**' + reactionStrings.join(' • ') + '**' + ` | <#${reaction.message.channelId}>`
         })
 
         if (boardChannel.type === ChannelType.GuildAnnouncement) {
@@ -305,11 +313,10 @@ export class StarboardHelper {
 
       if (!entryMessage) return
 
-      const embed = EmbedBuilder.from(entryMessage.embeds.at(0)!)
-        .setDescription(reactionStrings.join(' • '))
-
       try {
-        await entryMessage.edit({ embeds: [embed] })
+        await entryMessage.edit({
+          content: '**' + reactionStrings.join(' • ') + '**' + ` | <#${reaction.message.channelId}>`
+        })
       } catch (error) {
         logger.error(`Failed to update starboard message: ${error.stack}`)
       }

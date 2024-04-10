@@ -1,6 +1,6 @@
 import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { Command } from '../Types/Command'
-import { Confessions, ConfessionsI } from '../Models/Confessions'
+import { Command } from '../../Types/Command'
+import { Confessions, ConfessionsI } from '../../Models/Confessions'
 
 enum SubcommandResult {
   ERROR,

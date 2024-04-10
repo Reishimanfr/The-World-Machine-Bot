@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionChoiceData, SlashCommandBuilder } from 'discord.js'
-import { Command } from '../Types/Command'
-import { PlaylistManager, PlaylistResponse } from '../Classes/PlaylistManager'
-import { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import { Command } from '../../Types/Command'
+import { PlaylistManager, PlaylistResponse } from '../../Classes/PlaylistManager'
+import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
+import { logger } from '../../Helpers/Logger'
 
 const playlist_load: Command = {
   data: new SlashCommandBuilder()
@@ -83,7 +84,8 @@ const playlist_load: Command = {
   },
 
   autocomplete: async (interaction) => {
-    const [allPlaylists, error] = await new PlaylistManager().getAllPlaylists(interaction.user.id)
+    const [allPlaylists, error] = await new PlaylistManager()
+      .getAllPlaylists(interaction.user.id)
 
     if (!allPlaylists?.length) {
       await interaction.respond([
@@ -95,7 +97,8 @@ const playlist_load: Command = {
     }
 
     if (error) {
-      await interaction.respond([
+      logger.error(`Failed to load playlists: ${error.stack}`)
+      return await interaction.respond([
         {
           name: '❌ Something went wrong.',
           value: 'none'
