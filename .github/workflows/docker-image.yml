@@ -1,0 +1,21 @@
+name: Publish to Docker Hub
+
+on:
+  push
+
+jobs:
+  publish_image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: build
+        run: |
+          docker build . -t reishimanfr/the-world-machine:latest
+
+      - name: publish
+        run: |
+          docker login -u reishimanfr -p ${{ secrets.DOCKER_TOKEN }}
+          docker push reishimanfr/the-world-machine:latest
