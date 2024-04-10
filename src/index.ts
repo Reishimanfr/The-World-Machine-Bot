@@ -42,7 +42,7 @@ client.initialize(process.env.BOT_TOKEN)
 // This is ran every day and leaves inactive servers due to the
 // 100 guilds limit set for unverified bots.
 // You can disable this through the .env file
-cron.schedule('*/5 * * * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
   const guilds = await client.guilds.fetch()
 
   for (const [_, guild] of guilds) {
