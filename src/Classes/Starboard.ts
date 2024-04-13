@@ -5,7 +5,6 @@ import {
   ButtonStyle,
   ChannelType,
   EmbedBuilder,
-  EmbedField,
   GuildEmoji,
   MessageReaction,
   PartialMessageReaction,
@@ -25,10 +24,7 @@ interface ConfigOptions {
   bannedChannels: string
 }
 
-const AcceptedImages = ['image/gif', 'image/jpeg', 'image/png', 'image/webp']
-const AcceptedLinkHeaders = ['https://cdn.discordapp.com/attachments', 'https://media.discordapp.net/attachments']
-
-export class StarboardHelper {
+export class Starboard {
   private reaction: ReactionOrPart
 
   constructor(reaction: ReactionOrPart) {
@@ -50,46 +46,42 @@ export class StarboardHelper {
     return formattedEmoji
   }
 
-  private async setImage(reaction: MessageReaction): Promise<string | null> {
-    const content = reaction.message.content?.trim()
-    const attachment = reaction.message.attachments?.at(0)
+  private async setImage(): Promise<string | null> {
+    const message = this.reaction.message
+    const attachments = message.attachments.filter(att => att.contentType?.startsWith('image/'))
 
-    if (attachment && AcceptedImages.includes(attachment.contentType ?? '')) {
-      return attachment.url
-    }
+    // Priority list: attachments, tenor links, discord cdn links
 
-    if (!content?.length) return null
+    if (attachments.size) {
+      for (const [_, att] of attachments.entries()) {
+        const isValidMedia = await this.checkIfValidImage(att.url)
 
-    const splitContent = content?.split(' ')
-    const links: string[] = []
-
-    for (const part of splitContent) {
-      if (part.startsWith('https://tenor.com/')) {
-        links.push(part)
-        break
-      }
-
-      for (const header of AcceptedLinkHeaders) {
-        if (part.startsWith(header)) links.push(part)
+        if (isValidMedia) {
+          return att.url
+        }
       }
     }
 
-    if (!links.length) return null
+    const splitContent = message.content?.split(/ +/g)
+      .filter(part => part.startsWith('https'))
 
-    for (const link of links) {
-      if (link.startsWith('https://tenor.com/')) {
-        const id = link.match(/https:\/\/tenor.com\/view\/.+-(\d+)/)![1]
+    if (splitContent?.length) {
+      for (const part of splitContent) {
+        // Check if tenor link...
+        if (part.startsWith('https://tenor.com/')) {
+          const id = part.match(/https:\/\/tenor.com\/view\/.+-(\d+)/)
 
-        const request = await axios
-          .get(`https://api.tenor.com/v1/gifs?ids=${id}&key=${process.env.TENOR_API_KEY}`)
-          .catch(error => logger.error(`Failed to fetch tenor gif in StarboardHelper.ts: ${error.stack}`))
+          if (!id?.at(1)) continue
 
-        return request?.data.results[0].media[0].gif.url || null
+          const request = await axios
+            .get(`https://api.tenor.com/v1/gifs?ids=${id[1]}&key=${process.env.TENOR_API_KEY}`)
+            .catch(error => logger.error(`Failed to fetch tenor gif for starboard message: ${error.stack}`))
+
+          return request?.data.results[0].media[0].gif.url ?? null
+
+        // ...If not check if link that leads to a message
+        } else if (await this.checkIfValidImage(part)) { return part }
       }
-
-      const isImage = await this.checkIfValidImage(link)
-
-      if (isImage) return link
     }
 
     return null
@@ -102,15 +94,15 @@ export class StarboardHelper {
     try {
       const response = await axios.head(url)
 
-      if (response.status >= 200 && response.status < 300) {
-        const contentType = response.headers['content-type']
-        if (contentType && AcceptedImages.includes(contentType)) {
-          return true
-        }
-      }
+      // Request went through and content-type is an image
+      return response.status >= 200
+          && response.status < 300
+          && response.headers['content-type'].startsWith('image/')
 
-      return false
     } catch (error) {
+      if (error.message.endsWith("403")) return false // Mainly twitter errors
+      // let's not spam the logs shall we
+
       logger.error(`Error checking URL ${url}: ${error}`)
       return false
     }
@@ -130,7 +122,7 @@ export class StarboardHelper {
       } else if (refEmbed?.data?.description) {
         referenceString += refEmbed?.data?.description
       } else if (reference.attachments.size) {
-        referenceString = ` =Message contains attachments (${reference.attachments.size})=`
+        referenceString = `__Message contains ${reference.attachments.size} attached file${reference.attachments.size > 1 ? 's' : ''}__`
       } else {
         referenceString = '⚠️ Failed to fetch message reference TwT'
       }
@@ -146,21 +138,13 @@ export class StarboardHelper {
       const embed = message.embeds[0] ?? null
       let contentString = ''
 
-      const hasValidHeader: boolean[] = []
-
-      AcceptedLinkHeaders.forEach((header) =>
-        hasValidHeader.push(message.content?.startsWith(header) ?? false)
-      )
-
       const messageIsLinkOnly =
         message.content &&
         message.content?.split(' ').length == 1 &&
-        hasValidHeader.some((value) => value)
+        message.content.startsWith('https://')
 
       if (messageIsLinkOnly) {
-        const split = message.content?.split('?')[0].split('/')
-
-        fields.push(`### 📄 Message:⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n[${split?.pop()}](${message.content})}`)
+        fields.push(`### 📄 Message:⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n${message.content}`)
         return fields
       }
 
@@ -169,7 +153,7 @@ export class StarboardHelper {
       } else if (embed?.data?.description) {
         contentString += embed?.data?.description
       } else if (message.attachments.size) {
-        contentString = `=Message contains attachments (${message.attachments.size})=`
+        contentString = `__Message contains ${message.attachments.size} attached file${message.attachments.size > 1 ? 's' : ''}__`
       } else {
         contentString = '⚠️ Failed to fetch message content TwT'
       }
@@ -244,8 +228,9 @@ export class StarboardHelper {
       const [member, fields, embedImage] = await Promise.all([
         reaction.message.guild?.members.fetch(reaction.message.author!.id),
         this.setFields(),
-        this.setImage(reaction),
+        this.setImage(),
       ])
+
 
       const embed = new EmbedBuilder()
         .setAuthor({
@@ -254,7 +239,7 @@ export class StarboardHelper {
         })
         .setColor(member?.displayHexColor ?? '#2b2d31')
         .setDescription(fields.join('\n'))
-        .setImage(embedImage)
+        .setImage(embedImage ?? null)
 
       const buttons: Array<ButtonBuilder> = [
         new ButtonBuilder()
