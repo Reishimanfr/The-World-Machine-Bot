@@ -124,7 +124,7 @@ mkdir lavalink
 2. Create a file called `applcation.yml` and fill it out according to your needs.
 ```sh
 touch application.yml
-vim application.yml
+nano application.yml
 ```
 
 ## 🚀 Installation using the source code
@@ -140,35 +140,8 @@ cd The-World-Machine-Bot
 ```sh
 npm i --omit=dev
 ```
-4. Setup environment variables:
-```env
-# Token for the bot to login with
-BOT_TOKEN=
-
-# Available options: trace, debug, info, warn, error, fatal
-LOG_LEVEL=info
-
-# This is used in the starboard script to display tenorgif correctly
-TENOR_API_KEY=null
-
-# Time after which the bot will leave the voice channel if idling
-PLAYER_TIMEOUT=10
-
-# Available options: postgres, sqlite
-DATABASE_DIALECT=sqlite # It's recommended to use a postgres database
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-
-# You only have to change these if you set the DATABASE_DIALECT to postgres
-DATABASE_NAME=twm
-DATABASE_USERNAME=something
-DATABASE_PASSWORD=password
-
-LAVALINK_HOST=127.0.0.1
-LAVALINK_PORT=2333
-LAVALINK_PASSWORD=youshallnotpass
-```
-4. Start the bot
+4. Rename the `.env.example` file to `.env` and fill it out
+5. Start the bot
 ```sh
 npm start
 ```
