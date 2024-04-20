@@ -7,6 +7,7 @@ const UpdateVoiceState: Event = {
   name: Events.VoiceStateUpdate,
   once: false,
   execute: (oldState: VoiceState, newState: VoiceState) => {
+    console.time()
     const guildId = oldState?.guild?.id ?? newState?.guild?.id
     const player = client.poru.players.get(guildId) as ExtPlayer | undefined
 
@@ -22,14 +23,16 @@ const UpdateVoiceState: Event = {
 
     // Bot disconnect
     if (!newChannel) return player.destroy()
-    
+
     const membersWithoutBots = newChannel.members.filter(m => !m.user.bot)
 
     // Everyone left voice
     if (membersWithoutBots.size === 0) {
+      player.pause(true)
+      player.messageManger.updatePlayerMessage()
       player.controller.setupPlayerTimeout(60000) // 1 minute for someone to join
     } else {
-      player.controller.cancelPlayerTimeout() 
+      player.controller.cancelPlayerTimeout()
     }
   }
 }

@@ -162,12 +162,11 @@ class Bot extends Client<true> {
     }
 
     this.createIcons()
+    if (process.env.REGISTER_COMMANDS_ON_START) await this.registerCommands(token)
   }
 
   public async registerCommands(token: string) {
     logger.info('Registering (/) commands...')
-
-    await this.login(token)
 
     const commandModFiles = this.loadModFiles<Command>(COMMANDS_PATH, true)
     const jsonData: RESTPostAPIChatInputApplicationCommandsJSONBody[] = commandModFiles.map(m => m.data.setDMPermission(false).toJSON())
@@ -175,10 +174,8 @@ class Bot extends Client<true> {
     await new REST()
       .setToken(token)
       .put(Routes.applicationCommands(this.user.id), { body: jsonData })
-      .then(_ => logger.info('Success!'))
+      .then(_ => logger.info('(/) commands registered successfully!'))
       .catch(error => logger.error(`Failed to register (/) commands: ${error.stack}`))
-
-    process.exit()
   }
 }
 

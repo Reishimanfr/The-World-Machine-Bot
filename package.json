@@ -1,11 +1,9 @@
 {
   "scripts": {
     "watch": "nodemon --quiet --watch src/** --exec sucrase-node src/index.ts",
-    "start": "sucrase-node src/index.ts",
-    "lavalink": "java -jar ./lavalink.jar",
-    "deploy": "sucrase-node src/Helpers/DeployCommands.ts"
+    "start": "sucrase-node src/index.ts"
   },
-  "version": "2.3.1",
+  "version": "2.3.2",
   "dependencies": {
     "axios": "^1.6.0",
     "discord.js": "^14.13.0",
