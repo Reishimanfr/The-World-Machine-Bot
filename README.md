@@ -65,8 +65,7 @@ services:
     environment:
       # Your discord bot token. Never show it to anyone
       - BOT_TOKEN=
-      # Time after which the bot will leave vc if it's inactive
-      # for that time. (Provided in minutes)
+      # Time after which the bot will leave vc if inactive (in minutes)
       - PLAYER_TIMEOUT=10
       # This is only needed if you want the starboard feature
       # to embed tenor gifs. You can safely ignore it.
@@ -74,7 +73,10 @@ services:
 
       # Create a new empty guild and paste it's ID here. You
       # only have to do this once.
-      - CUSTOM_EMOJIS_GUILD_ID=
+      - CUSTOM_EMOJIS_GUILD_ID=1234567890
+
+      # Changes if (/) commands should be registered on bot startup.
+      - REGISTER_COMMANDS_ON_START=true
 
       # This changes if the bot should leave servers where it's
       # been inactive for 3 months.
