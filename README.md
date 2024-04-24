@@ -1,8 +1,8 @@
 <p align="center">
- <img width=200 height=200 src="https://github.com/Reishimanfr/TWM-bot/assets/92938606/de4f51a7-8499-4798-ad8c-dc78f5006cd0"</img>
+ <img alt="Image source: https://steamcommunity.com/sharedfiles/filedetails/?id=2110317453" src="https://github.com/Reishimanfr/The-World-Machine-Bot/assets/92938606/91a37580-2be6-40b1-9279-fa129620f28e"></img>
 </p>
 <h3 align="center">
- 
+
 <i>A Discord music bot made with ❤️ by Rei!</i><br>
 
 <p align="center">
