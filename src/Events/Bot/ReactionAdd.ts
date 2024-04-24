@@ -1,8 +1,8 @@
-import { Events, MessageReaction } from 'discord.js'
+import { Events, type MessageReaction } from 'discord.js'
 import Mutex from '../../Helpers/Mutex'
 import { logger } from '../../Helpers/Logger'
 import { Starboard } from '../../Classes/Starboard'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 
 const mutex = new Mutex()
 

@@ -1,6 +1,6 @@
-import { ExtPlayer, MessageManager } from '../../Helpers/ExtendedPlayer'
+import { type ExtPlayer, MessageManager } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 
 const PlayerUpdate: Event = {
   name: 'playerUpdate',
@@ -10,9 +10,11 @@ const PlayerUpdate: Event = {
     if (!player.isPlaying) return
     if (player.pauseEditing) return
     if (player.isPaused) return
-    
+
     if (player.sponsorSegments?.length) {
-      const nextSeg = player.sponsorSegments.at(0)
+      logger.debug(player.sponsorSegments)
+
+      const nextSeg = player.sponsorSegments[0]
       const segStart = (nextSeg?.startTime ?? 0) * 1000
       const segEnd = (nextSeg?.endTime ?? 0) * 1000
 
@@ -24,7 +26,7 @@ const PlayerUpdate: Event = {
         }, timeToSkip)
       }
 
-      player.sponsorSegments = player.sponsorSegments.slice(1)
+      player.sponsorSegments.shift()
     }
 
     const message = await player.message?.fetch()

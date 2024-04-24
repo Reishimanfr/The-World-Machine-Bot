@@ -1,13 +1,12 @@
-import { Events, VoiceState } from 'discord.js'
-import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
+import { Events, type VoiceState } from 'discord.js'
+import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { client } from '../../index'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 
 const UpdateVoiceState: Event = {
   name: Events.VoiceStateUpdate,
   once: false,
   execute: (oldState: VoiceState, newState: VoiceState) => {
-    console.time()
     const guildId = oldState?.guild?.id ?? newState?.guild?.id
     const player = client.poru.players.get(guildId) as ExtPlayer | undefined
 

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 
 const remove: Command<true> = {
   permissions: {
@@ -49,17 +49,17 @@ const remove: Command<true> = {
     for (const part of parts) {
       if (part.includes('-')) {
         const range = part.split('-')
-        const start = parseInt(range[0])
-        const end = parseInt(range[1])
+        const start = Number.parseInt(range[0])
+        const end = Number.parseInt(range[1])
 
-        if (!isNaN(start) && !isNaN(end)) {
+        if (!Number.isNaN(start) && !Number.isNaN(end)) {
           for (let i = start; i <= end; i++) {
             positions.push(i)
           }
         }
       } else {
-        const position = parseInt(part)
-        if (!isNaN(position)) {
+        const position = Number.parseInt(part)
+        if (!Number.isNaN(position)) {
           positions.push(position)
         }
       }

@@ -5,10 +5,10 @@ import {
   ButtonStyle,
   ChannelType,
   EmbedBuilder,
-  GuildEmoji,
-  MessageReaction,
-  PartialMessageReaction,
-  ReactionEmoji
+  type GuildEmoji,
+  type MessageReaction,
+  type PartialMessageReaction,
+  type ReactionEmoji
 } from 'discord.js'
 import { clipString } from '../Funcs/ClipString'
 import { serverStats, starboardConfig, starboardEntries } from '../Models'
@@ -80,7 +80,9 @@ export class Starboard {
           return request?.data.results[0].media[0].gif.url ?? null
 
         // ...If not check if link that leads to a message
-        } else if (await this.checkIfValidImage(part)) { return part }
+        }
+        
+        if (await this.checkIfValidImage(part)) return part 
       }
     }
 
@@ -140,7 +142,7 @@ export class Starboard {
 
       const messageIsLinkOnly =
         message.content &&
-        message.content?.split(' ').length == 1 &&
+        message.content?.split(' ').length === 1 &&
         message.content.startsWith('https://')
 
       if (messageIsLinkOnly) {
@@ -189,17 +191,17 @@ export class Starboard {
 
     const reactions: { emoji: string; count: number }[] = []
 
-    reaction.message.reactions.cache.forEach((rect) => {
-      let emojiName = rect.emoji.name
+    for (const [_, react] of reaction.message.reactions.cache) {
+      let emojiName = react.emoji.name
 
-      if (rect.emoji.id) {
-        emojiName = `<${rect.emoji.animated ? 'a' : ''}:${rect.emoji.name}:${rect.emoji.id}>`
+      if (react.emoji.id) {
+        emojiName = `<${react.emoji.animated ? 'a' : ''}:${react.emoji.name}:${react.emoji.id}>`
       }
 
       if (emojiName && config.emojis.split(' ').includes(emojiName)) {
-        reactions.push({ emoji: emojiName, count: rect.count })
+        reactions.push({ emoji: emojiName, count: react.count })
       }
-    })
+    }
 
     reactions.sort((a, b) => b.count - a.count)
 
@@ -264,7 +266,7 @@ export class Starboard {
         .addComponents(buttons)
 
       try {
-        const permissions = boardChannel.permissionsFor(client.user!.id)
+        const permissions = boardChannel.permissionsFor(client.user.id)
 
         if (!permissions?.has('SendMessages')) {
           reaction.message.reply(`⚠️ I can't send messages in <#${config.boardId}> TwT`)
@@ -274,7 +276,7 @@ export class Starboard {
         const res = await boardChannel.send({
           embeds: [embed],
           components: [refButton],
-          content: '**' + reactionStrings.join(' • ') + '**' + ` | <#${reaction.message.channelId}>`
+          content: `**${reactionStrings.join(' • ')}** | <#${reaction.message.channelId}>`
         })
 
         if (boardChannel.type === ChannelType.GuildAnnouncement) {
@@ -300,7 +302,7 @@ export class Starboard {
 
       try {
         await entryMessage.edit({
-          content: '**' + reactionStrings.join(' • ') + '**' + ` | <#${reaction.message.channelId}>`
+          content: `**${reactionStrings.join(' • ')}** | <#${reaction.message.channelId}>`
         })
       } catch (error) {
         logger.error(`Failed to update starboard message: ${error.stack}`)

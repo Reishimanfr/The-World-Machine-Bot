@@ -1,4 +1,4 @@
-import { Button } from '../../../Types/Button'
+import type { Button } from '../../../Types/Button'
 
 const togglePlayback: Button = {
   name: 'togglePlayback',

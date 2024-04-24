@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
-import { Command } from '../../Types/Command'
-import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
+import type { Command } from '../../Types/Command'
+import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { clipString } from '../../Funcs/ClipString'
 import { client } from '../..'
 import { TimeFormatter } from '../../Classes/TimeFormatter'
@@ -85,7 +85,7 @@ const play: Command = {
         avatar: member.displayAvatarURL(),
         id: member.user.id
       },
-      source: 'ytmsearch'
+      source: 'ytsearch'
     })
 
     const { loadType, tracks } = fullResponse
@@ -124,7 +124,7 @@ const play: Command = {
           )
 
         const response = await interaction.reply({
-          content: `\`❓\` - This link seems to lead to a playlist. Do you want to load it?`,
+          content: "\`❓\` - This link seems to lead to a playlist. Do you want to load it?",
           components: [buttons]
         })
 
@@ -189,7 +189,7 @@ const play: Command = {
     if (Date.now() - lastUpdate > 600) {
       lastUpdate = Date.now()
 
-      const tracks: any[] = []
+      const tracks: { name: string, value: string}[] = []
       const formatter = new TimeFormatter()
 
       const resolveAndPush = async (source: string, prefix: string): Promise<void> => {
@@ -197,17 +197,19 @@ const play: Command = {
         const resolveTracks = resolve.tracks.slice(0, 5)
 
         for (const track of resolveTracks) {
+          if (!track.info.uri) continue
+
           let trackString = `${prefix}: `
 
           trackString += `${track.info.title} - ${track.info.author}`
 
           if (trackString.length > 99) {
-            trackString = trackString.slice(0, 80) + '...'
+            trackString = `${trackString.slice(0, 80)}...`
           }
 
           trackString += ` - (${formatter.duration(track.info.length / 1000)})`
 
-          tracks.push({ name: trackString.slice(0, 99), value: track.info.uri! })
+          tracks.push({ name: trackString.slice(0, 99), value: track.info.uri })
         }
       }
 

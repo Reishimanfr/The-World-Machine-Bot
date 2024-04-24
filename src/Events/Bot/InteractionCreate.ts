@@ -1,8 +1,8 @@
-import { Events, Interaction, InteractionType, AutocompleteInteraction, ButtonInteraction, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js'
-import { Event } from '../../Types/Event'
+import { Events, type Interaction, InteractionType, type AutocompleteInteraction, type ButtonInteraction, EmbedBuilder, type ChatInputCommandInteraction } from 'discord.js'
+import type { Event } from '../../Types/Event'
 import { logger } from '../../Helpers/Logger'
 import { client } from '../..'
-import { ExtPlayer, } from '../../Helpers/ExtendedPlayer'
+import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { embedColor } from '../../Helpers/Util'
 import { combineConfig } from '../../Funcs/CombinePlayerConfig'
 import { serverStats } from '../../Models'
@@ -151,7 +151,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     const member = await interaction.guild.members.fetch(interaction.user.id)
 
     // Member is not in voice channel
-    if (options.requiresVc && !member?.voice.channel?.id) {
+    if (options.requiresVc && !member.voice.channel?.id) {
       return interaction.reply({
         content: 'You must be in a voice channel to use this command.',
         ephemeral: true
@@ -159,7 +159,7 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     }
 
     // Member is not in the same voice channel as bot
-    if (options.requiresVc && player && member?.voice.channel?.id !== player?.voiceChannel) {
+    if (options.requiresVc && player && member.voice.channel?.id !== player?.voiceChannel) {
       return interaction.reply({
         content: 'You must be in the same voice channel as me to use this command.',
         ephemeral: true
@@ -184,7 +184,9 @@ async function CommandInteraction(interaction: ChatInputCommandInteraction) {
     if (!player) {
       player = client.poru.createConnection({
         guildId: interaction.guild.id,
+        // biome-ignore lint/style/noNonNullAssertion: This is an impossible case because if a new player needs to be created there are checks to see if a member is in a voice channel or
         voiceChannel: member.voice.channel!.id,
+        // biome-ignore lint/style/noNonNullAssertion: Same as the other one
         textChannel: interaction.channel!.id,
         deaf: true,
         mute: false

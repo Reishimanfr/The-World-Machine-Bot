@@ -1,6 +1,6 @@
 class Mutex {
   private isLocked = false
-  private queue: (() => any)[] = []
+  private queue: (() => unknown)[] = []
 
   lock(): Promise<void> {
     return new Promise<void>((resolve) => {

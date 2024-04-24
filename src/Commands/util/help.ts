@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 import { clipString } from '../../Funcs/ClipString'
 import { client } from '../..'
 
@@ -16,7 +16,7 @@ const help: Command = {
   callback: async ({ interaction }) => {
     const mainEmbed = new EmbedBuilder()
       .setAuthor({
-        name: `The world machine | Made with ❤ by Rei!`,
+        name: 'The world machine | Made with ❤ by Rei!',
         iconURL: 'https://static.wikia.nocookie.net/omniversal-battlefield/images/2/2a/The_SUn.jpg/revision/latest?cb=20190624052404'
       })
       .setDescription(`Select a command to get help with from the menu below.

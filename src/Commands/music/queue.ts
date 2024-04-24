@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 import { logger } from '../../Helpers/Logger'
 
 const queue: Command<true> = {

@@ -1,5 +1,5 @@
 import CreateVote, { VoteStatus } from '../../../Helpers/CreateVote'
-import { Button } from '../../../Types/Button'
+import type { Button } from '../../../Types/Button'
 
 const skip: Button = {
   name: 'skip',
@@ -42,7 +42,7 @@ const skip: Button = {
       interaction,
       reason: 'Wants to skip the current song',
       requiredVotes,
-      voiceText: interaction.channel as any,
+      voiceText: interaction.channel,
       voiceChannel: member.voice.channel,
       time: 60000
     })

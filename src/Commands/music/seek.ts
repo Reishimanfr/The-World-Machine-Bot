@@ -1,16 +1,16 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 
 function convertToSeconds(timestamp: string): number {
   const match = timestamp.match(/^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$/)
 
   if (match === null) return -1
 
-  const hours = parseInt(match[1])
-  const minutes = parseInt(match[2])
-  const seconds = parseInt(match[3])
+  const hours = Number(match[1])
+  const minutes = Number(match[2])
+  const seconds = Number(match[3])
 
-  return (!isNaN(hours) ? hours * 3600 : 0) + (!isNaN(minutes) ? minutes * 60 : 0) + seconds
+  return (!Number.isNaN(hours) ? hours * 3600 : 0) + (!Number.isNaN(minutes) ? minutes * 60 : 0) + seconds
 }
 
 const seek: Command<true> = {
@@ -60,7 +60,7 @@ const seek: Command<true> = {
 
     // You never know
     if (!player.currentTrack.info.isSeekable) {
-      return interaction.reply({ 
+      return interaction.reply({
         content: '`❌` - This track isn\'t seekable.',
         ephemeral: true
       })
@@ -79,8 +79,8 @@ const seek: Command<true> = {
     if (timestamp.startsWith('+') || timestamp.startsWith('-')) {
       const direction = timestamp.startsWith('-') ? -1 : 1
       const seconds = Number(timestamp.substring(1)) // Remove the first character
-    
-      if (isNaN(seconds)) {
+
+      if (Number.isNaN(seconds)) {
         return interaction.reply({
           content: '`❌` - Invalid time format. Must be `-<seconds>` or `+<seconds>`',
           ephemeral: true
@@ -92,22 +92,24 @@ const seek: Command<true> = {
       player.seekTo(newPosition * 1000)
 
       return interaction.reply({
-        content: `\`✅\` - Seeked by \`${seconds}s\` ${direction === 1 ? 'forward': 'backwards'}.`,
+        content: `\`✅\` - Seeked by \`${seconds}s\` ${direction === 1 ? 'forward' : 'backwards'}.`,
         ephemeral: true
       })
-    } else if (timestampToSeconds !== -1) {
+    }
+
+    if (timestampToSeconds !== -1) {
       player.seekTo(timestampToSeconds * 1000)
 
       return interaction.reply({
         content: `\`✅\`- Seeked to \`${timestamp}\`.`,
         ephemeral: true
       })
-    } else {
-      return interaction.reply({
-        content: '`❌` - Invalid timestamp provided. Must be in format `HH:MM:SS`, `MM:SS`, `-<seconds>` or `+<seconds>`.',
-        ephemeral: true
-      })
     }
+
+    return interaction.reply({
+      content: '`❌` - Invalid timestamp provided. Must be in format `HH:MM:SS`, `MM:SS`, `-<seconds>` or `+<seconds>`.',
+      ephemeral: true
+    })
   }
 }
 

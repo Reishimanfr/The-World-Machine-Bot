@@ -1,8 +1,9 @@
-import { setTimeout } from 'timers/promises'
-import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
+import { setTimeout } from 'node:timers/promises'
+import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
 import { inactiveGifUrl } from '../../Helpers/Util'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
+import type { EmbedBuilder } from 'discord.js'
 
 const PlayerDestroy: Event = {
   name: 'playerDestroy',
@@ -13,20 +14,24 @@ const PlayerDestroy: Event = {
 
     if (!message) return
 
-    const embed = await player.messageManger.createPlayerEmbed(true)
+    const embed: EmbedBuilder = (await player.messageManger.createPlayerEmbed(true))[0]
     const buttons = player.messageManger.createPlayerButtons(true)
 
-    const descriptionSplit = embed.at(0)?.data.description?.split('\n')
-    embed.at(0)?.setDescription(`${descriptionSplit?.[0] ?? ''}`)
-    embed.at(0)?.setAuthor({
+    console.log(embed)
+
+    const descriptionSplit = embed.data.description?.split('\n')
+
+    embed.setDescription(`${descriptionSplit?.[0] ?? ''}`)
+    embed.setAuthor({
       name: 'Goodbye...⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
       iconURL: inactiveGifUrl
     })
 
     try {
-      await setTimeout(1000)
+      // Because for some fucking reason lavalink fires this event alongside some other random event like queueEnd
+      await setTimeout(1000) 
       await message.edit({
-        embeds: [embed.at(0)!],
+        embeds: [embed],
         components: [buttons]
       })
     } catch (error) {

@@ -1,6 +1,6 @@
-import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, channelLink, channelMention } from 'discord.js'
-import { Command } from '../../Types/Command'
-import { StarboardConfigI, starboardConfig } from '../../Models'
+import { ChannelType, type ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, channelLink, channelMention } from 'discord.js'
+import type { Command } from '../../Types/Command'
+import { type StarboardConfigI, starboardConfig } from '../../Models'
 
 export const ALLOWED_CHANNEL_TYPES = [ChannelType.GuildAnnouncement, ChannelType.GuildText]
 
@@ -62,7 +62,7 @@ const starboard_config: Command<false> = {
       defaults: { guildId: interaction.guild.id }
     })
 
-    let data = record.dataValues as StarboardConfigI
+    const data = record.dataValues as StarboardConfigI
 
     switch (interaction.options.getSubcommand()) {
       case 'view-config': {

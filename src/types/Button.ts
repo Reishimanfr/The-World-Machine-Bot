@@ -1,6 +1,6 @@
-import { ButtonInteraction } from 'discord.js'
-import { ExtPlayer } from '../Helpers/ExtendedPlayer'
-import { Bot } from '../Classes/Bot'
+import type { ButtonInteraction } from 'discord.js'
+import type { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import type { Bot } from '../Classes/Bot'
 
 export interface Button {
   name: string,
@@ -16,5 +16,5 @@ export interface Button {
     interaction: ButtonInteraction<'cached'>,
     player: ExtPlayer,
     client: Bot
-  }) => Promise<any>
+  }) => Promise<unknown>
 }

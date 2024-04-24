@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, StringSelectMenuOptionBuilder, Message } from 'discord.js'
-import { Command } from '../../Types/Command'
+import { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, ButtonBuilder, ButtonStyle, type ChatInputCommandInteraction, StringSelectMenuOptionBuilder, type Message } from 'discord.js'
+import type { Command } from '../../Types/Command'
 import { PlaylistManager, PlaylistResponse } from '../../Classes/PlaylistManager'
 import { playlists } from '../../Models'
 
@@ -371,7 +371,7 @@ const playlist: Command = {
                 }
 
                 const url = name.first()?.content
-                const position = name.at(1)?.content ? parseInt(name.at(1)!.content) : 0
+                const position = name.at(1)?.content ? Number.parseInt(name.at(1)?.content ?? '0') : 0
 
                 messagesToDelete.push(...name.map(m => m))
 
@@ -418,17 +418,18 @@ const playlist: Command = {
                   time: 60000,
                 })
 
-                if (!indexMsg) {
+                const msg = indexMsg?.first()
+
+                if (!msg) {
                   await followUp.edit('You took too long to respond. The action has been cancelled.')
                   break
                 }
 
-                messagesToDelete.push(indexMsg.first()!)
+                messagesToDelete.push(msg)
 
-                const index = parseInt(indexMsg.first()?.content ?? 'a')
+                const index = Number.parseInt(msg.content)
 
-                // 'a' parses to NaN if content were to be undefined
-                if (isNaN(index)) {
+                if (Number.isNaN(index)) {
                   await followUp.edit('You did not enter a valid index. The action has been cancelled.')
                   break
                 }
@@ -478,7 +479,7 @@ const playlist: Command = {
                 messagesToDelete.push(...name.map(m => m))
 
                 const url = name.first()?.content
-                const position = name.at(1)?.content ? parseInt(name.at(1)!.content) : NaN
+                const position = name.at(1)?.content ? Number.parseInt(name.at(1)?.content ?? '-1') : -1
 
                 // Check if valid url
                 if (!url || (!url.startsWith('https://') && !url.startsWith('http://'))) {
@@ -486,7 +487,7 @@ const playlist: Command = {
                   break
                 }
 
-                if (isNaN(position)) {
+                if (position < 0) {
                   await followUp.edit('You did not enter a valid index. The action has been cancelled.')
                   break
                 }
@@ -690,8 +691,10 @@ const playlist: Command = {
             await i.deferUpdate()
 
             if (i.customId === 'next') {
+              // biome-ignore lint/suspicious/noAssignInExpressions: no, just no
               (page - 1 < 0) ? page = playlists.length - 1 : page--
             } else if (i.customId === 'previous') {
+              // biome-ignore lint/suspicious/noAssignInExpressions: no, just no
               (page + 1 > playlists.length) ? page = 0 : page++
             }
 
@@ -858,6 +861,7 @@ const playlist: Command = {
           }
 
           const nameAndData = msg.first()
+          const file = nameAndData?.attachments.first()
 
           if (!nameAndData?.content) {
             await interaction.editReply({
@@ -867,7 +871,7 @@ const playlist: Command = {
             break
           }
 
-          if (!nameAndData?.attachments?.first()) {
+          if (!file) {
             await interaction.editReply({
               content: 'You did not attach a file. The command has been cancelled.',
               components: [optionsMenu]
@@ -875,7 +879,7 @@ const playlist: Command = {
             break
           }
 
-          if (nameAndData.attachments.first()?.contentType !== 'application/json; charset=utf-8') {
+          if (file.contentType !== 'application/json; charset=utf-8') {
             await interaction.editReply({
               content: 'The attached file is not a JSON file. The command has been cancelled.',
               components: [optionsMenu]
@@ -883,7 +887,7 @@ const playlist: Command = {
             break
           }
 
-          const [response, error] = await playlistManager.importPlaylist(nameAndData.content, interaction.user.id, nameAndData.attachments.first()!)
+          const [response, error] = await playlistManager.importPlaylist(nameAndData.content, interaction.user.id, file)
 
           const replies = {
             [PlaylistResponse.ERROR]: `Failed to import playlist: \`\`\`${error?.stack}\`\`\``,

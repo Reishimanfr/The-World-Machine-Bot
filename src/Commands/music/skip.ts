@@ -1,9 +1,6 @@
-import {
-  ChannelType,
-  SlashCommandBuilder
-} from 'discord.js'
+import { SlashCommandBuilder } from 'discord.js'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 import { logger } from '../../Helpers/Logger'
 
 const skip: Command<true> = {
@@ -70,7 +67,7 @@ const skip: Command<true> = {
         interaction,
         reason: 'Wants to skip the current song',
         requiredVotes,
-        voiceText: interaction.channel as any,
+        voiceText: interaction.channel,
         voiceChannel: member.voice.channel,
         time: 60000
       })

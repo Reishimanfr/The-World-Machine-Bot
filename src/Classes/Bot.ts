@@ -1,12 +1,12 @@
-import { Client, ClientOptions, Collection, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js'
+import { Client, type ClientOptions, Collection, REST, type RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js'
 import { logger } from '../Helpers/Logger'
-import { NodeGroup, Poru } from 'poru'
-import { readdirSync, statSync, writeFileSync } from 'fs'
-import { join } from 'path'
-import { Event } from '../Types/Event'
-import { Command } from '../Types/Command'
-import { setTimeout } from 'timers/promises'
-import { Button } from '../Types/Button'
+import { type NodeGroup, Poru } from 'poru'
+import { readdirSync, statSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import type { Event } from '../Types/Event'
+import type { Command } from '../Types/Command'
+import { setTimeout } from 'node:timers/promises'
+import type { Button } from '../Types/Button'
 require('dotenv').config()
 
 const COMMANDS_PATH = join(__dirname, '../Commands')
@@ -15,7 +15,7 @@ const PORU_EVENTS_PATH = join(__dirname, '../Events/Poru')
 const MUSIC_BUTTONS_PATH = join(__dirname, '../Events/Bot/Buttons')
 
 class Bot extends Client<true> {
-  private lavalinkNodesAmount = 5
+  private lavalinkNodesAmount = 1
   private nodes: NodeGroup[] = []
   public poru: Poru
 
@@ -23,10 +23,6 @@ class Bot extends Client<true> {
   public poruEvents: Collection<string, Event> = new Collection()
   public commands: Collection<string, Command> = new Collection()
   public musicButtons: Collection<string, Button> = new Collection()
-
-  constructor(options: ClientOptions) {
-    super(options)
-  }
 
   private loadModFiles<T>(dir: string, recursive: boolean): T[] {
     const files = readdirSync(dir)
@@ -37,13 +33,13 @@ class Bot extends Client<true> {
 
       if (isDir && recursive) {
         return modFiles.concat(this.loadModFiles<T>(filePath, recursive))
-      } else if (file.endsWith('.ts')) {
+      }
+      
+      if (file.endsWith('.ts')) {
         const mod = require(filePath)?.default
 
         if (!mod) {
           logger.warn(`Module ${file} doesn't have a default export. Skipping...`)
-        } else if (mod?.disabled) {
-          logger.warn(`Ignoring disabled module ${file}.`)
         } else {
           modFiles.push(mod)
         }
@@ -78,7 +74,7 @@ class Bot extends Client<true> {
     const assets = readdirSync(join(__dirname, '../Assets'))
       .filter(f => f.endsWith('.png'))
 
-    if (emojis.size === assets.length) return logger.debug(`Emojis guild already exists.`)
+    if (emojis.size === assets.length) return logger.debug("Emojis guild already exists.")
 
     if (emojis.size > 0) {
       logger.fatal(`Guild ${emojisGuild.name} (${emojisGuild.id}) already has emojis in it. Please remove all emojis or create a new empty server.`)
@@ -88,12 +84,12 @@ class Bot extends Client<true> {
     logger.warn(`Adding ${assets.length} emojis to ${emojisGuild.name} (${emojisGuild.id}) in 10 seconds...`)
     await setTimeout(10000)
 
-    let emojisData = {}
+    const emojisData = {}
 
     for (const file of assets) {
       const fullPath = join(__dirname, `../Assets/${file}`)
 
-      await setTimeout(100) // To spam the api less
+      await setTimeout(200) // To spam the api less
       const name = file.split('.')[0] // Remove extension
 
       await emojisGuild.emojis.create({
@@ -112,8 +108,8 @@ class Bot extends Client<true> {
 
     writeFileSync(join(__dirname, '../../icons.json'), JSON.stringify(emojisData, null, 2), 'utf-8')
 
-    logger.info(`Icon file saved.`)
-    logger.info(`You can use the bot as normal now!`)
+    logger.info("Icon file saved.")
+    logger.info("You can use the bot as normal now!")
   }
 
   public async initialize(token: string) {
@@ -149,7 +145,9 @@ class Bot extends Client<true> {
 
     for (const mod of poruModFiles) {
       mod.once
+        // biome-ignore lint/suspicious/noExplicitAny: Nope! Args here have to be any because of how my handlers work
         ? this.poru.once(mod.name as any, (...args) => mod.execute(...args))
+        // biome-ignore lint/suspicious/noExplicitAny: Nope! Args here have to be any because of how my handlers work
         : this.poru.on(mod.name as any, (...args) => mod.execute(...args))
     }
 
@@ -162,7 +160,11 @@ class Bot extends Client<true> {
     }
 
     this.createIcons()
-    if (process.env.REGISTER_COMMANDS_ON_START) await this.registerCommands(token)
+
+    // There are no booleans in .env files
+    if (process.env.REGISTER_COMMANDS_ON_START === 'true') {
+      await this.registerCommands(token)
+    }
   }
 
   public async registerCommands(token: string) {

@@ -1,4 +1,4 @@
-import { Button } from '../../../Types/Button'
+import type { Button } from '../../../Types/Button'
 
 const queue: Button = {
   name: 'queue',
@@ -12,24 +12,11 @@ const queue: Button = {
       })
     }
     
-    const embeds = player.queueManager.createQueueEmbed()
-  
-    if (!embeds?.length) {
-      return interaction.editReply({
-        content: 'Failed to create a queue message.'
-      })
-    }
-  
-    if (embeds.length === 1) {
-      return interaction.editReply({
-        embeds: [...embeds]
-      })
-    }
-  
-    const description = embeds[0].data.description += '### :warning: For full list of songs, use the `/queue` command!'
+    const embed = player.queueManager.createQueueEmbed()[0]
+    const description = `${embed.data.description} ### :warning: For full list of songs use the \`/queue\` command.`
   
     await interaction.editReply({
-      embeds: [embeds[0].setDescription(description)]
+      embeds: [embed.setDescription(description)]
     })
   }
 }

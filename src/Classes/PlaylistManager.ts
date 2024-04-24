@@ -1,9 +1,9 @@
-import { ActionRowBuilder, Attachment, AttachmentBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, User } from 'discord.js'
+import { ActionRowBuilder, type Attachment, AttachmentBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, type User } from 'discord.js'
 import { client } from '..'
 import { playlists } from '../Models'
-import { Track } from 'poru'
+import type { Track } from 'poru'
 import axios from 'axios'
-import { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import type { ExtPlayer } from '../Helpers/ExtendedPlayer'
 import { TimeFormatter } from './TimeFormatter'
 
 export interface Playlist {
@@ -16,18 +16,18 @@ export interface Playlist {
 }
 
 export enum PlaylistResponse {
-  SUCCESS,
-  ALREADY_EXISTS,
-  NOT_FOUND,
-  ERROR,
-  NO_TRACKS,
-  NO_PLAYLISTS,
-  TOO_MANY_TRACKS,
-  TOO_MANY_PLAYLISTS,
-  INVALID_PLAYLIST_URL,
-  EMPTY_PLAYLIST,
-  INVALID_DATA,
-  NOTHING_TO_DO
+  SUCCESS = 0,
+  ALREADY_EXISTS = 1,
+  NOT_FOUND = 2,
+  ERROR = 3,
+  NO_TRACKS = 4,
+  NO_PLAYLISTS = 5,
+  TOO_MANY_TRACKS = 6,
+  TOO_MANY_PLAYLISTS = 7,
+  INVALID_PLAYLIST_URL = 8,
+  EMPTY_PLAYLIST = 9,
+  INVALID_DATA = 10,
+  NOTHING_TO_DO = 11
 }
 
 class PlaylistManager {
@@ -78,13 +78,13 @@ class PlaylistManager {
    */
   public async getPlaylistFromName(name: string, userId: string): Promise<[PlaylistResponse, Playlist?, Error?]> {
     const [allPlaylists, error] = await this.getAllPlaylists(userId)
-    const playlist = allPlaylists?.find(playlist => playlist.name === name) as any
+    const playlist = allPlaylists?.find(playlist => playlist.name === name)
 
     if (!allPlaylists || !playlist) return [PlaylistResponse.ERROR, undefined, error]
 
     // LMAO this is some hacky shit on god
     // I'm a programming god and I know what I'm doing (not 
-    if (playlist.tracks !== null && playlist.tracks instanceof Array) {
+    if (playlist.tracks !== null && Array.isArray(playlist.tracks)) {
       playlist.tracks = playlist.tracks.join(' ')
     }
 
@@ -137,8 +137,8 @@ class PlaylistManager {
               .setFooter({ text: 'Page 1 of 1' })
           ]
         ]
-      } else {
-        const tracks: Array<Track> = (playlist.tracks !== null) ? await client.poru.decodeTracks(playlist.tracks.split(' '), client.poru.leastUsedNodes[0]) as any : []
+      }
+        const tracks = (playlist.tracks !== null) ? await client.poru.decodeTracks(playlist.tracks.split(' '), client.poru.leastUsedNodes[0]) as Track[] : [] as Track[]
         const tracksStrings: Array<string> = []
 
         if (tracks.length === 0) {
@@ -149,7 +149,8 @@ class PlaylistManager {
                 .setDescription(':x: Empty playlist!')
                 .setFooter({ text: 'Page 1 of 1' })
             ]]
-        } else {
+        }
+
           for (let i = 0; i < tracks.length; i++) {
             tracksStrings.push(`\`#${i + 1}\`: **[${tracks[i].info.title} - ${tracks[i].info.author}](${tracks[i].info.uri})** - ${formatter.duration(tracks[i].info.length / 1000)}`)
           }
@@ -166,8 +167,6 @@ class PlaylistManager {
           }
 
           return [PlaylistResponse.SUCCESS, embeds]
-        }
-      }
     } catch (error) {
       return [PlaylistResponse.ERROR, undefined, error]
     }

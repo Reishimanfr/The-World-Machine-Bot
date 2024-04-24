@@ -1,11 +1,10 @@
-import { EmbedBuilder, SlashCommandBuilder, TextChannel, ApplicationCommandOptionChoiceData } from 'discord.js'
-import Queue from 'poru/dist/src/guild/Queue'
+import { SlashCommandBuilder, type TextChannel, type ApplicationCommandOptionChoiceData } from 'discord.js'
+import type Queue from 'poru/dist/src/guild/Queue'
 import { client } from '../..'
-import { embedColor } from '../../Helpers/Util'
 import { logger } from '../../Helpers/Logger'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
-import { Track } from 'poru'
+import type { Track } from 'poru'
 
 const skipTo: Command<true> = {
   permissions: {

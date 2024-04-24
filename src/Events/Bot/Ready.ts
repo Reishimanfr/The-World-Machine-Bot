@@ -1,10 +1,10 @@
 import { Events } from 'discord.js'
 import { logger } from '../../Helpers/Logger'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 import pjson from '../../../package.json'
 import axios from 'axios'
 import semver from 'semver'
-import { Bot } from '../../Classes/Bot'
+import type { Bot } from '../../Classes/Bot'
 require('dotenv').config()
 
 async function checkIfNewVersionAvailable() {

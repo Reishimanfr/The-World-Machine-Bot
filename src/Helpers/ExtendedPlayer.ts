@@ -1,13 +1,12 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, GuildMember, Message, User } from 'discord.js'
-import { Response as LavalinkResponse, LoadType, Player, Response, Track } from 'poru'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, type Guild, type GuildMember, type Message } from 'discord.js'
+import { Player, type Track } from 'poru'
 import { logger } from './Logger'
-import { Segment } from 'sponsorblock-api'
+import type { Segment } from 'sponsorblock-api'
 import axios from 'axios'
 import constructProgressBar from '../Funcs/ProgressBarConstructor'
 import { playerGifUrl, inactiveGifUrl, embedColor } from './Util'
-import { PlayerSettingsI } from '../Models'
+import type { PlayerSettingsI } from '../Models'
 import { TimeFormatter } from '../Classes/TimeFormatter'
-import { readFileSync } from 'fs'
 
 const TranslateSponsorBlockNames = {
   filler: 'Filler',
@@ -21,9 +20,9 @@ const TranslateSponsorBlockNames = {
 } as const
 
 export enum SaveStatus {
-  'DmChannelFailure',
-  'NotPlaying',
-  'Success'
+  DmChannelFailure = 0,
+  NotPlaying = 1,
+  Success = 2
 }
 
 export interface PlayerIconsI {
@@ -218,7 +217,8 @@ export class MessageManager {
     const icons = Object.fromEntries(
       Object.entries(this.player.icons).map(([key, value]) => {
         const matchArray = value.match(pattern)
-        return [key, matchArray![1]]
+
+        return [key, matchArray?.[1] ?? '⚠']
       })
     )
 
@@ -312,7 +312,7 @@ export class PlayerController {
       const nextIdx = (currentIdx + 1) % loopOrder.length
       const nextLoop = loopOrder[nextIdx]
 
-      // Type not exported from poru :( )
+      // biome-ignore lint/suspicious/noExplicitAny: Poru doesn't export the LoopType type for some reason
       this.player.setLoop(nextLoop as any)
     }
   }
@@ -397,10 +397,8 @@ export class QueueManager {
   /**
    * Creates a embed with the current queue entries
    */
-  public createQueueEmbed(): EmbedBuilder[] | null {
+  public createQueueEmbed(): EmbedBuilder[] {
     const queue = this.player.queue
-
-    if (queue.length < 1) return null
 
     const entryStrings: string[] = []
     const embeds: EmbedBuilder[] = []
@@ -412,7 +410,7 @@ export class QueueManager {
 
     // Split by 6 entries per page
     for (let i = 0; i < entryStrings.length; i += this.ENTRIES_PER_PAGE) {
-      const slice = entryStrings.slice(i, i += this.ENTRIES_PER_PAGE)
+      const slice = entryStrings.slice(i, i + this.ENTRIES_PER_PAGE)
 
       let description = ''
 

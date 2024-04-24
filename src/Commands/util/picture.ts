@@ -8,7 +8,7 @@ import {
   SlashCommandBuilder
 } from 'discord.js'
 import { embedColor } from '../../Helpers/Util'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 
 async function getImage(link: string) {
   const request = await axios.get(link)

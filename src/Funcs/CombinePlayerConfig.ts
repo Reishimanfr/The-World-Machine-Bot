@@ -1,4 +1,4 @@
-import { PlayerSettingsI, PlayerSettings, defaultConfig } from '../Models'
+import { type PlayerSettingsI, PlayerSettings, defaultConfig } from '../Models'
 
 /**s
  * This function combines the default config with the overrides a user may have added.
@@ -14,8 +14,8 @@ export async function combineConfig(guildId: string): Promise<PlayerSettingsI> {
 
   const data = record.dataValues
   // We don't need these properties
-  delete data.id
-  delete data.guildId
+  data.id = undefined
+  data.guildId = undefined
 
   for (const [key, value] of Object.entries(data)) {
     data[key] = value ?? defaultConfig[key]

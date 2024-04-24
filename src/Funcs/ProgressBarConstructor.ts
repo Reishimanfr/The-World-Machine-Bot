@@ -1,4 +1,4 @@
-import { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import type { ExtPlayer } from '../Helpers/ExtendedPlayer'
 
 function constructProgressBar(player: ExtPlayer, full?: boolean) {
   const songProgress = Math.round((player.position / player.currentTrack.info.length) * 100) / 100
@@ -71,7 +71,7 @@ function constructProgressBar(player: ExtPlayer, full?: boolean) {
 
     center = CENTER['10'].repeat(repeat)
 
-    if (parseInt(rest) > 0) {
+    if (Number.parseInt(rest) > 0) {
       center += CENTER[rest]
     }
 

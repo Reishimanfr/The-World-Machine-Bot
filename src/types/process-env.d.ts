@@ -6,8 +6,8 @@ declare global {
       TENOR_API_KEY: string
 
       CUSTOM_EMOJIS_GUILD_ID: string
-      REGISTER_COMMANDS_ON_START: boolean
-      LEAVE_INACTIVE_GUILDS: boolean
+      REGISTER_COMMANDS_ON_START: string
+      LEAVE_INACTIVE_GUILDS: string
 
       DATABASE_DIALECT: 'sqlite' | 'postgres'
       DATABASE_HOST: string
@@ -25,4 +25,4 @@ declare global {
   }
 }
 
-export {}
+export type {}

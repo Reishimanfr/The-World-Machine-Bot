@@ -1,5 +1,5 @@
 import { logger } from '../../Helpers/Logger'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 
 const NodeError: Event = {
   name: 'nodeError',

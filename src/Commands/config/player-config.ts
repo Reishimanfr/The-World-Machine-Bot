@@ -1,11 +1,11 @@
-import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
-import { Model } from 'sequelize'
+import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, roleMention, type ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
+import type { Model } from 'sequelize'
 import { PlayerSettings, SponsorBlockDb } from '../../Models'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 
 const NON_TOGGLE_OPTIONS = ['showConfig', 'djRoleId', 'voteSkipMembers', 'setVoteSkipThreshold', 'sponsorBlockConfig']
 
-interface PlayerSettings {
+interface PlayerSettingsI {
   guildId: string
   requireDjRole: boolean
   djRoleId: string
@@ -238,7 +238,7 @@ async function setVoteSkipMembers(interaction: ChatInputCommandInteraction) {
 
   const newAmount = Number(rawAmount.content)
 
-  if (isNaN(newAmount)) {
+  if (Number.isNaN(newAmount)) {
     await interaction.editReply({
       content: 'The provided value is not a valid number.'
     })
@@ -270,7 +270,7 @@ async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
 
   const newAmount = Number(rawAmount.content)
 
-  if (isNaN(newAmount)) {
+  if (Number.isNaN(newAmount)) {
     await interaction.editReply({
       content: 'The provided value is not a valid number.'
     })
@@ -286,8 +286,8 @@ async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
   })
 }
 
-async function showConfig(interaction: ChatInputCommandInteraction, record: Model<any, any>) {
-  const data = record.dataValues as PlayerSettings
+async function showConfig(interaction: ChatInputCommandInteraction, record: Model) {
+  const data = record.dataValues as PlayerSettingsI
 
   const isEnabled = (bool: boolean): string => { return bool ? '✅' : '❌' }
 

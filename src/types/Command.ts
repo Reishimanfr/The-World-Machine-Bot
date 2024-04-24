@@ -1,11 +1,9 @@
-import { AutocompleteInteraction, ChatInputCommandInteraction, PermissionResolvable, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
-import { ExtPlayer } from '../Helpers/ExtendedPlayer'
-import { Bot } from '../Classes/Bot'
+import type { AutocompleteInteraction, ChatInputCommandInteraction, PermissionResolvable, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
+import type { ExtPlayer } from '../Helpers/ExtendedPlayer'
+import type { Bot } from '../Classes/Bot'
 
 export interface Command<T = true> {
   data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder
-
-  disabled?: boolean
 
   helpData?: {
     description: string
@@ -35,6 +33,6 @@ export interface Command<T = true> {
     interaction: ChatInputCommandInteraction<'cached'>
     client: Bot
     player: T extends true ? ExtPlayer : null
-  }>) => any
-  autocomplete?: (interaction: AutocompleteInteraction<'cached'>) => any
+  }>) => Promise<unknown>
+  autocomplete?: (interaction: AutocompleteInteraction<'cached'>) => Promise<unknown>
 }

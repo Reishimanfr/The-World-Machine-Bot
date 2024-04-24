@@ -1,8 +1,8 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 import axios from 'axios'
 import { TimeFormatter } from '../../Classes/TimeFormatter'
-import { NodeStats } from 'poru'
+import type { NodeStats } from 'poru'
 
 function formatBlock(string: string): `\`\`\`${string}\`\`\`` {
   return `\`\`\`${string}\`\`\``
@@ -21,7 +21,7 @@ const about: Command<false> = {
   callback: async ({ interaction, client }) => {
     const formatter = new TimeFormatter()
     const fetchUser = await axios.get('https://discord.com/api/users/844684172421496882', {
-      headers: { 'Authorization': `Bot ${client.token}` }
+      headers: { Authorization: `Bot ${client.token}` }
     })
 
     const servingUsers = client.guilds.cache
@@ -34,7 +34,8 @@ const about: Command<false> = {
     const lavalinkStats = await client.poru.getLavalinkStatus(node.name) as NodeStats
 
     const nodeNames: string[] = []
-    client.poru.nodes.forEach(n => nodeNames.push(n.name))
+
+    for (const [name, _] of client.poru.nodes.entries()) nodeNames.push(name)
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: 'Some info about the bot and it\'s creator' })
@@ -43,12 +44,12 @@ const about: Command<false> = {
       .setFields([
         {
           name: '🌐 Servers',
-          value: `${formatBlock(String(client.guilds.cache.size) + '/100')}`,
+          value: `${formatBlock(`${client.guilds.cache.size}/100`)}`,
           inline: true
         },
         {
           name: '👤 Serving',
-          value: `${formatBlock(servingUsers + ' users')}`,
+          value: `${formatBlock(`${servingUsers} users`)}`,
           inline: true
         },
         {
@@ -62,7 +63,7 @@ const about: Command<false> = {
         },
         {
           name: 'RAM usage (lavalink)',
-          value: `${formatBlock((lavalinkStats.memory.used / (1024 ** 2)).toFixed(2) + 'MB')}`,
+          value: `${formatBlock(`${(lavalinkStats.memory.used / (1024 ** 2)).toFixed(2)} MB`)}`,
           inline: true
         },
         {

@@ -1,24 +1,28 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, ButtonInteraction, ChatInputCommandInteraction, TextChannel, VoiceBasedChannel, VoiceChannel } from 'discord.js'
-import { setTimeout } from 'timers/promises'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, type ButtonInteraction, type ChatInputCommandInteraction, type VoiceBasedChannel, type VoiceChannel, type TextBasedChannel } from 'discord.js'
+import { setTimeout } from 'node:timers/promises'
 import { client } from '..'
 
 export enum VoteStatus {
-  'Failure',
-  'Success',
-  'Error'
+  Failure = 0,
+  Success = 1,
+  Error = 2
 }
 
 async function CreateVote (args: {
   reason: string
   interaction: ChatInputCommandInteraction | ButtonInteraction
-  voiceText: TextChannel | VoiceChannel
+  voiceText: TextBasedChannel
   voiceChannel: VoiceChannel | VoiceBasedChannel
   requiredVotes: number
   time: number
 }): Promise<[VoteStatus, Error?]> {
   const { reason, voiceText, voiceChannel, requiredVotes, interaction, time } = args
 
-  if (!voiceText.permissionsFor(client .user!.id)?.has('SendMessages')) {
+  if (voiceText.isDMBased()) {
+    return [VoteStatus.Error, new Error('Invalid channel type. Expected any text based channel apart from DM, which was provided.')]
+  }
+
+  if (!voiceText.permissionsFor(client.user?.id)?.has('SendMessages')) {
     return [VoteStatus.Error, new Error('Insufficient permissions in channel: SendMessages permission missing')]
   }
 

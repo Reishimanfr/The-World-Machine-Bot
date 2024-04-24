@@ -1,8 +1,8 @@
-import { Category, Segment, SponsorBlock } from 'sponsorblock-api'
+import { type Category, type Segment, SponsorBlock } from 'sponsorblock-api'
 import { client } from '../..'
-import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
+import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { logger } from '../../Helpers/Logger'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 import { SponsorBlockDb } from '../../Models'
 
 const TrackStart: Event = {
@@ -20,7 +20,7 @@ const TrackStart: Event = {
       const segments: Array<string> = []
 
       for (const [key, value] of Object.entries(sponsorBlockConfig)) {
-        const bool = (value === '0' || value === '1') ? Boolean(parseInt(value)) : Boolean(value)
+        const bool = (value === '0' || value === '1') ? Boolean(Number.parseInt(value)) : Boolean(value)
         if (bool && !['id', 'guildId', 'createdAt', 'updatedAt'].includes(key)) segments.push(key)
       }
 

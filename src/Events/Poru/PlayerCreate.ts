@@ -1,8 +1,8 @@
-import { readFileSync } from 'fs'
+import { readFileSync } from 'node:fs'
 import { combineConfig } from '../../Funcs/CombinePlayerConfig'
-import { ExtPlayer, MessageManager, PlayerController, QueueManager } from '../../Helpers/ExtendedPlayer'
-import { Event } from '../../Types/Event'
-import { join } from 'path'
+import { type ExtPlayer, MessageManager, PlayerController, QueueManager } from '../../Helpers/ExtendedPlayer'
+import type { Event } from '../../Types/Event'
+import { join } from 'node:path'
 
 const PlayerCreate: Event = {
   name: 'playerCreate',

@@ -1,42 +1,39 @@
-import { ExtPlayer } from '../../Helpers/ExtendedPlayer'
-import { logger } from '../../Helpers/Logger'
+import type { EmbedBuilder } from 'discord.js'
+import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { inactiveGifUrl } from '../../Helpers/Util'
-import { Event } from '../../Types/Event'
+import type { Event } from '../../Types/Event'
 
 const QueueEnd: Event = {
   name: 'queueEnd',
   once: false,
   execute: async (player: ExtPlayer) => {
-    // Set the player timeout
-    player.controller.setupPlayerTimeout()
-
-    const embed = await player.messageManger.createPlayerEmbed()
-    const buttons = player.messageManger.createPlayerButtons(true)
-    const descriptionSplit = embed.at(0)?.data.description?.split('\n')
-
     if (player.settings.queueEndDisconnect) return player.destroy()
 
+    player.controller.setupPlayerTimeout()
+    player.pauseEditing = true
+
     const message = await player.message?.fetch()
-      .catch(() => null)
+      .catch(() => null) // We can't do anything about a potential error here...
 
     if (!message) return
 
-    embed.at(0)?.setDescription(`${descriptionSplit?.[0] ?? ''}`)
-    embed.at(0)?.setAuthor({
+    // We don't need the other embeds here
+    const embed: EmbedBuilder = await player.messageManger.createPlayerEmbed()[0]
+    const buttons = player.messageManger.createPlayerButtons(true)
+
+    const descriptionSplit = embed[0].data.description?.split('\n')
+
+    embed.setDescription(`${descriptionSplit?.[0] ?? ''}`)
+    embed.setAuthor({
       name: 'Idling...⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
       iconURL: inactiveGifUrl
     })
 
-    player.pauseEditing = true
-
-    try {
-      await message.edit({
-        embeds: [embed.at(0)!],
-        components: [buttons]
-      })
-    } catch (error) {
-      logger.error(`Failed to update message on queue end: ${error}`)
-    }
+    await message.edit({
+      embeds: [embed],
+      components: [buttons]
+    })
+      .catch(() => {}) // ... neither can we do anything here
   }
 }
 

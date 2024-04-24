@@ -1,6 +1,6 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder, GuildMember } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder, type GuildMember } from 'discord.js'
 import { embedColor } from '../../Helpers/Util'
-import { Command } from '../../Types/Command'
+import type { Command } from '../../Types/Command'
 
 const avatar: Command = {
   permissions: {

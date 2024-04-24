@@ -1,5 +1,5 @@
 import { SaveStatus } from '../../../Helpers/ExtendedPlayer'
-import { Button } from '../../../Types/Button'
+import type { Button } from '../../../Types/Button'
 
 const save: Button = {
   name: 'save',
