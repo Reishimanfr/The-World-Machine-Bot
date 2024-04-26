@@ -123,7 +123,7 @@ const play: Command = {
               .setStyle(ButtonStyle.Secondary)
           )
 
-        const response = await interaction.reply({
+        const response = await interaction.editReply({
           content: "\`❓\` - This link seems to lead to a playlist. Do you want to load it?",
           components: [buttons]
         })

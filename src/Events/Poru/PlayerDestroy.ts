@@ -17,8 +17,6 @@ const PlayerDestroy: Event = {
     const embed: EmbedBuilder = (await player.messageManger.createPlayerEmbed(true))[0]
     const buttons = player.messageManger.createPlayerButtons(true)
 
-    console.log(embed)
-
     const descriptionSplit = embed.data.description?.split('\n')
 
     embed.setDescription(`${descriptionSplit?.[0] ?? ''}`)
