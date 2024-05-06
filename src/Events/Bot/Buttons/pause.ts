@@ -8,18 +8,13 @@ const togglePlayback: Button = {
   },
 
   run: async ({ interaction, player }) => {
-    const member = await interaction.guild?.members.fetch(interaction.user.id)
-
-    if (!member?.voice.channel) {
-      return interaction.reply({
-        content: 'You must be in a voice channel to use this command.',
-        ephemeral: true
-      })
-    }
-  
-    await interaction.deferUpdate()
     player.pause(!player.isPaused)
     player.messageManger.updatePlayerMessage()
+
+    interaction.reply({
+      content: player.isPaused ? 'Paused' : 'Resumed',
+      ephemeral: true
+    })
   }
 }
 

@@ -62,66 +62,65 @@ const player_config: Command = {
           .setCustomId('options-select')
           .setOptions(
             {
-              label: 'View config',
-              description: 'Shows the current configuration of the player.',
-              value: 'showConfig',
-              emoji: '⚙️'
+              label: "Config",
+              description: "Display current player settings.",
+              value: "showConfig",
+              emoji: "⚙️"
             },
             {
-              label: 'Sponsorblock auto skipping',
-              description: 'Configures skipping sponsored segments automatically with sponsorblock.',
-              value: 'sponsorBlockConfig',
-              emoji: '⏭'
+              label: "Sponsor Skip",
+              description: "Automatically skip sponsored segments with Sponsorblock.",
+              value: "sponsorBlockConfig",
+              emoji: "⏭"
             },
             {
-              label: 'Leave on queue end',
-              description: 'Toggles if the bot should leave after a queue ends.',
-              value: 'queueEndDisconnect',
-              emoji: '👋'
+              label: "Auto-Leave",
+              description: "Automatically leave after queue ends.",
+              value: "queueEndDisconnect",
+              emoji: "👋"
             },
             {
-              label: 'Vote skipping',
-              description: 'Toggles if skipping a song requires users to vote to skip.',
-              value: 'voteSkipToggle',
-              emoji: '⏩'
+              label: "Vote Skip",
+              description: "Require votes to skip a song.",
+              value: "voteSkipToggle",
+              emoji: "⏩"
             },
             {
-              label: 'Resend message after song end',
-              description: 'Toggles if the bot should resend the now playing message on new track.',
-              value: 'resendMessageOnEnd',
-              emoji: '↪️'
+              label: "Resend On End",
+              description: "Resend the 'now playing' message for new tracks.",
+              value: "resendMessageOnEnd",
+              emoji: "↪️"
             },
             {
-              label: 'Dynamic now playing message',
-              description: 'Toggles if the bot should update the now playing message every 15s.',
-              value: 'dynamicNowPlaying',
-              emoji: '🔄'
+              label: "Dynamic Now Playing",
+              description: "Update 'now playing' message every 15s.",
+              value: "dynamicNowPlaying",
+              emoji: "🔄"
             },
             {
-              label: 'Require DJ role',
-              description: 'Toggles if members are required to have the DJ role to use commands.',
-              value: 'requireDjRole',
-              emoji: '❗'
-            },
-            { 
-              label: 'DJ role',
-              description: 'Sets the role to be considered the "DJ role".',
-              value: 'djRoleId',
-              emoji: '✨'
-            },
-            { 
-              label: 'Vote skipping member amount',
-              description: 'Sets how many members must be in voice channel for voting to be enabled.',
-              value: 'voteSkipMembers',
-              emoji: '🔢'
+              label: "DJ Role Required",
+              description: "Members need DJ role to use commands.",
+              value: "requireDjRole",
+              emoji: "❗"
             },
             {
-              label: 'Vote skipping threshold (%)',
-              description: 'Sets the % of members required to vote "yes" to skip a song.',
-              value: 'setVoteSkipThreshold',
-              emoji: '🔢'
-            }
-          )
+              label: "Set DJ Role",
+              description: "Define the DJ role.",
+              value: "djRoleId",
+              emoji: "✨"
+            },
+            {
+              label: "Vote Skip Members",
+              description: "Number of members needed to enable voting.",
+              value: "voteSkipMembers",
+              emoji: "🔢"
+            },
+            {
+              label: "Vote Skip Threshold",
+              description: "Percentage of 'yes' votes required to skip a song.",
+              value: "setVoteSkipThreshold",
+              emoji: "🔢"
+            })
       )
 
     const res = await interaction.reply({
