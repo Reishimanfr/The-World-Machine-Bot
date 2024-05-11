@@ -149,7 +149,7 @@ npm start
 ```
 
 ## ❓ Support
-**[Join the support server](https://discord.gg/QGeraSWsan)**... or message me on discord directly! (@rei.shi)
+**[Join the support server](https://discord.gg/9VyyCkMSFP)**... or message me on discord directly! (@rei.shi)
 
 ## ✨ Some project stats
 ![Alt](https://repobeats.axiom.co/api/embed/1a10163858d87c76196a1510e496f5c5cfb6990e.svg "Repobeats analytics image")
