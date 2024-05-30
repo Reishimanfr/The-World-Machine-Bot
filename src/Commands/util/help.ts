@@ -48,7 +48,7 @@ const help: Command = {
           new StringSelectMenuOptionBuilder()
             .setLabel(`${mod.data.name}`)
             .setDescription(clipString({ string: mod.data.description, maxLength: 95, sliceEnd: '...' }))
-            .setEmoji(Number(mod.data.default_member_permissions) === 32 ? '💠' : '🔶')
+            .setEmoji(Number(mod.data.toJSON().default_member_permissions) === 32 ? '💠' : '🔶')
             .setValue(mod.data.name)
         )
       }

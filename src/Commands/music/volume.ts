@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const volume: Command<true> = {
@@ -30,7 +30,11 @@ const volume: Command<true> = {
     await player.setVolume(volume)
     
     interaction.reply({
-      content: `\`✅\` - Volume set to \`${volume}%\``,
+      embeds: [
+        new EmbedBuilder()
+          .setDescription(`[ Volume set to \`${volume}%\`. ]`)
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
   }

@@ -1,9 +1,11 @@
-import type { AutocompleteInteraction, ChatInputCommandInteraction, PermissionResolvable, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
+import type { AutocompleteInteraction, ChatInputCommandInteraction, ContextMenuCommandBuilder, Message, PermissionResolvable, SlashCommandBuilder, SlashCommandOptionsOnlyBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
 import type { ExtPlayer } from '../Helpers/ExtendedPlayer'
 import type { Bot } from '../Classes/Bot'
 
 export interface Command<T = true> {
-  data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder
+  data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
+        | SlashCommandSubcommandsOnlyBuilder
+        | SlashCommandOptionsOnlyBuilder
 
   helpData?: {
     description: string

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const pause: Command<true> = {
@@ -26,7 +26,11 @@ const pause: Command<true> = {
     player.pause(!player.isPaused)
 
     interaction.reply({
-      content: `${player.isPaused ? '`▶` - Resumed.' : '`⏸` - Paused.'}`,
+      embeds: [
+        new EmbedBuilder()
+          .setDescription(`[ Playback ${!player.isPaused ? 'paused' : 'resumed'}. ]`)
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
 

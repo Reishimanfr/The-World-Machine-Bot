@@ -1,4 +1,4 @@
-import { Client, type ClientOptions, Collection, REST, type RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js'
+import { Client, Collection, REST, type RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js'
 import { logger } from '../Helpers/Logger'
 import { type NodeGroup, Poru } from 'poru'
 import { readdirSync, statSync, writeFileSync } from 'node:fs'
@@ -94,11 +94,12 @@ class Bot extends Client<true> {
 
       await emojisGuild.emojis.create({
         attachment: fullPath,
-        name: name
+        name: name,
+        reason: 'Emoji used by TWM to display various elements in commands. This is REQUIRED and should NOT be messed with.',
       })
-      .then(_ => {
-        logger.debug(`Created emoji -> ${_.name} (${_.toString()})`)
-        emojisData[name] = _.toString()
+      .then(emoji => {
+        logger.debug(`Created emoji -> ${emoji.name} (${emoji.toString()})`)
+        emojisData[name] = emoji.toString()
       })
       .catch(error => {
         logger.error(`Failed to create emoji from file ${file} falling back to default icon: ${error.stack}`)

@@ -10,10 +10,9 @@ const QueueEnd: Event = {
     if (player.settings.queueEndDisconnect) return player.destroy()
 
     player.controller.setupPlayerTimeout()
-    player.pauseEditing = true
 
     const message = await player.message?.fetch()
-      .catch(() => null) // We can't do anything about a potential error here...
+      .catch(() => {})
 
     if (!message) return
 
@@ -33,7 +32,7 @@ const QueueEnd: Event = {
       embeds: [embed],
       components: [buttons]
     })
-      .catch(() => {}) // ... neither can we do anything here
+      .catch(() => {})
   }
 }
 

@@ -3,7 +3,6 @@ import type { Event } from '../../Types/Event'
 import { logger } from '../../Helpers/Logger'
 import { client } from '../..'
 import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
-import { embedColor } from '../../Helpers/Util'
 import { combineConfig } from '../../Funcs/CombinePlayerConfig'
 import { serverStats } from '../../Models'
 
@@ -16,10 +15,7 @@ const InteractionMap = {
 const InteractionCreate: Event = {
   name: Events.InteractionCreate,
   once: false,
-  execute: async (interaction: Interaction) => {
-    // Typeguard because we use the guild intents
-    if (!interaction.inCachedGuild()) return 
-
+  execute: async (interaction: Interaction<'cached'>) => {
     const [record] = await serverStats.findOrCreate({
       where: { guildId: interaction.guildId },
       defaults: { guildId: interaction.guildId, lastActive: new Date() }
@@ -37,7 +33,7 @@ const InteractionCreate: Event = {
     try {
       await handler(interaction)
     } catch (error) {
-      console.error(`Interaction failed with error: ${error}`)
+      console.error(`Interaction failed with error: ${error.stack}`)
     }
   }
 }

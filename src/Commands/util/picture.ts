@@ -7,14 +7,13 @@ import {
   EmbedBuilder,
   SlashCommandBuilder
 } from 'discord.js'
-import { embedColor } from '../../Helpers/Util'
 import type { Command } from '../../Types/Command'
 
 async function getImage(link: string) {
   const request = await axios.get(link)
   const data = request.data
 
-  return data.image || data.data.url // Depending on which api we're using
+  return data.image || data.data.url
 }
 
 const picture: Command = {
@@ -65,12 +64,9 @@ const picture: Command = {
   },
 
   callback: async ({ interaction }) => {
-    if (!interaction.inCachedGuild()) return
-
     const choice = interaction.options.getString('animal')
     const secret = interaction.options.getBoolean('secret') ?? false
 
-    // Depending on the choice prepare the link to be used in the getImage function
     const link =
       choice === 'capybara'
         ? 'https://api.capy.lol/v1/capybara?json=true'
@@ -79,10 +75,9 @@ const picture: Command = {
     const image = await getImage(link)
 
     const embed = new EmbedBuilder()
-      .setImage(image) // Get and set the image
+      .setImage(image)
       .setColor(embedColor)
 
-    // The reason we use a array is so we can edit the .setDisabled value of the button once the interaction expires
     const components = [
       new ButtonBuilder()
         .setCustomId('get-another')

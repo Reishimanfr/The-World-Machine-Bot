@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
 import { clipString } from '../../Funcs/ClipString'
@@ -60,11 +60,23 @@ const play: Command = {
     let player = client.poru.players.get(interaction.guild.id) as ExtPlayer | undefined
 
     if (!member.voice.channel) {
-      return interaction.editReply('You must be in a voice channel to use this.')
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You must be in a voice channel to use this. ]')
+            .setColor(embedColor)
+        ]
+      })
     }
 
     if (!member.voice.channel.joinable) {
-      return interaction.editReply('I can\'t join this voice channel.')
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ I can\'t join your voice channel. ]')
+            .setColor(embedColor)
+        ]
+      })
     }
 
     if (!player) {
@@ -92,18 +104,36 @@ const play: Command = {
 
     switch (loadType) {
       case 'error': {
-        return interaction.editReply(`\`⚠\` - Failed to load track. Possible solutions:\n* Double-check if the URL/search query is correct\n* Make sure the video/song is available\nLavalink response data (send this to the bot's developer!):\`\`\`${JSON.stringify(fullResponse, null, 2)}\`\`\``)
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setDescription(`[ Track failed to load. ] \nFull lavalink response: ${JSON.stringify(fullResponse, null, 2)}`)
+              .setColor(embedColor)
+          ]
+        })
       }
 
       case 'empty': {
-        return interaction.editReply(`\`❌\` - No results for \`${query}\`.`)
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setDescription("[ Nothing found matching your search query. ]")
+              .setColor(embedColor)
+          ]
+        })
       }
 
       case 'search':
       case 'track': {
         player.queue.add(tracks[0])
 
-        await interaction.editReply(`\`✅\` - Track \`${tracks[0].info.title} - ${tracks[0].info.author}\` added to the queue.`)
+        interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setDescription(`[ \`${tracks[0].info.title} - ${tracks[0].info.author}\` added to queue. ]`)
+              .setColor(embedColor)
+          ]
+        })
         break
       }
 
@@ -189,11 +219,24 @@ const play: Command = {
     if (Date.now() - lastUpdate > 600) {
       lastUpdate = Date.now()
 
-      const tracks: { name: string, value: string}[] = []
+      const tracks: { name: string, value: string }[] = []
       const formatter = new TimeFormatter()
 
-      const resolveAndPush = async (source: string, prefix: string): Promise<void> => {
+      const resolveAndPush = async (source: string, prefix: string) => {
         const resolve = await client.poru.resolve({ query, source })
+
+        switch (resolve.loadType) {
+          case 'empty': {
+            tracks.push({ name: `${prefix}: No results found.`, value: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' })
+            return
+          }
+
+          case 'error': {
+            tracks.push({ name: `${prefix}: Failed to fetch results.`, value: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' })
+            return
+          }
+        }
+
         const resolveTracks = resolve.tracks.slice(0, 5)
 
         for (const track of resolveTracks) {

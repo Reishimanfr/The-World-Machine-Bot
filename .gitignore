@@ -11,3 +11,4 @@ plugins
 docker-compose.yml
 package-lock.json
 icons.json
+database.sqlite

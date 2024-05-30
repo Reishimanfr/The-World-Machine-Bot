@@ -124,9 +124,13 @@ const player_config: Command = {
       )
 
     const res = await interaction.reply({
-      content: 'Select a option for the music player you want to configure.',
       components: [optionsMenu],
-      ephemeral: true
+      ephemeral: true,
+      embeds: [
+        new EmbedBuilder()
+          .setAuthor({ name: '[ Select an option to change. ]' })
+          .setColor('#8b00cc')
+      ]
     })
 
     const collector = res.createMessageComponentCollector({
@@ -152,9 +156,12 @@ const player_config: Command = {
           [optionName]: toggledOption
         }, { where: { guildId: interaction.guildId } })
 
-        await interaction.followUp({
-          content: `**${optionLabel}** toggled to **${toggledOption}**`,
-          ephemeral: true
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({ name: `[ ${optionLabel} turned ${toggledOption ? 'on' : 'off'}. ]`})
+              .setColor(embedColor)
+          ]
         })
 
         return
@@ -171,8 +178,12 @@ const player_config: Command = {
 
     collector.on('end', async () => {
       await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({ name: '[ Command timed out. ]'})
+            .setColor(embedColor)
+        ],
         components: [],
-        content: 'This interaction has expired.'
       })
     })
   }
@@ -180,7 +191,11 @@ const player_config: Command = {
 
 async function setDjRole(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({
-    content: 'Mention the role you\'d like to set as the DJ role.'
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: '[ Mention the new DJ role: ]'})
+        .setColor(embedColor)
+    ]
   })
 
   const awaitRole = await interaction.channel?.awaitMessages({
@@ -205,7 +220,13 @@ async function setDjRole(interaction: ChatInputCommandInteraction) {
       .catch(() => undefined)
 
     if (!isValidRole) {
-      await interaction.editReply('This doesn\'t seem to be a valid role ID.')
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({ name: '[ This doesn\'t looks like a valid role ID. ]'})
+            .setColor(embedColor)
+        ]
+      })
       return
     }
 
@@ -217,13 +238,21 @@ async function setDjRole(interaction: ChatInputCommandInteraction) {
   }, { where: { guildId: interaction.guildId } })
 
   await interaction.editReply({
-    content: `New DJ role set to ${roleMention(correctRole)}!`
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: `[ New DJ role set to ${roleMention(correctRole)}. ]`})
+        .setColor(embedColor)
+    ]
   })
 }
 
 async function setVoteSkipMembers(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({
-    content: 'Input a new member requirement for vote skips to occur.'
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: '[ Provide the new amount of members for vote skipping: ]'})
+        .setColor(embedColor)
+    ],
   })
 
   const awaitAmount = await interaction.channel?.awaitMessages({
@@ -238,8 +267,13 @@ async function setVoteSkipMembers(interaction: ChatInputCommandInteraction) {
   const newAmount = Number(rawAmount.content)
 
   if (Number.isNaN(newAmount)) {
+    
     await interaction.editReply({
-      content: 'The provided value is not a valid number.'
+      embeds: [
+        new EmbedBuilder()
+          .setAuthor({ name: '[ Provided value is not a valid number. ]'})
+          .setColor(embedColor)
+      ]
     })
     return
   }
@@ -249,13 +283,21 @@ async function setVoteSkipMembers(interaction: ChatInputCommandInteraction) {
   }, { where: { guildId: interaction.guildId } })
 
   await interaction.editReply({
-    content: `New member requirement set to **${newAmount} members**!`
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: `[ New amount of members set to ${newAmount}. ]`})
+        .setColor(embedColor)
+    ]
   })
 }
 
 async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
   await interaction.editReply({
-    content: 'Input a new voting threshold for vote skips to be accepted.'
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: '[ Provide the new voting threshold for vote skips: ]'})
+        .setColor(embedColor)
+    ]
   })
 
   const awaitAmount = await interaction.channel?.awaitMessages({
@@ -271,7 +313,11 @@ async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
 
   if (Number.isNaN(newAmount)) {
     await interaction.editReply({
-      content: 'The provided value is not a valid number.'
+      embeds: [
+        new EmbedBuilder()
+          .setAuthor({ name: '[ Provided value is not a valid number. ]'})
+          .setColor(embedColor)
+      ]
     })
     return
   }
@@ -281,7 +327,11 @@ async function setVoteSkipThreshold(interaction: ChatInputCommandInteraction) {
   }, { where: { guildId: interaction.guildId } })
 
   await interaction.editReply({
-    content: `New vote skip threshold set to **${newAmount}%**!`
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: `[ New vote skip threshold set to ${newAmount}. ]`})
+        .setColor(embedColor)
+    ]
   })
 }
 
@@ -306,6 +356,7 @@ Voting threshold: \`${data.voteSkipThreshold}%\`
 Disconnect on queue end: \`${isEnabled(data.queueEndDisconnect)}\`
 Resend message on new track: \`${isEnabled(data.resendMessageOnEnd)}\`
 Update now playing message: \`${isEnabled(data.dynamicNowPlaying)}\``)
+  .setColor(embedColor)
 
   await interaction.editReply({
     embeds: [configEmbed]
@@ -367,6 +418,7 @@ async function sponsorBlockConfig(interaction: ChatInputCommandInteraction) {
         iconURL: interaction.guild?.iconURL() ?? undefined
       })
       .setDescription(`### Select a option to toggle in the menu below\n${formatSettings(settings)}`)
+      .setColor(embedColor)
   }
 
   const response = await interaction.editReply({

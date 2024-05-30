@@ -1,4 +1,4 @@
-import { type ApplicationCommandOptionChoiceData, SlashCommandBuilder } from 'discord.js'
+import { type ApplicationCommandOptionChoiceData, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 import { PlaylistManager, PlaylistResponse } from '../../Classes/PlaylistManager'
 import type { ExtPlayer } from '../../Helpers/ExtendedPlayer'
@@ -35,13 +35,21 @@ const playlist_load: Command = {
 
     if (!member.voice.channel) {
       return interaction.editReply({
-        content: 'You must be in a voice channel to use this.'
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You must be in a void channel to use this. ]')
+            .setColor(embedColor)
+        ],
       })
     }
 
     if (!member.voice.channel.joinable) {
       return interaction.editReply({
-        content: 'I cannot join your voice channel.'
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ I can\'t join your voice channel. ]')
+            .setColor(embedColor)
+        ],
       })
     }
 
@@ -50,7 +58,13 @@ const playlist_load: Command = {
     const [playlistResponse, playlist, playlistError] = await playlistManager.getPlaylistFromName(selectPlaylist, interaction.user.id)
 
     if (playlistResponse === PlaylistResponse.ERROR || !playlist) {
-      interaction.editReply(`Failed to load your playlist: \`\`\`${playlistError}\`\`\``)
+      interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ Failed to load playlist. ]\nError:\`\`\`${playlistError}\`\`\``)
+            .setColor(embedColor)
+        ],
+      })
       return
     }
 
@@ -75,12 +89,20 @@ const playlist_load: Command = {
 
     if (response === PlaylistResponse.ERROR) {
       return interaction.editReply({
-        content: `Failed to load your playlist: \`\`\`${error}\`\`\``
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ Failed to load playlist. ]\nError:\`\`\`${error}\`\`\``)
+            .setColor(embedColor)
+        ],
       })
     }
 
     interaction.editReply({
-      content: `Playlist **${playlist.name}** loaded.`,
+      embeds: [
+        new EmbedBuilder()
+          .setDescription("[ Playlist loaded. ]")
+          .setColor(embedColor)
+      ],
     })
   },
 

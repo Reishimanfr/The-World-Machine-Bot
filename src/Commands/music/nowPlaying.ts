@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { Embed, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const nowPlaying: Command<true> = {
@@ -24,23 +24,26 @@ const nowPlaying: Command<true> = {
   callback: async ({ interaction, client, player }) => {
     const channel = interaction.channel
 
-    // Typeguard
-    if (!channel) return
-
-    if (!channel.isTextBased()) {
+    if (!channel?.isTextBased() || channel.isDMBased()) {
       return interaction.reply({
-        content: '`❌` - You have to use this command in a text channel.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ You have to use this in a text channel. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
-
-    if (channel.isDMBased()) return // Impossible case since all / commands are disabled in DMs
 
     const permissions = channel.permissionsFor(client.user.id)
 
     if (!permissions?.has('SendMessages')) {
       return interaction.reply({
-        content: '`❌` - I can\'t send messages in this channel.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ I can\'t send messages in this channel. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -49,7 +52,11 @@ const nowPlaying: Command<true> = {
       .catch(() => { })
 
     interaction.reply({
-      content: '`✅` - The now playing message has been re-sent.',
+      embeds: [
+        new EmbedBuilder()
+          .setDescription('[ Message re-sent. ]')
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
 

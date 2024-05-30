@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 import { logger } from '../../Helpers/Logger'
 
@@ -25,19 +25,16 @@ const queue: Command<true> = {
   callback: async ({ interaction, player }) => {
     if (!player.queue.length) {
       return interaction.reply({
-        content: '`❌` - The queue is empty.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Queue is empty. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
 
     const embeds = player.queueManager.createQueueEmbed()
-
-    if (!embeds?.length) {
-      return interaction.reply({
-        content: '`⚠` - Something went wrong.',
-        ephemeral: true
-      })
-    }
 
     if (embeds.length === 1) {
       return interaction.reply({
@@ -63,13 +60,6 @@ const queue: Command<true> = {
     )
 
     let page = 0
-
-    if (!embeds[page]) {
-      return interaction.reply({
-        content: '`⚠` - Embed page doesn\'t exist',
-        ephemeral: true
-      })
-    }
 
     const res = await interaction.reply({
       embeds: [

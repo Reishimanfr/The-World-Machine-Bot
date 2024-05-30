@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const previous: Command = {
@@ -14,19 +14,27 @@ const previous: Command = {
   callback: async ({ interaction, player }) => {
     if (!player.previousTrack) {
       return interaction.reply({
-        content: '`❌` - Previous track not available.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Previous track not available. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
 
-    await interaction.reply({
-      content: '`✅` - The previous track will now play.',
-      ephemeral: true
-    })
-
     player.queue.length = 0
     player.queue.push(player.previousTrack, ...player.queue)
     player.stop() // "skip"
+
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setDescription('[ Playing the previous track now. ]')
+          .setColor(embedColor)
+      ],
+      ephemeral: true
+    })
 
     if (!player.isPlaying) player.play()
   }

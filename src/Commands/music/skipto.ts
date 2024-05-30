@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, type TextChannel, type ApplicationCommandOptionChoiceData } from 'discord.js'
+import { SlashCommandBuilder, type TextChannel, type ApplicationCommandOptionChoiceData, EmbedBuilder } from 'discord.js'
 import type Queue from 'poru/dist/src/guild/Queue'
 import { client } from '../..'
 import { logger } from '../../Helpers/Logger'
@@ -51,7 +51,11 @@ const skipTo: Command<true> = {
 
     if (!player.queue.at(position - 1)) {
       return interaction.reply({
-        content: '`❌` - No song in the provided position.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ No song at the provided position. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -67,7 +71,11 @@ const skipTo: Command<true> = {
     if (requiredVotes > 1) {
       if (player.votingActive) {
         return interaction.reply({
-          content: '`❌` - There\'s a voting in progress already!',
+          embeds: [
+            new EmbedBuilder()
+              .setDescription('[ Waiting for members to place their votes... ]')
+              .setColor(embedColor)
+          ],
           ephemeral: true
         })
       }
@@ -92,20 +100,38 @@ const skipTo: Command<true> = {
 
       switch (status) {
         case VoteStatus.Success: {
-          interaction.editReply(`\`✅\` - Skipped to song \`${song.info.title}\`.`)
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`[ Skipped to \`${song.info.title}\`. ]`)
+                .setColor(embedColor)
+            ],
+          })
           player.queue = player.queue.slice(position - 1, player.queue.length) as Queue
           player.stop()
           break
         }
 
         case VoteStatus.Failure: {
-          interaction.editReply('`❌` - Other members didn\'t agree to skip to this song.')
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription('[ Song won\'t be skipped because not enough users voted "yes". ]')
+                .setColor(embedColor)
+            ],
+          })
           break
         }
 
         case VoteStatus.Error: {
           logger.error(`Failed to finish skipto voting: ${error?.stack}`)
-          interaction.editReply(`\`⚠\` - Voting failed with a error: \`\`\`${error?.message}\`\`\``)
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`[ Vote skipping failed with an error. ]\nError message: \`\`\`${error?.stack}\`\`\``)
+                .setColor(embedColor)
+            ],
+          })
           break
         }
       }
@@ -113,7 +139,11 @@ const skipTo: Command<true> = {
       player.stop()
 
       interaction.reply({
-        content: `\`✅\` - Skipped to track \`${song.info.title}\`.`,
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ Skipped to track \`${song.info.title}\`. ]`)
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }

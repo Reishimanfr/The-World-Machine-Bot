@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 function convertToSeconds(timestamp: string): number {
@@ -61,14 +61,22 @@ const seek: Command<true> = {
     // You never know
     if (!player.currentTrack.info.isSeekable) {
       return interaction.reply({
-        content: '`❌` - This track isn\'t seekable.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ This track isn\'t seekable. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
 
     if (player.currentTrack.info.isStream) {
       return interaction.reply({
-        content: '`❌` - Seeking live streams isn\'t supported yet.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Seeking live streams isn\'t supported yet. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -82,7 +90,11 @@ const seek: Command<true> = {
 
       if (Number.isNaN(seconds)) {
         return interaction.reply({
-          content: '`❌` - Invalid time format. Must be `-<seconds>` or `+<seconds>`',
+          embeds: [
+            new EmbedBuilder()
+              .setDescription('[ Invalid time format. Expected `-<seconds>` or `+<seconds>`. ]')
+              .setColor(embedColor)
+          ],
           ephemeral: true
         })
       }
@@ -92,7 +104,11 @@ const seek: Command<true> = {
       player.seekTo(newPosition * 1000)
 
       return interaction.reply({
-        content: `\`✅\` - Seeked by \`${seconds}s\` ${direction === 1 ? 'forward' : 'backwards'}.`,
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ Seeked by \`${seconds}s\` ${direction === 1 ? 'forward' : 'backwards'}. ]`)
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -101,13 +117,21 @@ const seek: Command<true> = {
       player.seekTo(timestampToSeconds * 1000)
 
       return interaction.reply({
-        content: `\`✅\`- Seeked to \`${timestamp}\`.`,
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ Seeked to \`${timestamp}\`. ]`)
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
 
     return interaction.reply({
-      content: '`❌` - Invalid timestamp provided. Must be in format `HH:MM:SS`, `MM:SS`, `-<seconds>` or `+<seconds>`.',
+      embeds: [
+        new EmbedBuilder()
+          .setDescription('[ Invalid timestamp provided. Expected one of `HH:MM:SS`, `MM:SS`, `-<seconds>` or `+<seconds>` ]')
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
   }

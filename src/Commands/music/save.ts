@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { SaveStatus } from '../../Helpers/ExtendedPlayer'
 import type { Command } from '../../Types/Command'
 
@@ -29,13 +29,17 @@ const save: Command<true> = {
     const status = await player.controller.saveTrack(member, interaction.guild)
 
     const replies = {
-      [SaveStatus.NotPlaying]: '`❌` - Nothing is playing right now.',
-      [SaveStatus.DmChannelFailure]: '`❌` - I can\'t send you a DM.',
-      [SaveStatus.Success]: '`✅` - Song saved to DMs!'
+      [SaveStatus.NotPlaying]: 'Nothing is playing right now',
+      [SaveStatus.DmChannelFailure]: ' I can\'t DM you',
+      [SaveStatus.Success]: 'Song saved to DMs'
     }
 
     interaction.editReply({
-      content: replies[status]
+      embeds: [
+        new EmbedBuilder()
+          .setDescription(`[ ${replies[status]}. ]`)
+          .setColor(embedColor)
+      ]
     })
   }
 }

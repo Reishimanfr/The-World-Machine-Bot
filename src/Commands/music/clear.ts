@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const clear: Command<true> = {
@@ -25,7 +25,11 @@ const clear: Command<true> = {
   callback: async ({ interaction, player }) => {
     if (player.queue.length <= 0) {
       return interaction.reply({
-        content: '`❌` - Nothing to clear.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Queue is empty. Nothing to clear. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -33,7 +37,11 @@ const clear: Command<true> = {
     player.queue.length = 0
 
     await interaction.reply({
-      content: '`✅` - Queue cleared.',
+      embeds: [
+        new EmbedBuilder()
+          .setDescription('[ Queue cleared. ]')
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
   }

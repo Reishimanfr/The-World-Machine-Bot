@@ -1,4 +1,4 @@
-import { ChannelType, SlashCommandBuilder } from 'discord.js'
+import { ChannelType, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const move: Command = {
@@ -29,7 +29,11 @@ const move: Command = {
 
     if (curChannel === newChannel.id) {
       return interaction.reply({
-        content: '`❌` - Can\'t move to the same channel I\'m currently in!.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Can\'t move to the same channel I\'m in. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -40,7 +44,11 @@ const move: Command = {
 
     if (!fetchChannel.joinable) {
       return interaction.reply({
-        content: '`❌` - I can\'t join that voice channel!',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ I can\'t join that voice channel. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -48,7 +56,11 @@ const move: Command = {
     player.setVoiceChannel(fetchChannel.id)
 
     interaction.reply({
-      content: `\`✅\` - Moved to channel <#${fetchChannel.id}>!\n:information_source: Notice: music playback has been paused. Resume it using the \`/resume\` command when you're ready!`,
+      embeds: [
+        new EmbedBuilder()
+          .setDescription(`[ Moved to "${fetchChannel.name}". Playback will resume when someone joins the voice channel. ]`)
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
   }

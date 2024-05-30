@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const loop: Command<true> = {
@@ -34,16 +34,20 @@ const loop: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     const loopString = {
-      NONE: '`🟦` - Looping disabled',
-      TRACK: '`🟩` - Looping this track',
-      QUEUE: '`🟥` - Looping the queue'
+      NONE: 'Looping disabled',
+      TRACK: 'Looping this track',
+      QUEUE: 'Looping the queue'
     }
 
     player.controller.toggleLoop()
     player.messageManger.updatePlayerMessage()
 
     await interaction.reply({
-      content: loopString[player.loop],
+      embeds: [
+        new EmbedBuilder()
+          .setDescription(`[ ${loopString[player.loop]}. ]`)
+          .setColor(embedColor)
+      ],
       ephemeral: true
     })
   }

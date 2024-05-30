@@ -12,7 +12,7 @@ const togglePlayback: Button = {
     player.messageManger.updatePlayerMessage()
 
     interaction.reply({
-      content: player.isPaused ? 'Paused' : 'Resumed',
+      content: !player.isPaused ? 'Paused' : 'Resumed',
       ephemeral: true
     })
   }

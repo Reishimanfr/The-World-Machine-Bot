@@ -5,43 +5,54 @@ import { logger } from '../../Helpers/Logger'
 import type { Event } from '../../Types/Event'
 import { SponsorBlockDb } from '../../Models'
 
+// This is used for the differences between sqlite and postgres where sqlite's
+// booleans are '1' and '0' strings that can't be converted directly into booleans
+// using Boolean('0') as it'll always return true
+
+// biome-ignore lint/suspicious/noExplicitAny: we want any type to match here
+function normalizeBooleans(val: any): boolean {
+  if (process.env.DATABASE_DIALECT === 'sqlite') {
+    return Boolean(Number(val))
+  }
+
+  return val === 'true'
+}
+
 const TrackStart: Event = {
   name: 'trackStart',
   once: false,
   execute: async (player: ExtPlayer) => {
-    if (player.timeout) player.controller.cancelPlayerTimeout()
+    player.controller.cancelPlayerTimeout()
 
     if (player.currentTrack.info.sourceName === 'youtube') {
       const [record] = await SponsorBlockDb.findOrCreate({
         where: { guildId: player.guildId }
       })
 
-      const sponsorBlockConfig = record.dataValues
-      const segments: Array<string> = []
+      const enabledRules = Object.entries(record.dataValues)
+        .filter(([key, value]) => !['id', 'guildId', 'createdAt', 'updatedAt'].includes(key) && normalizeBooleans(value))
+        .map(([key]) => key)
 
-      for (const [key, value] of Object.entries(sponsorBlockConfig)) {
-        const bool = (value === '0' || value === '1') ? Boolean(Number.parseInt(value)) : Boolean(value)
-        if (bool && !['id', 'guildId', 'createdAt', 'updatedAt'].includes(key)) segments.push(key)
+      if (enabledRules.length) {
+        player.sponsorSegments = await new SponsorBlock('')
+          .getSegments(player.currentTrack.info.identifier, enabledRules as Category[])
+          .catch(error => {
+            logger.error(`Failed to fetch sponsorblock segments: ${error.stack}`)
+            return []
+          })
       }
-
-      player.sponsorSegments = segments.length ? await new SponsorBlock('twm')
-        .getSegments(player.currentTrack.info.identifier, segments as Category[])
-        .catch(() => {
-          return [] as Segment[]
-        })
-        : []
     }
 
     const guild = await client.guilds.fetch(player.guildId)
     const channel = await guild.channels?.fetch(player.textChannel)
 
-    if (!channel?.isTextBased() || !client.user || !channel.permissionsFor(client.user.id)?.has('SendMessages')) return
+    if (!channel?.isTextBased() || !channel.permissionsFor(client.user.id)?.has('SendMessages')) return
 
     const buttons = player.messageManger.createPlayerButtons(false, { save: false })
-    const embed = await player.messageManger.createPlayerEmbed()
+    const embeds = await player.messageManger.createPlayerEmbed()
 
     const options = {
-      embeds: [...embed],
+      embeds: [...embeds],
       components: [buttons]
     }
 
@@ -62,11 +73,11 @@ const TrackStart: Event = {
         !firstMessage.embeds.length ||
         !firstMessage.embeds.at(0)?.footer?.text.startsWith('Requested by')
       ) {
-        const message = await player.message.fetch().catch(() => null)
+        const message = await player.message.fetch()
+          .catch(() => {})
 
-        if (message?.deletable) {
-          await message.delete()
-        }
+        message?.delete()
+          .catch(() => {})
 
         player.message = await channel.send(options)
         return
@@ -74,12 +85,11 @@ const TrackStart: Event = {
     }
 
     if (player.message) {
-      const message = await player.message.fetch().catch(() => null)
+      const message = await player.message.fetch()
+        .catch(() => {})
 
       if (message) await message.edit(options)
     }
-
-    player.pauseEditing = false
   }
 }
 

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import CreateVote, { VoteStatus } from '../../Helpers/CreateVote'
 import type { Command } from '../../Types/Command'
 import { logger } from '../../Helpers/Logger'
@@ -27,7 +27,11 @@ const skip: Command<true> = {
   callback: async ({ interaction, player, client }) => {
     if (!interaction.channel?.isTextBased()) {
       return interaction.reply({
-        content: '`❌` - This command must be ran in a text channel so the bot can send a voting message.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ This command must be used in a text based channel. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -36,7 +40,11 @@ const skip: Command<true> = {
 
     if (!permissions?.has('SendMessages')) {
       return interaction.reply({
-        content: '`❌` - I can\'t send messages in this channel.',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ I can\'t send messages in this channel. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -47,7 +55,11 @@ const skip: Command<true> = {
 
     if (player.votingActive) {
       return interaction.reply({
-        content: '`❌` - There\'s a vote skip in progress already!',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Please wait before the current vote ends. ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
     }
@@ -57,7 +69,11 @@ const skip: Command<true> = {
 
     if (requiredVotes > 1) {
       await interaction.reply({
-        content: '`⌛` - Waiting for members to place their votes...',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription('[ Waiting for members to place their votes... ]')
+            .setColor(embedColor)
+        ],
         ephemeral: true
       })
 
@@ -76,26 +92,48 @@ const skip: Command<true> = {
 
       switch (status) {
         case VoteStatus.Success: {
-          interaction.editReply(`\`✅\` - Song **${player.currentTrack.info.title}** skipped.`)
+
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`[ Song \`${player.currentTrack.info.title}\` skipped. ]`)
+                .setColor(embedColor)
+            ],
+          })
           player.stop()
           break
         }
 
         case VoteStatus.Failure: {
-          interaction.editReply('`❌` - Other members didn\'t agree to skip the current song.')
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription('[ Song won\'t be skipped because not enough users voted "yes". ]')
+                .setColor(embedColor)
+            ],
+          })
           break
         }
 
         case VoteStatus.Error: {
           logger.error(`Failed to finish skip voting: ${error?.stack}`)
-          interaction.editReply(`\`⚠\` - Voting failed with an error (report this!): \`\`\`${error?.stack}\`\`\``)
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`[ Vote skipping failed with an error. ]\nError message: \`\`\`${error?.stack}\`\`\``)
+                .setColor(embedColor)
+            ],
+          })
           break
         }
       }
     } else {
-      interaction.reply({
-        content: `\`✅\` - Song **${player.currentTrack.info.title}** skipped.`,
-        ephemeral: true
+      interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(`[ Song \`${player.currentTrack.info.title}\` skipped. ]`)
+            .setColor(embedColor)
+        ],
       })
       player.stop()
     }

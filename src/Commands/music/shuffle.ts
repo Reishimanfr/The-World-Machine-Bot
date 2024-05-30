@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const shuffle: Command<true> = {
@@ -24,7 +24,14 @@ const shuffle: Command<true> = {
 
   callback: async ({ interaction, player }) => {
     player.queue.shuffle()
-    await interaction.reply({ content: '`✅` - Queue shuffled!', ephemeral: true })
+    interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setDescription('[ Queue shuffled. ]')
+          .setColor(embedColor)
+      ],
+      ephemeral: true
+    })
   }
 }
 

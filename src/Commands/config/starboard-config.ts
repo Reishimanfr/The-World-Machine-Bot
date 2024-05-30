@@ -80,7 +80,11 @@ const starboard_config: Command<false> = {
 
         if (data.boardId === newChannel.id) {
           return interaction.reply({
-            content: '`❌` - Starboard is already set to this channel.',
+            embeds: [
+              new EmbedBuilder()
+                .setAuthor({ name: '[ Starboard already set to this channel. ]' })
+                .setColor(embedColor)
+            ],
             ephemeral: true
           })
         }
@@ -89,7 +93,11 @@ const starboard_config: Command<false> = {
 
         if (!permissions?.has('SendMessages')) {
           return interaction.reply({
-            content: '`❌` - I can\'t send messages in this channel.',
+            embeds: [
+              new EmbedBuilder()
+                .setAuthor({ name: '[ I can\'t send messages in that channel. ]' })
+                .setColor(embedColor)
+            ],
             ephemeral: true
           })
         }
@@ -97,7 +105,11 @@ const starboard_config: Command<false> = {
         data.boardId = newChannel.id
 
         await interaction.reply({
-          content: '`✅` New starboard channel set.',
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({ name: '[ New starboard channel set. ]' })
+              .setColor(embedColor)
+          ],
           ephemeral: true
         })
 
@@ -109,7 +121,11 @@ const starboard_config: Command<false> = {
 
         if (data.amount === newReactionsAmount) {
           return interaction.reply({
-            content: '`❌` - Required reactions amount is already set to this value.',
+            embeds: [
+              new EmbedBuilder()
+                .setAuthor({ name: '[ Required amount of reactions is already set to this value. ]' })
+                .setColor(embedColor)
+            ],
             ephemeral: true
           })
         }
@@ -117,7 +133,11 @@ const starboard_config: Command<false> = {
         data.amount = newReactionsAmount
 
         await interaction.reply({
-          content: '`✅` New reactions amount set.',
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({ name: '[ New reactions amount set. ]' })
+              .setColor(embedColor)
+          ],
           ephemeral: true
         })
 
@@ -132,13 +152,17 @@ const starboard_config: Command<false> = {
           newEmojisInput
             .split(', ')
             .map(emoji => emoji.trim())
-            .filter(emoji => emoji.match(/^(:\w+:|<(a|):\w+:\d+>|\p{Emoji}+)$/gu)))
+            .filter(emoji => emoji.match(/<a?:.+?:\d{18}>|\p{Extended_Pictographic}/gu)))
         ]
 
         data.emojis = newEmojis.join(' ')
 
         await interaction.reply({
-          content: '`✅` New emojis set.',
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({ name: '[ New emojis set. ]' })
+              .setColor(embedColor)
+          ],
           ephemeral: true
         })
 
@@ -156,7 +180,11 @@ const starboard_config: Command<false> = {
         for (const channel of newIgnoredChannels) {
           if (!channels.find(c => c?.id === channel)) {
             return interaction.reply({
-              content: `\`❌\` - Channel ID \`${channel}\` doesn't seem to be valid. Please run the command again and provide the correct channel IDs.`,
+              embeds: [
+                new EmbedBuilder()
+                  .setAuthor({ name: `[ "${channel}" doesn't seem to be valid. ]`})
+                  .setColor(embedColor)
+              ],
               ephemeral: true
             })
           }
@@ -165,7 +193,11 @@ const starboard_config: Command<false> = {
         data.bannedChannels = newIgnoredChannels.join(' ')
 
         await interaction.reply({
-          content: '`✅` New ignored channels set.',
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({ name: '[ Ignored channels set. ]'})
+              .setColor(embedColor)
+          ],
           ephemeral: true
         })
 
@@ -198,8 +230,8 @@ function createConfigEmbed(interaction: ChatInputCommandInteraction<'cached'>, d
     .setFields(
       { name: '🧵 Channel⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', value: data.boardId ? channelLink(data.boardId) : '`Not set`', inline: true },
       { name: '🔢 Reactions amount⠀⠀', value: `\`${data.amount} reaction${data.amount > 1 ? 's' : ''}\``, inline: true },
-      { name: '🤗 Emojis⠀⠀⠀⠀⠀⠀', value: data.emojis.replace(/ /g, ', '), inline: true },
+      { name: '🤗 Emojis⠀⠀⠀⠀⠀⠀', value: data.emojis.replace(/ /g, ', ') ?? '`Not set`', inline: true },
       { name: '❌ Ignored channels', value: bannedChannels.length ? bannedChannels.map(c => channelMention(c)).join(', ') : '`Not set`' } // Formatting sucks
     )
-    .setColor(data.boardId ? 'Green' : 'Red')
+    .setColor(data.boardId ? embedColor : 'Red')
 }

@@ -4,7 +4,7 @@ import { logger } from './Logger'
 import type { Segment } from 'sponsorblock-api'
 import axios from 'axios'
 import constructProgressBar from '../Funcs/ProgressBarConstructor'
-import { playerGifUrl, inactiveGifUrl, embedColor } from './Util'
+import { playerGifUrl, inactiveGifUrl } from './Util'
 import type { PlayerSettingsI } from '../Models'
 import { TimeFormatter } from '../Classes/TimeFormatter'
 
@@ -31,7 +31,6 @@ export interface PlayerIconsI {
 
 export class ExtPlayer extends Player {
   private $message: Message | undefined
-  private $pauseEditing: boolean
   private $timeout: NodeJS.Timeout | null
   private $settings: PlayerSettingsI
   private $voteSkipActive = false
@@ -74,14 +73,6 @@ export class ExtPlayer extends Player {
 
   set message(message: Message | undefined) {
     this.$message = message
-  }
-
-  get pauseEditing() {
-    return this.$pauseEditing
-  }
-
-  set pauseEditing(bool: boolean) {
-    this.$pauseEditing = bool
   }
 
   get timeout(): NodeJS.Timeout | null {

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { Command } from '../../Types/Command'
 
 const disconnect: Command<true> = {
@@ -23,8 +23,15 @@ const disconnect: Command<true> = {
   },
 
   callback: async ({ interaction, player }) => {
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+        .setDescription('[ Disconnecting from voice channel... ]')
+        .setColor(embedColor)
+      ],
+    })
+
     player.disconnect()
-    await interaction.reply('`✅` - The bot has been disconnected from voice channel.')
   }
 }
 
