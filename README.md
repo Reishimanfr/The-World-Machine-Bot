@@ -95,6 +95,7 @@ services:
       - DATABASE_NAME=twm
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=twmIsAwesome
+      - DOCKER=true
     volumes:
       - ./:/usr/src/app
     restart: on-failure
