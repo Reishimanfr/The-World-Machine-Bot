@@ -5,7 +5,6 @@ import pjson from '../../../package.json'
 import axios from 'axios'
 import semver from 'semver'
 import type { Bot } from '../../Classes/Bot'
-require('dotenv').config()
 
 async function checkIfNewVersionAvailable() {
   const REPOSITORY_URL = 'https://api.github.com/repos/Reishimanfr/The-World-Machine-Bot/tags'

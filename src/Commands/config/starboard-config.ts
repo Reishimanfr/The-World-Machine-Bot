@@ -152,7 +152,7 @@ const starboard_config: Command<false> = {
           newEmojisInput
             .split(', ')
             .map(emoji => emoji.trim())
-            .filter(emoji => emoji.match(/<a?:.+?:\d{18}>|\p{Extended_Pictographic}/gu)))
+            .filter(emoji => emoji.match(/(<a?)?:\w+:(\d{18}>)?|\p{Extended_Pictographic}/gu)))
         ]
 
         data.emojis = newEmojis.join(' ')

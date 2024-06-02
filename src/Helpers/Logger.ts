@@ -1,8 +1,7 @@
 import chalk from "chalk"
 import moment from 'moment'
-require('dotenv').config()
 
-const logLevel = process.env.LOG_LEVEL
+const logLevel = process.env.LOG_LEVEL ?? 'info'
 
 //                     0        1       2       3        4        5
 const levelNames = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']

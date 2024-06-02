@@ -1,7 +1,10 @@
 import { Sequelize } from 'sequelize'
 import { logger } from '../Helpers/Logger'
 import path from 'node:path'
-require('dotenv').config()
+
+if (!process.env.DOCKER) {
+  require('dotenv').config()
+}
 
 const sequelize = new Sequelize({
   dialect: process.env.DATABASE_DIALECT,

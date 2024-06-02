@@ -7,7 +7,6 @@ import type { Event } from '../Types/Event'
 import type { Command } from '../Types/Command'
 import { setTimeout } from 'node:timers/promises'
 import type { Button } from '../Types/Button'
-require('dotenv').config()
 
 const COMMANDS_PATH = join(__dirname, '../Commands')
 const CLIENT_EVENTS_PATH = join(__dirname, '../Events/Bot')

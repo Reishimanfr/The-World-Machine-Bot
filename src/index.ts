@@ -5,7 +5,10 @@ import cron from 'node-cron'
 import { clipString } from './Funcs/ClipString'
 import { logger } from './Helpers/Logger'
 import process from "node:process"
-require('dotenv').config()
+
+if (!process.env.DOCKER) {
+  require('dotenv').config()
+}
 
 export const client = new Bot({
   failIfNotExists: true,
